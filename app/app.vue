@@ -1,6 +1,9 @@
 <template>
   <div>
-    <NuxtRouteAnnouncer />
-    <NuxtWelcome />
+    <Topo/>
   </div>
 </template>
+
+<script setup>
+/* import Topo from "../app/components/Topo.vue"*/
+</script>
