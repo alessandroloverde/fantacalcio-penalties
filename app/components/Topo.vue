@@ -25,7 +25,7 @@ const castoro = ref('')
 try {
   const app = getApp() || $firebaseApp
 
-  castoro.value = app._options.apiKey
+  castoro.value = app._isDeleted
   console.log('Firebase App initialized:', app)
 } catch (err) {
   console.error('Firebase not initialized:', err)
