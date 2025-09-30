@@ -8,10 +8,10 @@
 
 <style scoped>
    h1 {
-      color: antiquewhite;
+      color: #faebd7;
    }
    section {
-      background-color: brown;
+      background-color: rgb(95, 118, 163);
    }
 </style>
 

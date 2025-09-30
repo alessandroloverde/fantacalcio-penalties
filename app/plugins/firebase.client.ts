@@ -1,24 +1,30 @@
 import { defineNuxtPlugin } from '#app'
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { initializeApp, getApps } from "firebase/app"
 
-// Your web app's Firebase configuration
 export default defineNuxtPlugin(() => {
-   const firebaseConfig = {
-   apiKey: "AIzaSyAi6xTXieeklm2ehtWU7MxEqtL4FP5pzno",
-   authDomain: "fantacalcio-rigori.firebaseapp.com",
-   projectId: "fantacalcio-rigori",
-   storageBucket: "fantacalcio-rigori.firebasestorage.app",
-   messagingSenderId: "973078329874",
-   appId: "1:973078329874:web:d4b317809d74c44b6b76cb"
-   }
+  // Only initialize Firebase on client side
+  if (process.client) {
+    const config = {
+      apiKey: process.env.NUXT_PUBLIC_FIREBASE_API_KEY,
+      authDomain: process.env.NUXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+      projectId: process.env.NUXT_PUBLIC_FIREBASE_PROJECT_ID,
+      storageBucket: process.env.NUXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+      messagingSenderId: process.env.NUXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+      appId: process.env.NUXT_PUBLIC_FIREBASE_APP_ID
+    }
 
-   const app = initializeApp(firebaseConfig)
+    // Check if Firebase is already initialized
+    let app
+    if (getApps().length === 0) {
+      app = initializeApp(config)
+    } else {
+      app = getApps()[0]
+    }
 
-   return {
+    return {
       provide: {
-         firebaseApp: app
+        firebaseApp: app
       }
-   }
+    }
+  }
 })
