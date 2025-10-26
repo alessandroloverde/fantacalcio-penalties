@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Migrate Participant IDs to Auth UIDs</title>
+  <style>
+    body { font-family: system-ui; max-width: 900px; margin: 50px auto; padding: 20px; background: #1a1a1a; color: #fff; }
+    button { background: #4285f4; color: white; border: none; padding: 12px 24px; border-radius: 4px; cursor: pointer; margin: 10px 0; }
+    button:hover { background: #357ae8; }
+    button:disabled { background: #666; }
+    textarea { background: #2d2d2d; color: #fff; border: 1px solid #666; padding: 15px; font-family: monospace; font-size: 14px; width: 100%; }
+    #output { background: #2d2d2d; padding: 20px; border-radius: 4px; font-family: monospace; font-size: 14px; max-height: 500px; overflow-y: auto; margin-top: 20px; }
+    .success { color: #34a853; }
+    .error { color: #ea4335; }
+    .info { color: #fbbc04; }
+    .warning { background: #fbbc04; color: #000; padding: 15px; border-radius: 8px; margin: 20px 0; }
+    label { display: block; margin: 10px 0 5px 0; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>🔄 Migrate Participant IDs to Auth UIDs</h1>
+  
+  <div class="warning">
+    <h3>⚠️ Instructions:</h3>
+    <ol>
+      <li>Create Auth users manually in Firebase Console (Authentication)</li>
+      <li>Copy each user's UID (click "Copy UID" option)</li>
+      <li>Go to Firestore and find the corresponding participant document</li>
+      <li>Enter the mapping below: one line per user in format: <code>oldParticipantId → authUID</code></li>
+      <li>Review the preview, then execute</li>
+    </ol>
+  </div>
+
+  <div style="background: #2d2d2d; padding: 15px; border-radius: 8px; margin: 20px 0;">
+    <strong>Environment Selection:</strong><br>
+    • <a href="?env=production" style="color: #4285f4;">Production Mode</a><br>
+    • <a href="?env=emulator" style="color: #4285f4;">Emulator Mode</a>
+  </div>
+
+  <div style="margin-top: 20px;">
+    <label>ID Mapping (format: oldId → newAuthUID):</label>
+    <textarea id="mapping" rows="10" placeholder="Example:
+participant-123 → xYz9AbCdEfGhIjKlMnOp
+participant-456 → aBc1DeF2GhI3JkL4MnO5
+old-leao-id → firebase-auth-uid-for-leao"></textarea>
+  </div>
+
+  <div style="margin-top: 20px;">
+    <label>
+      <input type="checkbox" id="deleteOld">
+      Delete old participant documents after migration
+    </label>
+  </div>
+
+  <button id="previewBtn">1. Preview Migration</button>
+  <button id="executeBtn" disabled style="background: #ea4335;">2. Execute Migration</button>
+
+  <pre id="output"></pre>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getFirestore, doc, getDoc, setDoc, deleteDoc, connectFirestoreEmulator } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+  
+    // Get environment from URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const environment = urlParams.get('env') || 'production'; // Default to production!
+  
+    const firebaseConfig = {
+      apiKey: 'AIzaSyAi6xTXieeklm2ehtWU7MxEqtL4FP5pzno',
+      authDomain: 'fantacalcio-rigori.firebaseapp.com',
+      projectId: 'fantacalcio-rigori',
+      storageBucket: 'fantacalcio-rigori.appspot.com',
+      messagingSenderId: '1029812597058',
+    };
+  
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+  
+    // Connect to emulator ONLY if explicitly requested
+    if (environment === 'emulator') {
+      connectFirestoreEmulator(db, '127.0.0.1', 8080);
+    }
+  
+    const output = document.getElementById('output');
+    const executeBtn = document.getElementById('executeBtn');
+    
+    let parsedMappings = [];
+  
+    // Show current environment
+    const envBanner = document.createElement('div');
+    envBanner.style.cssText = 'background: ' + (environment === 'emulator' ? '#fbbc04' : '#34a853') + '; color: #000; padding: 15px; border-radius: 8px; margin: 20px 0; font-weight: bold; text-align: center;';
+    envBanner.innerHTML = '📍 Connected to: ' + (environment === 'emulator' ? 'EMULATOR' : 'PRODUCTION');
+    document.querySelector('h1').after(envBanner);
+  
+    const log = (msg, type = 'info') => {
+      const line = document.createElement('div');
+      line.className = type;
+      line.textContent = msg;
+      output.appendChild(line);
+      output.scrollTop = output.scrollHeight;
+    };
+  
+    function parseMappings(text) {
+      const lines = text.split('\n').filter(l => l.trim());
+      const mappings = [];
+  
+      for (const line of lines) {
+        const parts = line.split(/→|->/).map(p => p.trim());
+        
+        if (parts.length === 2 && parts[0] && parts[1]) {
+          mappings.push({
+            oldId: parts[0],
+            newId: parts[1]
+          });
+        }
+      }
+  
+      return mappings;
+    }
+  
+    // Preview
+    document.getElementById('previewBtn').addEventListener('click', async () => {
+      output.innerHTML = '';
+      executeBtn.disabled = true;
+  
+      const mappingText = document.getElementById('mapping').value;
+      parsedMappings = parseMappings(mappingText);
+  
+      if (parsedMappings.length === 0) {
+        log('❌ No valid mappings found. Use format: oldId → newAuthUID', 'error');
+        return;
+      }
+  
+      log(`🔍 Preview: ${parsedMappings.length} migrations\n`, 'info');
+  
+      for (const mapping of parsedMappings) {
+        try {
+          const oldDocSnap = await getDoc(doc(db, 'participants', mapping.oldId));
+          
+          if (!oldDocSnap.exists()) {
+            log(`❌ ${mapping.oldId} → ${mapping.newId}`, 'error');
+            log(`   Old document does NOT exist\n`, 'error');
+            continue;
+          }
+  
+          const newDocSnap = await getDoc(doc(db, 'participants', mapping.newId));
+          
+          if (newDocSnap.exists()) {
+            log(`⚠️ ${mapping.oldId} → ${mapping.newId}`, 'error');
+            log(`   New document ALREADY exists (will be overwritten)\n`, 'error');
+          } else {
+            log(`✅ ${mapping.oldId} → ${mapping.newId}`, 'success');
+            const data = oldDocSnap.data();
+            log(`   Name: ${data.name || 'N/A'}`, 'info');
+            log(`   Data: ${Object.keys(data).length} fields\n`, 'info');
+          }
+  
+        } catch (error) {
+          log(`❌ Error checking ${mapping.oldId}: ${error.message}\n`, 'error');
+        }
+      }
+  
+      log('\n✅ Preview complete. Review the output above.', 'success');
+      executeBtn.disabled = false;
+    });
+  
+    // Execute
+    document.getElementById('executeBtn').addEventListener('click', async () => {
+      if (!confirm(`Are you sure you want to migrate ${parsedMappings.length} participants?\n\nThis will create new documents and ${document.getElementById('deleteOld').checked ? 'DELETE' : 'keep'} old ones.`)) {
+        return;
+      }
+  
+      output.innerHTML = '';
+      executeBtn.disabled = true;
+  
+      const deleteOld = document.getElementById('deleteOld').checked;
+      let successCount = 0;
+      let errorCount = 0;
+  
+      log('🚀 Starting migration...\n', 'info');
+  
+      for (const mapping of parsedMappings) {
+        try {
+          log(`📝 Migrating: ${mapping.oldId}`, 'info');
+  
+          const oldDocSnap = await getDoc(doc(db, 'participants', mapping.oldId));
+          
+          if (!oldDocSnap.exists()) {
+            log(`   ❌ Old document not found\n`, 'error');
+            errorCount++;
+            continue;
+          }
+  
+          const data = oldDocSnap.data();
+  
+          await setDoc(doc(db, 'participants', mapping.newId), data);
+          log(`   ✅ Created: participants/${mapping.newId}`, 'success');
+  
+          if (deleteOld) {
+            await deleteDoc(doc(db, 'participants', mapping.oldId));
+            log(`   🗑️ Deleted: participants/${mapping.oldId}`, 'info');
+          }
+  
+          log('', 'info');
+          successCount++;
+  
+        } catch (error) {
+          log(`   ❌ Error: ${error.message}\n`, 'error');
+          errorCount++;
+        }
+      }
+  
+      log(`\n🎉 Migration complete!`, 'success');
+      log(`   ✅ Successful: ${successCount}`, 'success');
+      if (errorCount > 0) {
+        log(`   ❌ Errors: ${errorCount}`, 'error');
+      }
+      if (!deleteOld) {
+        log(`   ⚠️ Old documents still exist`, 'info');
+      }
+  
+      executeBtn.disabled = false;
+    });
+  
+    log('✅ Ready! Enter your ID mappings and click "Preview Migration"', 'info');
+    log(`🔍 Debug: Environment = ${environment}`, 'info');
+    log(`🔍 Debug: URL = ${window.location.href}`, 'info');
+    
+    // Test connection by trying to read a document
+    (async () => {
+      try {
+        const testDoc = await getDoc(doc(db, 'participants', 'test'));
+        log(`🔍 Debug: Connection test successful (${environment})`, 'success');
+      } catch (error) {
+        log(`🔍 Debug: Connection error: ${error.message}`, 'error');
+      }
+    })();
+  </script>
+</body>
+</html>
