@@ -8,7 +8,7 @@
       <ol>
          <h3>Elenco delle squadre con giocatori</h3>
          <li v-for="item, index in teamsWithPlayers" :key="index">
-            {{ item.teamData.name }}
+            <nuxtLink :to="`/teams/${item.teamId}`">{{ item.teamData.name }}</nuxtLink>
             <ul>
                <li v-for="player in item.players" :key="player.id">{{ player.name }}</li>
             </ul>
