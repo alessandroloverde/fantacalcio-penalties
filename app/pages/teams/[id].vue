@@ -3,7 +3,13 @@
       <nuxtLink to="/">Back to Home</nuxtLink>
       <h1>{{ teamData?.name }}</h1>
       <div v-if="loading">Loading...</div>
-
+      <ol id="players-list">
+         <li v-for="player in players" :key="player.name">
+            <span>Nome: </span>{{ player.name }}<br>
+            <span>Ruolo: </span>{{ player.role }}<br>
+            <span>Squadra: </span>{{ player.squadra }}
+         </li>
+      </ol>
    </div>
 </template>
 
@@ -17,7 +23,7 @@
    const teamId = route.params.id as string
 
    const teamData = ref<any>(null)
-   const players = ref<string[]>([])
+   const players = ref<{name: string, role: string, squadra: string, team: any}[]>([])
    const loading = ref<boolean>(true)
 
    onMounted(async () => {
@@ -29,6 +35,18 @@
 
          if(teamSnap.exists()) {
             teamData.value = teamSnap.data()
+
+            const playersReference = teamData.value.players
+
+            for (const playerKey in playersReference) {
+               const singlePlayerReference = playersReference[playerKey]
+               const singlePlayerDoc = await getDoc(singlePlayerReference)
+               const singlePlayerData = singlePlayerDoc.data() as {name: string, role: string, squadra: string, team: any}
+
+               players.value.push(singlePlayerData)
+            }
+
+            
          }
       }
    })
@@ -45,5 +63,12 @@
    }
    a:visited {
       color: yellowgreen;
+   }
+   #players-list {
+      color: rgb(248, 212, 212);
+
+      li {
+         margin-bottom: 1rem;
+      }
    }
 </style>
