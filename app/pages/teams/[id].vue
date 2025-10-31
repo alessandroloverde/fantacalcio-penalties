@@ -39,21 +39,29 @@
 
 
    function toPascalCase(string: string): string {
-      string.split(' ').map(word => word.charAt(0).toUpperCase + word.slice(1).toLowerCase()).join('')
       return string
+               .split(' ')
+               .map(
+                  word => {
+                     const cleaned = word.replace(/[^a-zA-Z]/g, '')
+                     return cleaned.charAt(0).toUpperCase() + cleaned.slice(1).toLowerCase()
+               })
+               .filter(word => word) // Remove empty strings
+               .join('')
    }
 
    async function handleFileUpload(event: Event) {
-      const target =event.target as HTMLInputElement
+      const target = event.target as HTMLInputElement
       const file = target.files?.[0]
 
       if(!file) return
 
       Papa.parse(file, {
          complete: async (results) => {
+         players.value = [] // clear existing players
+
          // Skip rows 0-2, process rows 3-27 (A3:C27)
-         const rows = results.data.slice(2, 26) as string[][]
-         
+         const rows = results.data.slice(2, 26) as string[][]   
          const db = getFirestore($firebaseApp)
          
          for (const row of rows) {
