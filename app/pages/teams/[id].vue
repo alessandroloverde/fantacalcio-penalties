@@ -24,7 +24,7 @@
 
    const teamData = ref<any>(null)
    const players = ref<{name: string, role: string, squadra: string, team: any}[]>([])
-   const loading = ref<boolean>(true)
+   let loading = ref<boolean>(true)
 
    onMounted(async () => {
       if (process.client && $firebaseApp) {
@@ -35,6 +35,8 @@
 
          if(teamSnap.exists()) {
             teamData.value = teamSnap.data()
+
+            loading.value = false
 
             const playersReference = teamData.value.players
 
