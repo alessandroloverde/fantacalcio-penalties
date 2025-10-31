@@ -34,7 +34,7 @@ export default defineNuxtPlugin(() => {
   const db = getFirestore(app)
 
   // Connect to emulators only in dev mode
-  if (process.dev) {
+/*   if (process.dev) {
     try {
       connectAuthEmulator(auth, 'http://127.0.0.1:9099')
       connectFirestoreEmulator(db, '127.0.0.1', 8080)
@@ -42,7 +42,7 @@ export default defineNuxtPlugin(() => {
     } catch (err) {
       console.warn('⚠️ Emulator connection failed:', err)
     }
-  }
+  } */
 
   // Provide globally
   return {
