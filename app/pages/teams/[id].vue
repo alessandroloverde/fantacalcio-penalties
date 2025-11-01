@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-   import { getFirestore, doc, getDoc, collection, getDocs, setDoc } from 'firebase/firestore';
+   import { getFirestore, doc, getDoc, collection, getDocs, setDoc, updateDoc } from 'firebase/firestore';
    import { useRoute } from 'vue-router';
    import Papa from 'papaparse';
 
@@ -61,8 +61,11 @@
          players.value = [] // clear existing players
 
          // Skip rows 0-2, process rows 3-27 (A3:C27)
-         const rows = results.data.slice(2, 26) as string[][]   
+         const rows = results.data.slice(2, 27) as string[][]   
          const db = getFirestore($firebaseApp)
+         
+         // Build new players object to replace existing one
+         const newPlayers: Record<string, any> = {}
          
          for (const row of rows) {
             const [role, name, squadra] = row
@@ -84,21 +87,22 @@
             // Add to players collection
             await setDoc(doc(db, "players", playerId), playerData)
             
-            // Add reference to team's players
-            const teamRef = doc(db, "teams", teamId)
+            // Add reference to new players object
             const playerRef = doc(db, "players", playerId)
-            
-            // Update team's players field
-            await setDoc(teamRef, {
-               players: {
-                  ...teamData.value.players,
-                  [playerId]: playerRef
-               }
-            }, { merge: true })
+            newPlayers[playerId] = playerRef
             
             // Add to local display
             players.value.push(playerData as {name: string, role: string, squadra: string, team: any})
          }
+         
+         // Replace entire players field
+         const teamRef = doc(db, "teams", teamId)
+         await updateDoc(teamRef, {
+            players: newPlayers
+         })
+         
+         // Update local teamData
+         teamData.value.players = newPlayers
          
          alert('Players imported successfully!')
          if (fileInput.value) fileInput.value.value = '' // Reset input
