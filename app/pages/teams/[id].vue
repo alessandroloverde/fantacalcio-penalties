@@ -157,9 +157,28 @@
    }
    #players-list {
       color: rgb(248, 212, 212);
+      list-style-type: none;
 
       li {
          margin-bottom: 1rem;
+         padding-left: 1.5em;
+         counter-increment: step-counter;
+
+         &::before {
+              content: counter(step-counter);
+              display: inline-block;
+              background-color: brown;
+              color: white;
+              border-radius: 100%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              width: 2em;
+              height: 2em;
+              position: absolute;
+              left: 0.5em;
+              font-size: 1.5rem;
+         }
       }
    }
 </style>
