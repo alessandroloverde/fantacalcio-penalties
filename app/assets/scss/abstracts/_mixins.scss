@@ -1,0 +1,95 @@
+// ========================================
+// Mixins
+// ========================================
+
+@use 'variables' as *;
+@use 'colors' as *;
+
+// Breakpoint Mixins
+@mixin respond-to($breakpoint) {
+  @if $breakpoint == xs {
+    @media (min-width: $breakpoint-xs) { @content; }
+  }
+  @if $breakpoint == sm {
+    @media (min-width: $breakpoint-sm) { @content; }
+  }
+  @if $breakpoint == md {
+    @media (min-width: $breakpoint-md) { @content; }
+  }
+  @if $breakpoint == lg {
+    @media (min-width: $breakpoint-lg) { @content; }
+  }
+  @if $breakpoint == xl {
+    @media (min-width: $breakpoint-xl) { @content; }
+  }
+  @if $breakpoint == 2xl {
+    @media (min-width: $breakpoint-2xl) { @content; }
+  }
+}
+
+// Container Mixin
+@mixin container($max-width: $container-xl) {
+  width: 100%;
+  max-width: $max-width;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: $spacing-md;
+  padding-right: $spacing-md;
+}
+
+// Flexbox Utilities
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+// Truncate Text
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Visually Hidden (for accessibility)
+@mixin visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+// Button Reset
+@mixin button-reset {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  cursor: pointer;
+  outline: inherit;
+}
+
+// Transition Mixin
+@mixin transition($property: all, $duration: $transition-base, $easing: $easing-default) {
+  transition: $property $duration $easing;
+}
+
+// Focus Styles
+@mixin focus-ring {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px currentColor;
+}
+

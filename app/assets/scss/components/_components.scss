@@ -1,0 +1,51 @@
+// ========================================
+// Shared Component Styles
+// ========================================
+
+@use '../abstracts/colors' as *;
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// This file is for shared component styles that might be reused across multiple components
+// Component-specific styles should remain in their respective .vue files
+
+// Example: Shared button variants
+.btn {
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-md;
+  font-weight: $font-weight-bold;
+  transition: all $transition-fast;
+
+  &--primary {
+    background-color: $color-button-primary;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background-color: $color-button-primary-hover;
+    }
+  }
+
+  &:disabled {
+    background-color: $color-button-disabled;
+    cursor: not-allowed;
+  }
+}
+
+// Example: Shared message styles
+.message {
+  padding: $spacing-md;
+  border-radius: $radius-lg;
+  margin-bottom: $spacing-md;
+  text-align: center;
+
+  &--success {
+    background-color: $color-success;
+    color: white;
+  }
+
+  &--error {
+    background-color: $color-error;
+    color: white;
+  }
+}
+

@@ -1,0 +1,73 @@
+// ========================================
+// Base Element Styles
+// ========================================
+
+@use '../abstracts/colors' as *;
+@use '../abstracts/typography' as *;
+
+// Base body styles (if not using Tailwind preflight)
+body {
+  font-family: $font-family-sans;
+  font-size: $font-size-base;
+  line-height: $line-height-normal;
+  color: $color-text-primary;
+  background-color: $color-bg-secondary;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Heading styles (can be overridden by components)
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: $font-weight-bold;
+  line-height: $line-height-tight;
+}
+
+h1 {
+  font-size: $font-size-4xl;
+  color: $color-text-primary;
+}
+
+h2 {
+  font-size: $font-size-3xl;
+}
+
+h3 {
+  font-size: $font-size-2xl;
+}
+
+// Link base styles
+a {
+  color: $color-link;
+  text-decoration: none;
+  transition: color $transition-fast;
+
+  &:visited {
+    color: $color-link-visited;
+  }
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+// List styles
+ul, ol {
+  margin: 0;
+  padding: 0;
+}
+
+// Button base styles (can be extended with Tailwind or SCSS)
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  transition: background-color $transition-fast;
+}
+
+// Input base styles
+input, textarea, select {
+  font-family: inherit;
+  font-size: inherit;
+}
+

@@ -1,0 +1,22 @@
+// ========================================
+// CSS Reset / Normalize
+// ========================================
+
+// Optional: Add a minimal reset if needed
+// You can import normalize.css or use Tailwind's preflight instead
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+

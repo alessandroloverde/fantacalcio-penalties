@@ -1,0 +1,26 @@
+// ========================================
+// SCSS Functions
+// ========================================
+
+@use 'variables' as *;
+@use 'colors' as *;
+
+// Convert px to rem
+@function rem($pixels, $base: 16px) {
+  @return ($pixels / $base) * 1rem;
+}
+
+// Get color from color map
+@function color($color-name) {
+  @if map-has-key($colors, $color-name) {
+    @return map-get($colors, $color-name);
+  }
+  @warn "Color `#{$color-name}` not found in $colors map.";
+  @return null;
+}
+
+// Calculate line height from font size
+@function line-height($font-size, $line-height-value: 1.5) {
+  @return $font-size * $line-height-value;
+}
+

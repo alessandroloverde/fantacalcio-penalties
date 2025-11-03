@@ -1,0 +1,23 @@
+// ========================================
+// Main SCSS Entry Point
+// ========================================
+
+// 1. Abstracts (Variables, Colors, Typography, Mixins, Functions)
+@forward 'abstracts/variables';
+@forward 'abstracts/colors';
+@forward 'abstracts/typography';
+@forward 'abstracts/mixins';
+@forward 'abstracts/functions';
+
+// 2. Base (Reset, Base Element Styles)
+@use 'base/reset';
+@use 'base/base';
+
+// 3. Components (Shared Component Styles)
+@use 'components/components';
+
+// Note: Component-specific styles should remain in their respective .vue files
+// Components can import abstracts using:
+// @use '@/assets/scss/abstracts/variables' as *;
+// @use '@/assets/scss/abstracts/colors' as *;
+

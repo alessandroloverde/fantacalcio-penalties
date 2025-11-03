@@ -1,0 +1,56 @@
+// ========================================
+// Color Palette
+// ========================================
+
+// Primary Colors (extracted from existing styles)
+$color-primary: rgb(95, 118, 163);
+$color-primary-dark: mix(black, $color-primary, 10%);
+$color-primary-light: mix(white, $color-primary, 10%);
+
+// Text Colors
+$color-text-primary: #faebd7;           // Main text (beige/cream)
+$color-text-secondary: #fff;           // White text
+$color-text-muted: darkgrey;            // Placeholder/muted text
+$color-text-dark: #1a1a1a;              // Dark text for light backgrounds
+
+// Background Colors
+$color-bg-primary: rgb(95, 118, 163);
+$color-bg-secondary: darkslategrey;
+$color-bg-light: rgba(255, 255, 255, 0.1);
+
+// Button Colors
+$color-button-primary: #4CAF50;        // Green buttons
+$color-button-primary-hover: #45a049;
+$color-button-disabled: #ccc;
+
+// Status Colors
+$color-success: #4CAF50;                // Success messages
+$color-error: #f44336;                  // Error messages
+$color-warning: #ff9800;                 // Warning messages
+$color-info: #2196F3;                   // Info messages
+
+// Player List Colors
+$color-player-list: rgb(248, 212, 212);  // Light pink for player list text
+$color-accent-brown: brown;             // Counter background
+
+// Link Colors
+$color-link: yellow;
+$color-link-visited: yellowgreen;
+
+// Border Colors
+$color-border: #ccc;
+$color-border-light: rgba(255, 255, 255, 0.2);
+
+// Semantic Color Mappings
+$colors: (
+  'primary': $color-primary,
+  'success': $color-success,
+  'error': $color-error,
+  'warning': $color-warning,
+  'info': $color-info,
+  'text-primary': $color-text-primary,
+  'text-secondary': $color-text-secondary,
+  'bg-primary': $color-bg-primary,
+  'bg-secondary': $color-bg-secondary,
+);
+

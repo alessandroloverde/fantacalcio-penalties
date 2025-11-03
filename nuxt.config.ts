@@ -2,7 +2,11 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-  modules: ['@nuxt/fonts'],
+  modules: ['@nuxt/fonts', '@nuxtjs/tailwindcss'],
+  css: [
+    '@/assets/css/main.css',  // Tailwind CSS
+    '@/assets/scss/main.scss' // Custom SCSS
+  ],
   runtimeConfig: {
     public: {
       firebaseApiKey: 'AIzaSyAi6xTXieeklm2ehtWU7MxEqtL4FP5pzno',
