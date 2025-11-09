@@ -2,7 +2,7 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-  modules: ['@nuxt/fonts', '@nuxtjs/tailwindcss'],
+  modules: ['@nuxt/fonts', /* '@nuxtjs/tailwindcss' */],
   css: [
     '@/assets/css/main.css',  // Tailwind CSS
     '@/assets/scss/main.scss' // Custom SCSS
@@ -16,5 +16,10 @@ export default defineNuxtConfig({
       firebaseMessagingSenderId: '1029812597058',
       firebaseAppId: '1:1029812597058:web:4d9b4e6e6e6e6e6e'
     }
-  }
+  },
+  postcss: {
+    plugins: {
+      '@tailwindcss/postcss': {},
+    },
+  },
 })

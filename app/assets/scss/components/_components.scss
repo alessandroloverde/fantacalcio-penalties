@@ -2,8 +2,9 @@
 // Shared Component Styles
 // ========================================
 
-@use '../abstracts/colors' as *;
 @use '../abstracts/variables' as *;
+@use '../abstracts/colors' as *;
+@use '../abstracts/typography' as *;
 @use '../abstracts/mixins' as *;
 
 // This file is for shared component styles that might be reused across multiple components

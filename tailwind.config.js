@@ -10,11 +10,9 @@ export default {
   ],
   theme: {
     extend: {
-      // You can extend Tailwind's theme with your SCSS variables here
-      // Example:
-      // colors: {
-      //   primary: 'rgb(95, 118, 163)',
-      // },
+      fontFamily: {
+        'MomoTrustDisplay': ['Momo Trust Display', 'sans-serif'],
+      }
     },
   },
   plugins: [],

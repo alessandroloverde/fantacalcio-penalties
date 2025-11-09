@@ -1,6 +1,7 @@
 <template>
-   <div class="login-container">
-      <h1>Login</h1>
+   <h1 class="main-title">Fantacalcio <span>25/26</span></h1>
+   <div class="m-auto" id="loginForm">
+      <h1 class="withIcon--password">Login</h1>
       <hr></hr>
       <h2>Email & password</h2>
       <form @submit.prevent="handleLogin">
@@ -126,130 +127,39 @@
 </script>
 
 <style lang="scss">
-   .login-container {
-      max-width: 400px;
-      margin: 50px auto;
-      padding: 2rem;
-      background: rgb(95, 118, 163);
-      border-radius: 8px;
-   }
+   @use '@/assets/scss/abstracts/colors' as *;
+   @use '@/assets/scss/abstracts/variables' as *;
+   @use '@/assets/scss/abstracts/typography' as *;
+   @use '@/assets/scss/abstracts/mixins' as *;
 
-   h1 {
-      color: #faebd7;
+   body { background-color: $color-bg-light }
+
+   .main-title { 
+      font-family: $font-family-momo;
+      font-size: 100px;
+      color: $darkOlive;
+      text-transform: uppercase;
       text-align: center;
-      margin-bottom: 2rem;
+      margin-top: 3vh;
+
+      span { color: $blush }
    }
 
-   .form-group {
-      margin-bottom: 1.5rem;
+   h1.withIcon--password {
+      &::before { @include getIcon}
    }
+   h2 { @include typography('h2') }
 
-   label {
-      display: block;
-      color: #faebd7;
-      margin-bottom: 0.5rem;
-      font-weight: bold;
-   }
-
-   input {
-      width: 100%;
-      padding: 0.75rem;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      box-sizing: border-box;
-   }
-
-   .password-input-wrapper {
-      position: relative;
-      display: flex;
-      align-items: center;
-   }
-
-   .password-input-wrapper input {
-      padding-right: 3rem;
-   }
-
-   .toggle-password {
+   #loginForm {
+      background-color: $color-bg-dark;
+      width: max(40vw, 400px);
+      height: 50vh;
       position: absolute;
-      right: 0.5rem;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      font-size: 1.2rem;
-      padding: 0.25rem 0.5rem;
-      width: auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      top: 25%;
+      bottom: 25%;
+      left: 25%;
+      right: 25%;
+      border-radius: $radius-2xl;
+      padding: $spacing-lg;
    }
-
-   .toggle-password:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 4px;
-   }
-
-   .forgot-password {
-      margin-top: 0.5rem;
-      margin-bottom: 1rem;
-      text-align: right;
-   }
-
-   .forgot-password a {
-      color: #faebd7;
-      text-decoration: underline;
-      font-size: 0.9rem;
-      cursor: pointer;
-   }
-
-   .forgot-password a:hover {
-      color: #fff;
-   }
-
-   button {
-      width: 100%;
-      padding: 0.75rem;
-      font-size: 1rem;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: bold;
-   }
-
-   button:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
-   }
-
-   button:hover:not(:disabled) {
-      background-color: #45a049;
-   }
-
-   .error {
-      background-color: #f44336;
-      color: white;
-      padding: 1rem;
-      border-radius: 4px;
-      margin-bottom: 1rem;
-      text-align: center;
-   }
-
-   .success {
-      background-color: #4CAF50;
-      color: white;
-      padding: 1rem;
-      border-radius: 4px;
-      margin-bottom: 1rem;
-      text-align: center;
-   }
-
-   .loading {
-      color: #faebd7;
-      text-align: center;
-      margin-bottom: 1rem;
-   }
-
-   ::placeholder { color: darkgrey; }
 </style>

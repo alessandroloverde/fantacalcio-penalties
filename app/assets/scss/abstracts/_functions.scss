@@ -4,6 +4,7 @@
 
 @use 'variables' as *;
 @use 'colors' as *;
+@use "sass:map";
 
 // Convert px to rem
 @function rem($pixels, $base: 16px) {
@@ -12,8 +13,8 @@
 
 // Get color from color map
 @function color($color-name) {
-  @if map-has-key($colors, $color-name) {
-    @return map-get($colors, $color-name);
+  @if map.has-key($colors, $color-name) {
+    @return map.get($colors, $color-name);
   }
   @warn "Color `#{$color-name}` not found in $colors map.";
   @return null;

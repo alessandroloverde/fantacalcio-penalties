@@ -2,10 +2,25 @@
 // Color Palette
 // ========================================
 
+@use 'sass:color';
+
+/* –––– Main palette – work in progress ––––––––––––– */
+$darkOlive: #556b2f;
+$lightSlategrass: #d3d2cb;
+$slateGreay: #64748b;
+
+$coral: #f37748;
+$blush: #ca6680;
+$indianRed: #d05353;
+$brownSugar: #be6e46;
+
+$eerieBlack:#171d1c;
+/* –––––––––––––––––––––––––––––––––––––––––––––––––– */
+
 // Primary Colors (extracted from existing styles)
 $color-primary: rgb(95, 118, 163);
-$color-primary-dark: mix(black, $color-primary, 10%);
-$color-primary-light: mix(white, $color-primary, 10%);
+$color-primary-dark: color.mix(black, $color-primary, 10%);
+$color-primary-light: color.mix(white, $color-primary, 10%);
 
 // Text Colors
 $color-text-primary: #faebd7;           // Main text (beige/cream)
@@ -14,9 +29,8 @@ $color-text-muted: darkgrey;            // Placeholder/muted text
 $color-text-dark: #1a1a1a;              // Dark text for light backgrounds
 
 // Background Colors
-$color-bg-primary: rgb(95, 118, 163);
-$color-bg-secondary: darkslategrey;
-$color-bg-light: rgba(255, 255, 255, 0.1);
+$color-bg-light: rgb(211, 210, 203);
+$color-bg-dark: rgb(100, 116, 139);
 
 // Button Colors
 $color-button-primary: #4CAF50;        // Green buttons
@@ -50,7 +64,7 @@ $colors: (
   'info': $color-info,
   'text-primary': $color-text-primary,
   'text-secondary': $color-text-secondary,
-  'bg-primary': $color-bg-primary,
-  'bg-secondary': $color-bg-secondary,
+  'bg-light': $color-bg-light,
+  'bg-dark': $color-bg-dark,
 );
 

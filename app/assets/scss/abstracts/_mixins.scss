@@ -4,6 +4,9 @@
 
 @use 'variables' as *;
 @use 'colors' as *;
+@use 'typography' as *;
+@use "sass:map";
+@use "sass:string" as str;
 
 // Breakpoint Mixins
 @mixin respond-to($breakpoint) {
@@ -91,5 +94,40 @@
   outline: 2px solid transparent;
   outline-offset: 2px;
   box-shadow: 0 0 0 2px currentColor;
+}
+
+// Typography Mixin - Apply typography styles from $typography map
+@mixin typography($variant: 'body') {
+  @if map.has-key($typography, $variant) {
+    $styles: map.get($typography, $variant);
+    font-size: map.get($styles, 'size');
+    font-weight: map.get($styles, 'weight');
+    line-height: map.get($styles, 'line-height');
+  } @else {
+    @warn "Typography variant `#{$variant}` not found in $typography map.";
+  }
+}
+// Typography Mixin
+/* –––––– dff –––––– */
+@mixin getIcon {
+    $stringIndex: str.index(#{&}, '--');
+    $headlineKey: str.slice(#{&}, $stringIndex + 2, -9);
+  
+    @debug "inspect #{&}";
+    @debug "index: #{$stringIndex}";
+    @debug "headline key: #{$headlineKey}";
+
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1em;
+    height: 1em;
+
+    -webkit-mask: url('/assets/icons/icon-#{$headlineKey}.svg') no-repeat center / contain;
+    mask: url('/assets/icons/icon-#{$headlineKey}.svg') no-repeat center / contain;
+
+    background-color: currentColor;             // inherits text color
 }
 
