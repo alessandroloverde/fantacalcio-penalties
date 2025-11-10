@@ -4,33 +4,33 @@
 
 @use 'sass:color';
 
-/* –––– Main palette – work in progress ––––––––––––– */
+/* –––– Main palette – work in progress ––––––––––––––––––– */
 $darkOlive: #556b2f;
 $lightSlategrass: #d3d2cb;
 $slateGreay: #64748b;
-
+$navyBlue: #5f76a3;
+$cream: #faebd7;
 $coral: #f37748;
 $blush: #ca6680;
 $indianRed: #d05353;
 $brownSugar: #be6e46;
-
 $eerieBlack:#171d1c;
-/* –––––––––––––––––––––––––––––––––––––––––––––––––– */
+/* –––––––––––––––––––––––––––––––––––––––––––––––––––––––– */
 
 // Primary Colors (extracted from existing styles)
-$color-primary: rgb(95, 118, 163);
+$color-primary: $navyBlue;
 $color-primary-dark: color.mix(black, $color-primary, 10%);
 $color-primary-light: color.mix(white, $color-primary, 10%);
 
 // Text Colors
-$color-text-primary: #faebd7;           // Main text (beige/cream)
+$color-text-primary: $cream;           // Main text (beige/cream)
 $color-text-secondary: #fff;           // White text
 $color-text-muted: darkgrey;            // Placeholder/muted text
 $color-text-dark: #1a1a1a;              // Dark text for light backgrounds
 
 // Background Colors
-$color-bg-light: rgb(211, 210, 203);
-$color-bg-dark: rgb(100, 116, 139);
+$color-bg-light: $lightSlategrass;
+$color-bg-dark: $slateGreay;
 
 // Button Colors
 $color-button-primary: #4CAF50;        // Green buttons
@@ -48,7 +48,7 @@ $color-player-list: rgb(248, 212, 212);  // Light pink for player list text
 $color-accent-brown: brown;             // Counter background
 
 // Link Colors
-$color-link: yellow;
+$color-link: $navyBlue;
 $color-link-visited: yellowgreen;
 
 // Border Colors

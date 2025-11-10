@@ -1,49 +1,83 @@
 <template>
    <h1 class="main-title">Fantacalcio <span>25/26</span></h1>
-   <div class="m-auto" id="loginForm">
-      <h1 class="withIcon--password">Login</h1>
-      <hr></hr>
-      <h2>Email & password</h2>
-      <form @submit.prevent="handleLogin">
-         <label for="loginEmail">Email: </label>
-         <input 
-            type="email" 
-            id="loginEmail"
-            v-model="email"
-            placeholder="mannaggia alla mail"
-            required
-         ></input>
-         <label for="loginPassword">Password: </label>
-         <div class="password-input-wrapper">
-            <input 
-               :type="showPassword ? 'text' : 'password'"
-               id="loginPassword"
-               v-model="password"
-               placeholder="mannaggia alla password"
-               required
-            ></input>
-            <button 
-               type="button" 
-               class="toggle-password"
-               @click="showPassword = !showPassword"
-               :aria-label="showPassword ? 'Hide password' : 'Show password'"
+   <div class="m-auto p-8" id="loginForm">
+      <header>
+         <h1 class="withIcon--login">Login</h1>
+      </header>
+      
+      <hr class="divider my-4">
+
+      <main>
+         <form 
+            class="flex w-full flex-col gap-6 mx-auto"
+            @submit.prevent="handleLogin"
+         >
+            <div class="flex flex-col gap-2">
+               <label for="loginEmail" class="withIcon--email tracking-wide mx-2">email: </label>
+               <input 
+                  type="email" 
+                  id="loginEmail"
+                  v-model="email"
+                  placeholder="mannaggia alla mail"
+                  required
+                  class="w-full rounded-lg border 
+                     px-4 py-3 placeholder:text-slate-400
+                     focus:outline-none focus:border-blue-500"
+               >
+            </div>
+            <div class="flex flex-col gap-2">
+               <label for="loginPassword" class="withIcon--password tracking-wide mx-2">password: </label>
+               <div class="password-input-wrapper">
+                  <input 
+                     :type="showPassword ? 'text' : 'password'"
+                     id="loginPassword"
+                     v-model="password"
+                     placeholder="mannaggia alla password"
+                     required
+                     class="w-full rounded-lg border
+                        px-4 py-3 placeholder:text-slate-400
+                        focus:outline-none focus:border-blue-500"
+                  ></input>
+                  <button 
+                     type="button" 
+                     class="toggle-password px-4"
+                     @click="showPassword = !showPassword"
+                     :aria-label="showPassword ? 'Hide password' : 'Show password'"
+                  >
+                     {{ showPassword ? '🙈' : '👁️' }}
+                  </button>
+               </div>
+            </div>
+            
+
+            
+            <div class="forgot-password">
+               <a href="#" @click.prevent="handleForgotPassword">Password dimenticata?</a>
+            </div>
+
+            <div v-if="loading" class="rounded-lg bg-slate-800 px-4 py-3 text-center text-slate-200">
+               Loading…
+            </div>
+            <div v-if="error" class="rounded-lg bg-red-600/80 px-4 py-3 text-sm text-red-100">
+               Mannaggia: c'è stato un errore {{ error }}
+            </div>
+            <div v-if="successMessage" class="rounded-lg bg-emerald-600/80 px-4 py-3 text-sm text-emerald-100">
+               {{ successMessage }}
+            </div>
+
+            <hr></hr>
+
+            <button
+               type="submit"
+               :disabled="loading"
+               class="rounded-lg bg-primary-500 px-5 py-3 font-semibold uppercase tracking-wide text-slate-900 
+               transition hover:bg-primary-400 disabled:cursor-not-allowed disabled:bg-slate-600 disabled:text-slate-400"
             >
-               {{ showPassword ? '🙈' : '👁️' }}
+               Login
             </button>
-         </div>
-         
-         <div class="forgot-password">
-            <a href="#" @click.prevent="handleForgotPassword">Password dimenticata?</a>
-         </div>
+         </form>
+      </main>
 
-         <div v-if="loading" class="loading">Loading…</div>
-         <div v-if="error" class="error">Mannaggia: c'è stato un errore {{ error }}</div>
-         <div v-if="successMessage" class="success">{{ successMessage }}</div>
-
-         <hr></hr>
-
-         <button type="submit" :disabled="loading">Login</button>
-      </form>
 
    </div>
 </template>
@@ -126,13 +160,11 @@
    }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
    @use '@/assets/scss/abstracts/colors' as *;
    @use '@/assets/scss/abstracts/variables' as *;
    @use '@/assets/scss/abstracts/typography' as *;
    @use '@/assets/scss/abstracts/mixins' as *;
-
-   body { background-color: $color-bg-light }
 
    .main-title { 
       font-family: $font-family-momo;
@@ -140,26 +172,102 @@
       color: $darkOlive;
       text-transform: uppercase;
       text-align: center;
-      margin-top: 3vh;
+      margin: 3vh auto;
 
       span { color: $blush }
    }
 
-   h1.withIcon--password {
-      &::before { @include getIcon}
+   h1 { 
+      @include typography('h1');
+      color: $navyBlue;
    }
-   h2 { @include typography('h2') }
+
+   .withIcon {
+      &--password {
+         &::before { 
+            @include getIcon;
+            background-color: $blush;
+         }
+      }
+      &--login {
+         &::before { 
+            @include getIcon;
+            background-color: $blush;
+         }
+      }
+      &--email {
+         &::before { 
+            @include getIcon;
+            background-color: $blush;
+         }
+      }
+   }
 
    #loginForm {
-      background-color: $color-bg-dark;
-      width: max(40vw, 400px);
-      height: 50vh;
-      position: absolute;
-      top: 25%;
-      bottom: 25%;
-      left: 25%;
-      right: 25%;
+      background-color: $cream;
+      width: max(50vw, 400px);
+      min-height: 50vh;
       border-radius: $radius-2xl;
-      padding: $spacing-lg;
+      box-shadow: 2px 0 15px rgba($eerieBlack, .25);
+
+      button[type='submit'] {
+         background: $color-primary;
+         color: $color-text-secondary;
+         font-weight: $font-weight-semibold;
+         text-transform: uppercase;
+         letter-spacing: 0.08em;
+         border-radius: $radius-lg;
+         padding: $spacing-sm $spacing-lg;
+         transition: background-color $transition-fast ease, transform $transition-fast ease;
+
+         &:hover:not(:disabled) {
+            background: $color-primary-light;
+            transform: translateY(-1px);
+         }
+
+         &:disabled {
+            background: $color-button-disabled;
+            color: $color-text-muted;
+            cursor: not-allowed;
+            box-shadow: none;
+         }
+
+         &:focus-visible {
+            outline: 2px solid $color-primary-light;
+            outline-offset: 3px;
+         }
+      }
+      label {
+         @include typography('label');
+         color: $navyBlue;
+      }
+      .password-input-wrapper {
+         position: relative;
+      }
+      button.toggle-password {
+         position: absolute;
+         right: 0;
+         height: 100%;
+      }
+   }
+
+   hr.divider {
+      $color: $navyBlue;
+
+      border: none;
+      border-top: 4px double $color;
+      color: $color;
+      overflow: visible;
+      text-align: center;
+      height: 8px;
+
+      &::after {
+         background: $cream;
+         color: $color;
+         content: "●";
+         padding: 0 4px;
+         position: relative;
+         top: -14px;
+      }
    }
 </style>

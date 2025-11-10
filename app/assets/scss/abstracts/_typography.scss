@@ -34,6 +34,7 @@ $font-weight-normal: 400;
 $font-weight-medium: 500;
 $font-weight-semibold: 600;
 $font-weight-bold: 700;
+$font-weight-extrabold: 800;
 
 // Letter Spacing
 $letter-spacing-tighter: -0.05em;
@@ -46,7 +47,7 @@ $letter-spacing-wider: 0.05em;
 $typography: (
   'h1': (
     'size': $font-size-4xl,
-    'weight': $font-weight-bold,
+    'weight': $font-weight-extrabold,
     'line-height': $line-height-tight,
   ),
   'h2': (
@@ -62,6 +63,11 @@ $typography: (
   'body': (
     'size': $font-size-base,
     'weight': $font-weight-normal,
+    'line-height': $line-height-normal,
+  ),
+  'label': (
+    'size': $font-size-base,
+    'weight': $font-weight-semibold,
     'line-height': $line-height-normal,
   ),
   'small': (

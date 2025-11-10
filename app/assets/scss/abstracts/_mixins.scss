@@ -113,9 +113,9 @@
     $stringIndex: str.index(#{&}, '--');
     $headlineKey: str.slice(#{&}, $stringIndex + 2, -9);
   
-    @debug "inspect #{&}";
-    @debug "index: #{$stringIndex}";
-    @debug "headline key: #{$headlineKey}";
+    //@debug "inspect #{&}";
+    //@debug "index: #{$stringIndex}";
+    //@debug "headline key: #{$headlineKey}";
 
     content: '';
     position: absolute;

@@ -15,29 +15,25 @@ body {
   font-size: $font-size-base;
   line-height: $line-height-normal;
   color: $color-text-primary;
-  background-color: $color-bg-light;
+  background-color: $lightSlategrass;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 
 // Heading styles (can be overridden by components)
-h1 {
+h1, h2, h3, h4, h5, h6 {
     margin: 0;
     font-weight: $font-weight-bold;
     line-height: $line-height-tight;
-
-  &[class^="withIcon--"] {
-    position: relative;
-    padding-left: 1.25em;
-  }
-
 }
 
-h1 {
-  font-size: $font-size-4xl;
-  color: $color-text-primary;
+[class^="withIcon--"] {
+  position: relative;
+  padding-left: 1.25em;
 }
+
+h1 { font-size: $font-size-4xl }
 h2 { font-size: $font-size-3xl }
 h3 { font-size: $font-size-2xl }
 
@@ -63,11 +59,19 @@ button {
   cursor: pointer;
   border: none;
   transition: background-color $transition-fast;
+  
 }
 
 // Input base styles
 input, textarea, select {
   font-family: inherit;
   font-size: inherit;
+}
+
+input[type=text],
+input[type=email],
+input[type=password] {
+  background-color: white;
+  border: 1px solid $lightSlategrass;
 }
 
