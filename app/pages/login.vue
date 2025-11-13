@@ -37,47 +37,32 @@
                      class="w-full rounded-lg border
                         px-4 py-3 placeholder:text-slate-400
                         focus:outline-none focus:border-blue-500"
-                  ></input>
+                  >
                   <button 
                      type="button" 
                      class="toggle-password px-4"
                      @click="showPassword = !showPassword"
                      :aria-label="showPassword ? 'Hide password' : 'Show password'"
-                  >
-                     {{ showPassword ? '🙈' : '👁️' }}
-                  </button>
+                  >{{ showPassword ? '🙈' : '👁️' }}</button>
                </div>
             </div>
             
-
-            
             <div class="forgot-password">
-               <a href="#" @click.prevent="handleForgotPassword">Password dimenticata?</a>
+               <a href="#" @click.prevent="handleForgotPassword" class="withIcon--cloudQuestion">Password dimenticata?</a>
             </div>
 
-            <div v-if="loading" class="rounded-lg bg-slate-800 px-4 py-3 text-center text-slate-200">
-               Loading…
-            </div>
-            <div v-if="error" class="rounded-lg bg-red-600/80 px-4 py-3 text-sm text-red-100">
-               Mannaggia: c'è stato un errore {{ error }}
-            </div>
-            <div v-if="successMessage" class="rounded-lg bg-emerald-600/80 px-4 py-3 text-sm text-emerald-100">
-               {{ successMessage }}
-            </div>
-
-            <hr></hr>
+            <div v-if="loading" class="rounded-lg bg-slate-600 px-4 py-3 text-center font-medium text-slate-200">Loading…</div>
+            <div v-if="error" class="rounded-lg bg-red-600/80 px-4 py-3 font-medium text-red-100">{{ error }}</div>
+            <div v-if="successMessage" class="rounded-lg bg-emerald-600/80 px-4 py-3 font-medium text-emerald-100">{{ successMessage }}</div>
 
             <button
                type="submit"
                :disabled="loading"
                class="rounded-lg bg-primary-500 px-5 py-3 font-semibold uppercase tracking-wide text-slate-900 
                transition hover:bg-primary-400 disabled:cursor-not-allowed disabled:bg-slate-600 disabled:text-slate-400"
-            >
-               Login
-            </button>
+            >Login</button>
          </form>
       </main>
-
 
    </div>
 </template>
@@ -132,7 +117,9 @@
          }
          
       } catch(err: any) {
-         error.value = err.message
+         error.value = `Email e/o password errate – ${err.message}`
+   
+         console.log("Errore: ", error.value)
       } finally {
          loading.value = false
       }
@@ -161,10 +148,7 @@
 </script>
 
 <style lang="scss" scoped>
-   @use '@/assets/scss/abstracts/colors' as *;
-   @use '@/assets/scss/abstracts/variables' as *;
-   @use '@/assets/scss/abstracts/typography' as *;
-   @use '@/assets/scss/abstracts/mixins' as *;
+   @use '@/assets/scss//main' as *;
 
    .main-title { 
       font-family: $font-family-momo;
@@ -182,26 +166,6 @@
       color: $navyBlue;
    }
 
-   .withIcon {
-      &--password {
-         &::before { 
-            @include getIcon;
-            background-color: $blush;
-         }
-      }
-      &--login {
-         &::before { 
-            @include getIcon;
-            background-color: $blush;
-         }
-      }
-      &--email {
-         &::before { 
-            @include getIcon;
-            background-color: $blush;
-         }
-      }
-   }
 
    #loginForm {
       background-color: $cream;
@@ -241,9 +205,7 @@
          @include typography('label');
          color: $navyBlue;
       }
-      .password-input-wrapper {
-         position: relative;
-      }
+      .password-input-wrapper { position: relative }
       button.toggle-password {
          position: absolute;
          right: 0;

@@ -1,0 +1,33 @@
+// ========================================
+// Icons
+// ========================================
+
+@use './colors' as *;
+@use './mixins' as *;
+
+.withIcon {
+  &--password {
+      &::before { 
+        @include getIcon;
+        background-color: $blush;
+      }
+  }
+  &--login {
+      &::before { 
+        @include getIcon;
+        background-color: $blush;
+      }
+  }
+  &--email {
+      &::before { 
+        @include getIcon;
+        background-color: $blush;
+      }
+  }
+  &--cloudQuestion {
+        &::before { 
+        @include getIcon;
+        background-color: $blush;
+      }      
+  }
+}
