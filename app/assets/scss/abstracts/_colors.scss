@@ -24,7 +24,7 @@ $color-primary-light: color.mix(white, $color-primary, 10%);
 
 // Text Colors
 $color-text-primary: $cream;           // Main text (beige/cream)
-$color-text-secondary: #fff;           // White text
+$color-text-secondary: $navyBlue;           // White text
 $color-text-muted: darkgrey;            // Placeholder/muted text
 $color-text-dark: #1a1a1a;              // Dark text for light backgrounds
 

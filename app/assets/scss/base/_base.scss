@@ -63,6 +63,26 @@ button {
   transition: background-color $transition-fast;
 }
 
+hr.divider {
+  $color: $navyBlue;
+
+  border: none;
+  border-top: 4px double $color;
+  color: $color;
+  overflow: visible;
+  text-align: center;
+  height: 8px;
+
+  &::after {
+      background: $cream;
+      color: $color;
+      content: "●";
+      padding: 0 4px;
+      position: relative;
+      top: -14px;
+  }
+}
+
 // Input base styles
 input, textarea, select {
   font-family: inherit;

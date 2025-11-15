@@ -1,17 +1,20 @@
 <template>
-   <div>
+   <div class="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <nuxtLink to="/">Back to Home</nuxtLink>
       <h1>{{ teamData?.name }}</h1>
-      <hr></hr>
+      <p v-if="ownerParticipant">
+         <span>Logged in as:</span> {{ ownerParticipant.name }} (ID: {{ ownerParticipant.id }})
+      </p>
+      <h4>{{ teamData }}</h4>
+      <hr class="divider my-4" />
       <div v-if="loading">Loading...</div>
       <ol id="players-list">
          <li v-for="player in players" :key="player.name">
-            <span>Nome: </span>{{ player.name }}<br>
-            <span>Ruolo: </span>{{ player.role }}<br>
+            <span>Nome: </span>{{ player.name }}
+            <span>Ruolo: </span>{{ player.role }}
             <span>Squadra: </span>{{ player.squadra }}
          </li>
       </ol>
-      <hr></hr>
       <input
          type="file"
          accept=".csv"
@@ -31,6 +34,8 @@
    const { $firebaseApp } = useNuxtApp()
 
    const teamId = route.params.id as string
+
+   const { participant: ownerParticipant, loading: participantLoading, error, fetchParticipant } = useLoggedUser()
 
    const teamData = ref<any>(null)
    const players = ref<{name: string, role: string, squadra: string, team: any}[]>([])
@@ -118,7 +123,6 @@
    onMounted(async () => {
       if (process.client && $firebaseApp) {
          const db = getFirestore($firebaseApp)
-
          const teamRef = doc(db, "teams", teamId)
          const teamSnap = await getDoc(teamRef)
 
@@ -136,7 +140,6 @@
 
                players.value.push(singlePlayerData)
             }
-
             
          }
       }
@@ -145,24 +148,25 @@
 </script>
 
 <style lang="scss">
-   h1 {
-      color:aquamarine
+@use '@/assets/scss//main' as *;
+
+   h1 { 
+      @include typography('h1');
+      color: $navyBlue;
    }
 
-   a:link {
-      color: yellow;
-   }
-   a:visited {
-      color: yellowgreen;
-   }
+   h1 + p { color: $blush }
+
    #players-list {
-      color: rgb(248, 212, 212);
+      color:black;
       list-style-type: none;
 
       li {
          margin-bottom: 1rem;
-         padding-left: 1.5em;
          counter-increment: step-counter;
+         display: flex;
+
+         & span { margin-right: 1em;}
 
          &::before {
               content: counter(step-counter);
@@ -175,8 +179,6 @@
               justify-content: center;
               width: 2em;
               height: 2em;
-              position: absolute;
-              left: 0.5em;
               font-size: 1.5rem;
          }
       }

@@ -1,69 +1,71 @@
 <template>
-   <h1 class="main-title">Fantacalcio <span>25/26</span></h1>
-   <div class="m-auto p-8" id="loginForm">
-      <header>
-         <h1 class="withIcon--login">Login</h1>
-      </header>
-      
-      <hr class="divider my-4">
+   <div class="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <h1 class="main-title">Fantacalcio <span>25/26</span></h1>
+      <div class="m-auto p-8" id="loginForm">
+         <header>
+            <h1 class="withIcon--login">Login</h1>
+         </header>
+         
+         <hr class="divider my-4">
 
-      <main>
-         <form 
-            class="flex w-full flex-col gap-6 mx-auto"
-            @submit.prevent="handleLogin"
-         >
-            <div class="flex flex-col gap-2">
-               <label for="loginEmail" class="withIcon--email tracking-wide mx-2">email: </label>
-               <input 
-                  type="email" 
-                  id="loginEmail"
-                  v-model="email"
-                  placeholder="mannaggia alla mail"
-                  required
-                  class="w-full rounded-lg border 
-                     px-4 py-3 placeholder:text-slate-400
-                     focus:outline-none focus:border-blue-500"
-               >
-            </div>
-            <div class="flex flex-col gap-2">
-               <label for="loginPassword" class="withIcon--password tracking-wide mx-2">password: </label>
-               <div class="password-input-wrapper">
+         <main>
+            <form 
+               class="flex w-full flex-col gap-6 mx-auto"
+               @submit.prevent="handleLogin"
+            >
+               <div class="flex flex-col gap-2">
+                  <label for="loginEmail" class="withIcon--email tracking-wide mx-2">email: </label>
                   <input 
-                     :type="showPassword ? 'text' : 'password'"
-                     id="loginPassword"
-                     v-model="password"
-                     placeholder="mannaggia alla password"
+                     type="email" 
+                     id="loginEmail"
+                     v-model="email"
+                     placeholder="mannaggia alla mail"
                      required
-                     class="w-full rounded-lg border
+                     class="w-full rounded-lg border 
                         px-4 py-3 placeholder:text-slate-400
                         focus:outline-none focus:border-blue-500"
                   >
-                  <button 
-                     type="button" 
-                     class="toggle-password px-4"
-                     @click="showPassword = !showPassword"
-                     :aria-label="showPassword ? 'Hide password' : 'Show password'"
-                  >{{ showPassword ? '🙈' : '👁️' }}</button>
                </div>
-            </div>
-            
-            <div class="forgot-password">
-               <a href="#" @click.prevent="handleForgotPassword" class="withIcon--cloudQuestion">Password dimenticata?</a>
-            </div>
+               <div class="flex flex-col gap-2">
+                  <label for="loginPassword" class="withIcon--password tracking-wide mx-2">password: </label>
+                  <div class="password-input-wrapper">
+                     <input 
+                        :type="showPassword ? 'text' : 'password'"
+                        id="loginPassword"
+                        v-model="password"
+                        placeholder="mannaggia alla password"
+                        required
+                        class="w-full rounded-lg border
+                           px-4 py-3 placeholder:text-slate-400
+                           focus:outline-none focus:border-blue-500"
+                     >
+                     <button 
+                        type="button" 
+                        class="toggle-password px-4"
+                        @click="showPassword = !showPassword"
+                        :aria-label="showPassword ? 'Hide password' : 'Show password'"
+                     >{{ showPassword ? '🙈' : '👁️' }}</button>
+                  </div>
+               </div>
+               
+               <div class="forgot-password">
+                  <a href="#" @click.prevent="handleForgotPassword" class="withIcon--cloudQuestion">Password dimenticata?</a>
+               </div>
 
-            <div v-if="loading" class="rounded-lg bg-slate-600 px-4 py-3 text-center font-medium text-slate-200">Loading…</div>
-            <div v-if="error" class="rounded-lg bg-red-600/80 px-4 py-3 font-medium text-red-100">{{ error }}</div>
-            <div v-if="successMessage" class="rounded-lg bg-emerald-600/80 px-4 py-3 font-medium text-emerald-100">{{ successMessage }}</div>
+               <div v-if="loading" class="rounded-lg bg-slate-600 px-4 py-3 text-center font-medium text-slate-200">Loading…</div>
+               <div v-if="error" class="rounded-lg bg-red-600/80 px-4 py-3 font-medium text-red-100">{{ error }}</div>
+               <div v-if="successMessage" class="rounded-lg bg-emerald-600/80 px-4 py-3 font-medium text-emerald-100">{{ successMessage }}</div>
 
-            <button
-               type="submit"
-               :disabled="loading"
-               class="rounded-lg bg-primary-500 px-5 py-3 font-semibold uppercase tracking-wide text-slate-900 
-               transition hover:bg-primary-400 disabled:cursor-not-allowed disabled:bg-slate-600 disabled:text-slate-400"
-            >Login</button>
-         </form>
-      </main>
+               <button
+                  type="submit"
+                  :disabled="loading"
+                  class="rounded-lg bg-primary-500 px-5 py-3 font-semibold uppercase tracking-wide text-slate-900 
+                  transition hover:bg-primary-400 disabled:cursor-not-allowed disabled:bg-slate-600 disabled:text-slate-400"
+               >Login</button>
+            </form>
+         </main>
 
+      </div>
    </div>
 </template>
 
@@ -210,26 +212,6 @@
          position: absolute;
          right: 0;
          height: 100%;
-      }
-   }
-
-   hr.divider {
-      $color: $navyBlue;
-
-      border: none;
-      border-top: 4px double $color;
-      color: $color;
-      overflow: visible;
-      text-align: center;
-      height: 8px;
-
-      &::after {
-         background: $cream;
-         color: $color;
-         content: "●";
-         padding: 0 4px;
-         position: relative;
-         top: -14px;
       }
    }
 </style>

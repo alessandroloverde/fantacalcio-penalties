@@ -107,6 +107,7 @@
     @warn "Typography variant `#{$variant}` not found in $typography map.";
   }
 }
+
 // Typography Mixin
 /* –––––– dff –––––– */
 @mixin getIcon {
