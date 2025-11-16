@@ -3,10 +3,12 @@
    <div class="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <nuxtLink to="/">Back to Home</nuxtLink>
       <h1>{{ teamData?.name }}</h1>
-      <p v-if="ownerParticipant">
-         <span>Logged in as:</span> {{ ownerParticipant.name }} (ID: {{ ownerParticipant.id }})
+      <p v-if="presidents.length === 1">
+         <span>Presidente: </span> {{ presidents[0] }}
       </p>
-      <h4>{{ teamData }}</h4>
+      <p v-else>
+         <span>Presidenti:</span> {{ presidents.join(' | ') }}
+      </p>
       <hr class="divider my-4" />
       <div v-if="loading">Loading...</div>
       <ol id="players-list">
@@ -40,6 +42,7 @@
 
    const teamData = ref<any>(null)
    const players = ref<{name: string, role: string, squadra: string, team: any}[]>([])
+   const presidents = ref<string[]>([])
    let loading = ref<boolean>(true)
    const fileInput = ref<HTMLInputElement | null>(null)
 
@@ -133,6 +136,8 @@
             loading.value = false
 
             const playersReference = teamData.value.players
+            const presidentReference = teamData.value.president
+
 
             for (const playerKey in playersReference) {
                const singlePlayerReference = playersReference[playerKey]
@@ -140,6 +145,14 @@
                const singlePlayerData = singlePlayerDoc.data() as {name: string, role: string, squadra: string, team: any}
 
                players.value.push(singlePlayerData)
+            }
+
+            for (const president in presidentReference) {
+               const singlePresidentReference = presidentReference[president]
+               const singlePresidentDoc = await getDoc(singlePresidentReference)
+               const singlePresidentData = singlePresidentDoc.data() as {name: string}
+
+               presidents.value.push(singlePresidentData.name)
             }
             
          }
@@ -157,6 +170,7 @@
    }
 
    h1 + p { color: $blush }
+   h4 { color: $color-text-dark}
 
    #players-list {
       color:black;
