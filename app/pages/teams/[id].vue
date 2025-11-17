@@ -13,13 +13,15 @@
       <hr class="divider my-4" />
       <div v-if="loading">Loading...</div>
       <ol id="players-list">
-         <li v-for="player in players" :key="player.name">
-            <span>Nome: </span>{{ player.name }}
-            <span>Ruolo: </span>{{ player.role }}
-            <span>Squadra: </span>{{ player.squadra }}
+         <li v-for="player in players" :key="player.name" class="player">
+            <span class="player--name">{{ player.name }}</span>
+            <span class="player--role">{{ player.role }}</span>
+            <span class="player--team">{{ player.squadra }}</span>
          </li>
       </ol>
       <input
+         v-if="ownerParticipant && presidents.includes(ownerParticipant.name)"
+         class="upload-input"
          type="file"
          accept=".csv"
          ref="fileInput"
@@ -46,6 +48,12 @@
    const presidents = ref<string[]>([])
    let loading = ref<boolean>(true)
    const fileInput = ref<HTMLInputElement | null>(null)
+   const roleOrder: Record<string, number> = { 'P': 1, 'D': 2, 'C': 3, 'A': 4 }
+
+   function sortPlayersByRole(playersArray: {name: string, role: string, squadra: string, team: any}[] | null | undefined) {
+      if (!playersArray) return [];
+      return playersArray.sort((a, b) => (roleOrder[a.role] ?? 0) - (roleOrder[b.role] ?? 0));
+   }
 
 
    function toPascalCase(string: string): string {
@@ -104,6 +112,8 @@
             // Add to local display
             players.value.push(playerData as {name: string, role: string, squadra: string, team: any})
          }
+
+         players.value = sortPlayersByRole(players.value)
          
          // Replace entire players field
          const teamRef = doc(db, "teams", teamId)
@@ -139,6 +149,8 @@
             const playersReference = teamData.value.players
             const presidentReference = teamData.value.president
 
+            console.log("PRESIDENTI", teamData.value)
+
 
             for (const playerKey in playersReference) {
                const singlePlayerReference = playersReference[playerKey]
@@ -147,6 +159,8 @@
 
                players.value.push(singlePlayerData)
             }
+
+            players.value = sortPlayersByRole(players.value)
 
             for (const president in presidentReference) {
                const singlePresidentReference = presidentReference[president]
@@ -164,6 +178,8 @@
 
 <style lang="scss">
 @use '@/assets/scss//main' as *;
+@use 'sass:color';
+
 
    h1 { 
       @include typography('h1');
@@ -171,19 +187,46 @@
    }
 
    h1 + p { color: $blush }
-   h4 { color: $color-text-dark}
+   h4 { color: $color-text-dark }
+
+   .upload-input {
+      width: 100%;
+      padding: $spacing-sm $spacing-md;
+      border: 2px dashed $navyBlue;
+      border-radius: $radius-lg;
+      background-color: color.scale($cream, $lightness: 5%);
+      color: $color-text-dark;
+      transition: border-color $transition-fast ease, background-color $transition-fast ease;
+
+      &:hover {
+         border-color: $coral;
+         background-color: color.scale($cream, $lightness: 10%);
+      }
+
+      &:focus-visible {
+         outline: none;
+         border-color: $blush;
+         box-shadow: 0 0 0 3px color.scale($blush, $alpha: -30%);
+      }
+   }
 
    #players-list {
       color:black;
       list-style-type: none;
 
-      li {
+      .player {
+         width: 40%;
+         background-color: $cream;
+         border-radius: 1.2em;
          margin-bottom: 1rem;
          counter-increment: step-counter;
          display: flex;
          align-items: center;
 
-         & span { margin-right: 1em;}
+         & span { margin-right: 1em }
+         &--name { width: 50%; }
+         &--role { width: 15%; }
+         &--team { width: 35%; }
 
          &::before {
               content: counter(step-counter);
@@ -199,6 +242,7 @@
               font-size: 1.25rem;
               font-weight: $font-weight-medium;
               margin-right: 0.5em;
+              padding: 1em;
          }
       }
    }

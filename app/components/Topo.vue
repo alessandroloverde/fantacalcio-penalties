@@ -1,5 +1,7 @@
 <template>
    <section>
+      <LoggedUser></LoggedUser>
+      
       <h1>Mannagia al Castoro</h1>
       <!-- <h2>{{ settings?.season }}</h2> -->
       <h2 v-if="err">Errore: {{ err }}</h2>

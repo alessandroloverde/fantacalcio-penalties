@@ -1,5 +1,7 @@
 <template>
-  <div class="logged-user"><span>Logged in as: </span>{{ loggedUser ? loggedUser?.name : "not logged in" }}</div>
+  <div class="logged-user">
+    <span>Logged in as: </span>{{ loggedUser ? loggedUser?.name : "not logged in" }}
+  </div>
 </template>
 
 <script setup lang="ts">
