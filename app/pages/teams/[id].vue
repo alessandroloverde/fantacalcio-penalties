@@ -13,7 +13,7 @@
       <hr class="divider my-4" />
       <div v-if="loading">Loading...</div>
       <ol id="players-list">
-         <li v-for="player in players" :key="player.name" class="player">
+         <li v-for="player in players" :key="player.name" class="player" :class="'role--' + player.role">
             <span class="player--name">{{ player.name }}</span>
             <span class="player--role">{{ player.role }}</span>
             <span class="player--team">{{ player.squadra }}</span>
@@ -214,6 +214,13 @@
       color:black;
       list-style-type: none;
 
+      .player.role {
+         &--P { background: linear-gradient(to right, $cream, color.change($navyBlue, $alpha: 0.4)); }
+         &--D { background: linear-gradient(to right, $cream, color.change($blush, $alpha: 0.4)); }
+         &--C { background: linear-gradient(to right, $cream, color.change($darkOlive, $alpha: 0.4)); }
+         &--A { background: linear-gradient(to right, $cream, color.change($brownSugar, $alpha: 0.4)); }
+      }
+
       .player {
          width: 40%;
          background-color: $cream;
@@ -222,6 +229,7 @@
          counter-increment: step-counter;
          display: flex;
          align-items: center;
+         box-shadow: 0 1px 1px rgba(5,5,5, 0.5);
 
          & span { margin-right: 1em }
          &--name { width: 50%; }
@@ -246,4 +254,5 @@
          }
       }
    }
+
 </style>
