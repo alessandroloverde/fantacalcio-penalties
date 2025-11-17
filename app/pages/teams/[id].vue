@@ -1,6 +1,7 @@
 <template>
-   <LoggedUser></LoggedUser>
    <div class="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <LoggedUser></LoggedUser>
+
       <nuxtLink to="/">Back to Home</nuxtLink>
       <h1>{{ teamData?.name }}</h1>
       <p v-if="presidents.length === 1">
@@ -180,21 +181,24 @@
          margin-bottom: 1rem;
          counter-increment: step-counter;
          display: flex;
+         align-items: center;
 
          & span { margin-right: 1em;}
 
          &::before {
               content: counter(step-counter);
               display: inline-block;
-              background-color: brown;
+              background-color: $blush;
               color: white;
               border-radius: 100%;
               display: flex;
               align-items: center;
               justify-content: center;
-              width: 2em;
-              height: 2em;
-              font-size: 1.5rem;
+              width: 1.5em;
+              height: 1.5em;
+              font-size: 1.25rem;
+              font-weight: $font-weight-medium;
+              margin-right: 0.5em;
          }
       }
    }
