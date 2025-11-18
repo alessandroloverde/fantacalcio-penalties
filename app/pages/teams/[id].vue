@@ -215,10 +215,10 @@
       list-style-type: none;
 
       .player.role {
-         &--P { background: linear-gradient(to right, $cream, color.change($navyBlue, $alpha: 0.4)); }
-         &--D { background: linear-gradient(to right, $cream, color.change($blush, $alpha: 0.4)); }
-         &--C { background: linear-gradient(to right, $cream, color.change($darkOlive, $alpha: 0.4)); }
-         &--A { background: linear-gradient(to right, $cream, color.change($brownSugar, $alpha: 0.4)); }
+         &--P { background: linear-gradient(to right, $cream, color.change($navyBlue, $alpha: 0.4)) }
+         &--D { background: linear-gradient(to right, $cream, color.change($blush, $alpha: 0.4)) }
+         &--C { background: linear-gradient(to right, $cream, color.change($darkOlive, $alpha: 0.4)) }
+         &--A { background: linear-gradient(to right, $cream, color.change($brownSugar, $alpha: 0.4)) }
       }
 
       .player {
