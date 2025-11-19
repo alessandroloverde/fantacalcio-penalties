@@ -74,7 +74,6 @@
    import { getFirestore, doc, getDoc, collection, getDocs, setDoc, updateDoc } from 'firebase/firestore';
    import { useRoute } from 'vue-router';
    import Papa from 'papaparse';
-   import draggable from 'vuedraggable';
 
    const route = useRoute()
    const { $firebaseApp } = useNuxtApp()
@@ -88,8 +87,6 @@
    const fileInput = ref<HTMLInputElement | null>(null)
    const roleOrder: Record<string, number> = { 'P': 1, 'D': 2, 'C': 3, 'A': 4 }
 
-   const draggablePlayers = players
-   const draggablePenaltyTakers = ref<{name: string, role: string, squadra: string, team: any}[]>([])
 
    function sortPlayersByRole(playersArray: {name: string, role: string, squadra: string, team: any, list?: string, internalID?: number}[] | null | undefined) {
       if (!playersArray) return [];
