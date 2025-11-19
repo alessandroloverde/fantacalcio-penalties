@@ -12,13 +12,52 @@
       </p>
       <hr class="divider my-4" />
       <div v-if="loading">Loading...</div>
-      <ol id="players-list">
-         <li v-for="player in players" :key="player.name" class="player" :class="'role--' + player.role">
-            <span class="player--name">{{ player.name }}</span>
-            <span class="player--role">{{ player.role }}</span>
-            <span class="player--team">{{ player.squadra }}</span>
-         </li>
-      </ol>
+
+      <div class="flex flex-col lg:flex-row lg:items-start lg:gap-6">
+         <div id="availablePlayers-list" class="w-full md:w-1/2 bg-red-300">
+            <h2>Rosa</h2>
+            <ol 
+               id="players-list" 
+               class="w-full md:w-1/2 drop-zone"
+               @dragenter.prevent
+               @dragover.prevent
+               @drop="onDrop($event, 'List-1')" 
+            >
+               <li v-for="player in players.filter(item => item.list == 'List-1')" 
+                  :key="player.name"
+                  draggable="true"
+                  @dragstart="startDrag($event, player)" 
+                  class="player" 
+                  :class="'role--' + player.role">
+                     <span class="player--name">{{ player.name }}</span>
+                     <span class="player--role">{{ player.role }}</span>
+                     <span class="player--team">{{ player.squadra }}</span>
+               </li>
+            </ol>
+         </div>
+
+         <div id="penaltyTakers-list" class="w-full md:w-1/2 bg-red-200">
+            <h2>Rigoristi</h2>
+            <ol 
+               id="players-list" 
+               class="w-full md:w-1/2 drop-zone"
+               @dragenter.prevent
+               @dragover.prevent 
+               @drop="onDrop($event, 'List-2')"
+            >
+               <li v-for="player in players.filter(item => item.list == 'List-2')" 
+                  :key="player.name"
+                  draggable="true"
+                  @dragstart="startDrag($event, player)" 
+                  class="player" 
+                  :class="'role--' + player.role">
+                     <span class="player--name">{{ player.name }}</span>
+                     <span class="player--role">{{ player.role }}</span>
+                     <span class="player--team">{{ player.squadra }}</span>
+               </li>
+            </ol>
+         </div>
+      </div>
       <input
          v-if="ownerParticipant && presidents.includes(ownerParticipant.name)"
          class="upload-input"
@@ -35,22 +74,24 @@
    import { getFirestore, doc, getDoc, collection, getDocs, setDoc, updateDoc } from 'firebase/firestore';
    import { useRoute } from 'vue-router';
    import Papa from 'papaparse';
+   import draggable from 'vuedraggable';
 
    const route = useRoute()
    const { $firebaseApp } = useNuxtApp()
 
-   const teamId = route.params.id as string
-
-   const { participant: ownerParticipant, loading: participantLoading, error, fetchParticipant } = useLoggedUser()
-
-   const teamData = ref<any>(null)
-   const players = ref<{name: string, role: string, squadra: string, team: any}[]>([])
-   const presidents = ref<string[]>([])
    let loading = ref<boolean>(true)
+   const teamId = route.params.id as string
+   const { participant: ownerParticipant, loading: participantLoading, error, fetchParticipant } = useLoggedUser()
+   const teamData = ref<any>(null)
+   const players = ref<{name: string, role: string, squadra: string, team: any, list?: string, internalID?: number}[]>([])
+   const presidents = ref<string[]>([])
    const fileInput = ref<HTMLInputElement | null>(null)
    const roleOrder: Record<string, number> = { 'P': 1, 'D': 2, 'C': 3, 'A': 4 }
 
-   function sortPlayersByRole(playersArray: {name: string, role: string, squadra: string, team: any}[] | null | undefined) {
+   const draggablePlayers = players
+   const draggablePenaltyTakers = ref<{name: string, role: string, squadra: string, team: any}[]>([])
+
+   function sortPlayersByRole(playersArray: {name: string, role: string, squadra: string, team: any, list?: string, internalID?: number}[] | null | undefined) {
       if (!playersArray) return [];
       return playersArray.sort((a, b) => (roleOrder[a.role] ?? 0) - (roleOrder[b.role] ?? 0));
    }
@@ -99,7 +140,9 @@
                name,
                role,
                squadra,
-               team: doc(db, "teams", teamId)
+               team: doc(db, "teams", teamId),
+               list: "List-1",
+               internalID: players.value.length
             }
             
             // Add to players collection
@@ -135,6 +178,30 @@
 
    }
 
+   const startDrag = (event: DragEvent, item: any) => {
+      if(!event.dataTransfer || item.internalID == null) return
+
+      event.dataTransfer.dropEffect = "move"
+      event.dataTransfer.effectAllowed = "move"
+      event.dataTransfer.setData('itemID', String(item.internalID))
+   }
+
+   const onDrop = (event: DragEvent, list: string) => {
+      if(!event.dataTransfer) return
+
+      event.dataTransfer.dropEffect = "move"
+      event.dataTransfer.effectAllowed = "move"
+
+      const itemID = event.dataTransfer.getData('itemID')
+      if(!itemID) return
+
+      const selectedPlayer = players.value.find(item => item.internalID === Number(itemID))
+
+      if(selectedPlayer) {
+         selectedPlayer.list = list
+      }
+   }
+
    onMounted(async () => {
       if (process.client && $firebaseApp) {
          const db = getFirestore($firebaseApp)
@@ -149,18 +216,21 @@
             const playersReference = teamData.value.players
             const presidentReference = teamData.value.president
 
-            console.log("PRESIDENTI", teamData.value)
 
-
+            let index = 0
             for (const playerKey in playersReference) {
                const singlePlayerReference = playersReference[playerKey]
                const singlePlayerDoc = await getDoc(singlePlayerReference)
-               const singlePlayerData = singlePlayerDoc.data() as {name: string, role: string, squadra: string, team: any}
+               const singlePlayerData = singlePlayerDoc.data() as {name: string, role: string, squadra: string, team: any, list: string, internalID: number}
+
+               singlePlayerData.list = "List-1"
+               singlePlayerData.internalID = index
+               index++
 
                players.value.push(singlePlayerData)
             }
+            players.value = sortPlayersByRole(players.value) // *** Sorting ***
 
-            players.value = sortPlayersByRole(players.value)
 
             for (const president in presidentReference) {
                const singlePresidentReference = presidentReference[president]
@@ -210,6 +280,16 @@
       }
    }
 
+
+   .drop-zone {
+      min-height: 100px;
+      border: 2px dashed $navyBlue;
+      border-radius: $radius-lg;
+      background-color: color.scale($cream, $lightness: 5%);
+      color: $color-text-dark;
+      transition: border-color $transition-fast ease, background-color $transition-fast ease;
+   }
+
    #players-list {
       color:black;
       list-style-type: none;
@@ -222,7 +302,7 @@
       }
 
       .player {
-         width: 40%;
+         //width: 40%;
          background-color: $cream;
          border-radius: 1.2em;
          margin-bottom: 1rem;
@@ -230,6 +310,7 @@
          display: flex;
          align-items: center;
          box-shadow: 0 1px 1px rgba(5,5,5, 0.5);
+         cursor:move;
 
          & span { margin-right: 1em }
          &--name { width: 50%; }
