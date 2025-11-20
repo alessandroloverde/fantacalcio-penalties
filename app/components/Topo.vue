@@ -1,22 +1,19 @@
 <template>
    <section>
       <LoggedUser></LoggedUser>
-      
+
       <h1>Mannagia al Castoro</h1>
       <!-- <h2>{{ settings?.season }}</h2> -->
       <h2 v-if="err">Errore: {{ err }}</h2>
       <h2 v-if="loading">Loading...</h2>
       <hr/>
-      <ol>
-         <h3>Elenco delle squadre con giocatori</h3>
-         <li v-for="item, index in teamsWithPlayers" :key="index">
-            <nuxtLink :to="`/teams/${item.teamId}`">{{ item.teamData.name }}</nuxtLink>
-<!--        <ol>
-               <li v-for="player in item.players" :key="player.id">{{ player.name }}</li>
-            </ol> -->
-         </li>
-
-      </ol>
+      <h3>Elenco delle squadre con giocatori</h3>
+      <section v-for="item, index in teamsWithPlayers" :key="index">
+         <nuxtLink :to="`/teams/${item.teamId}`">{{ item.teamData.name }}</nuxtLink>
+         <ol>
+            <li v-for="player in item.players ">{{ player.name }}</li>
+         </ol>
+      </section>
    </section>
 </template>
 
@@ -37,10 +34,8 @@ import { getFirestore, doc, getDoc, collection, getDocs } from 'firebase/firesto
 const { $firebaseApp } = useNuxtApp()
 
 const settings = ref<any>(null)
-const myTeams = ref<any>(null)
 const err = ref(false)
 const loading = ref(false)
-const allCollections = ref<Record<string, any[]>>({})
 const teamsWithPlayers = ref<Array<{
   teamId: string,
   teamData: any,
@@ -55,48 +50,48 @@ onMounted(async () => {
       
       const db = getFirestore($firebaseApp)
       
-      const playerRef = doc(db, "players", "id-Leao");
-      const playerSnap = await getDoc(playerRef);
-      const playerData = playerSnap.data();
-      const teamSnap = await getDoc((playerData as any).team)
-
       // *** Retrieve all teams ***
       try {
          const teamsSnapshot = await getDocs(collection(db, "teams"))
 
-         for (const teamDoc of teamsSnapshot.docs) {
+         // Process all teams in parallel
+         const teamPromises = teamsSnapshot.docs.map(async (teamDoc) => {
             const teamData = teamDoc.data()
             
             if (teamData.players) {
-               const players = []
+               // Collect all player references first
+               const playerRefs = Object.values(teamData.players) as any[]
                
-               // Loop through the players object (player1, player2, etc.)
-               for (const playerKey in teamData.players) {
-                  const playerRef = teamData.players[playerKey] // This is a document reference
-                  const playerDoc = await getDoc(playerRef) // Use the reference directly
-                  
-                  if (playerDoc.exists()) {
-                     players.push({ 
-                       id: playerDoc.id, 
-                       ...(playerDoc.data() || {})
-                     })
-                  }
-               }
+               // Fetch all players in parallel using Promise.all
+               const playerPromises = playerRefs.map(playerRef => 
+                  getDoc(playerRef).then(playerDoc => {
+                     if (playerDoc.exists()) {
+                        return { 
+                           id: playerDoc.id, 
+                           ...(playerDoc.data() || {})
+                        }
+                     }
+                     return null
+                  })
+               )
                
-               teamsWithPlayers.value.push({
+               const players = (await Promise.all(playerPromises)).filter(p => p !== null)
+               
+               return {
                   teamId: teamDoc.id,
                   teamData: teamData,
                   players: players
-               })
+               }
             }
-         }
+            return null
+         })
+         
+         const results = await Promise.all(teamPromises)
+         teamsWithPlayers.value = results.filter(t => t !== null) as any[]
 
       } catch (error: any) {
-
-      } finally {
-         loading.value = false
+         err.value = error.message || 'Unknown error'
       }
-
 
       try {         
          const docRef = doc(db, 'gameSettings', 'wUDv5Wr31ETbShASdx7u') 
@@ -107,32 +102,6 @@ onMounted(async () => {
          } else {
             settings.value = 'No game settings found'
          }
-
-
-
-
-/*          const collectionNames = ['gameSettings', 'participants', 'teams', 'players']
-
-         for (const collectionName of collectionNames) {
-            try {
-               const collectionRef = collection(db, collectionName)
-               const snapshot = await getDocs(collectionRef)
-
-               allCollections.value[collectionName] = snapshot.docs.map(doc => ({
-                  name: collectionName,
-                  id: doc.id,
-                  ...doc.data() 
-               }))
-
-               console.log(`🔥 Retrieved ${collectionName}:`, allCollections.value[collectionName])
-            } catch (error) {
-               console.error(`🔥 Error retrieving collection ${collectionName}:`, error)
-
-               allCollections.value[collectionName] = []
-            }
-         } */
-
-
       } catch (error: any) {
          err.value = error.message || 'Unknown error'
       } finally {
