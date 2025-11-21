@@ -11,7 +11,10 @@
       <section v-for="item, index in teamsWithPlayers" :key="index">
          <nuxtLink :to="`/teams/${item.teamId}`">{{ item.teamData.name }}</nuxtLink>
          <ol>
-            <li v-for="player in item.players ">{{ player.name }}</li>
+            <!-- <li v-for="player in item.players ">{{ player.name }}</li> -->
+             <li v-for="penaltyTaker in criceto[item.teamId]?.sort((a, b) => {return a.position -b.position })">
+               <span>{{ penaltyTaker.position }} – </span>{{ penaltyTaker.name }}
+            </li>
          </ol>
       </section>
    </section>
@@ -41,6 +44,16 @@ const teamsWithPlayers = ref<Array<{
   teamData: any,
   players: any[]
 }>>([])
+const penalties = ref<Array<{
+   internalID: number,
+   list: string,
+   name: string,
+   position: number,
+   role: string,
+   squadra: string,
+   team: any[]
+}>>([])
+const criceto = ref<Record<string, any[]>>({})
 
 
 onMounted(async () => {
@@ -53,6 +66,15 @@ onMounted(async () => {
       // *** Retrieve all teams ***
       try {
          const teamsSnapshot = await getDocs(collection(db, "teams"))
+         const penaltiesSnapshot = await getDocs(collection(db, "penalties"))
+
+         criceto.value = Object.fromEntries(
+            penaltiesSnapshot.docs.map(penaltyDoc => {
+               const penaltyData = penaltyDoc.data()
+               return [penaltyDoc.id, penaltyData.penaltyTakers || []]
+            })
+         )
+
 
          // Process all teams in parallel
          const teamPromises = teamsSnapshot.docs.map(async (teamDoc) => {
@@ -80,7 +102,7 @@ onMounted(async () => {
                return {
                   teamId: teamDoc.id,
                   teamData: teamData,
-                  players: players
+                  players: players,
                }
             }
             return null
@@ -93,6 +115,7 @@ onMounted(async () => {
          err.value = error.message || 'Unknown error'
       }
 
+      // *** Retrieve Settings ***
       try {         
          const docRef = doc(db, 'gameSettings', 'wUDv5Wr31ETbShASdx7u') 
          const docSnap = await getDoc(docRef)
