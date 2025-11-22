@@ -5,9 +5,10 @@
 </template>
 
 <script setup lang="ts">
+import { useAuthStore } from '../stores/auth'
 
-const { participant: loggedUser } = useLoggedUser()
-
+const authStore = useAuthStore()
+const loggedUser = computed(() => authStore.participant)
 </script>
 
 <style scoped lang="scss">

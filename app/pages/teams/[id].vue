@@ -93,16 +93,22 @@
 </template>
 
 <script setup lang="ts">
-   import { getFirestore, doc, getDoc, collection, getDocs, setDoc, updateDoc } from 'firebase/firestore';
+   import { getFirestore, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
    import { useRoute } from 'vue-router';
    import Papa from 'papaparse';
+   import { useAuthStore } from '../../stores/auth';
+   import { usePenaltiesStore } from '../../stores/penalties'
 
    const route = useRoute()
    const { $firebaseApp } = useNuxtApp()
 
+   // Use Pinia stores
+   const authStore = useAuthStore()
+   const loggedUser = computed(() => authStore.participant)
+   const penaltiesStore = usePenaltiesStore()
+
    let loading = ref<boolean>(true)
    const teamId = route.params.id as string
-   const { participant: loggedUser, loading: participantLoading, error, fetchParticipant } = useLoggedUser()
    const teamData = ref<any>(null)
    const players = ref<{name: string, role: string, squadra: string, team: any, list?: string, internalID?: number, position?: number | null}[]>([])
    const presidents = ref<string[]>([])
@@ -264,6 +270,12 @@
    onMounted(async () => {
       if (process.client && $firebaseApp) {
          const db = getFirestore($firebaseApp)
+         
+         // Fetch penalties if not already loaded
+         if (Object.keys(penaltiesStore.penalties).length === 0) {
+            await penaltiesStore.fetchPenalties()
+         }
+
          const teamRef = doc(db, "teams", teamId)
          const teamSnap = await getDoc(teamRef)
 
@@ -275,6 +287,8 @@
             const playersReference = teamData.value.players
             const presidentReference = teamData.value.president
 
+            // Get saved penalty takers for this team
+            const savedPenaltyTakers = penaltiesStore.penalties[teamId] || []
 
             let index = 0
             for (const playerKey in playersReference) {
@@ -282,9 +296,18 @@
                const singlePlayerDoc = await getDoc(singlePlayerReference)
                const singlePlayerData = singlePlayerDoc.data() as {name: string, role: string, squadra: string, team: any, list: string, internalID: number, position: number | null}
 
-               singlePlayerData.list = "List-1"
+               // Check if this player is in saved penalty takers
+               const savedPenaltyTaker = savedPenaltyTakers.find((pt: any) => pt.name === singlePlayerData.name)
+               
+               if (savedPenaltyTaker) {
+                  singlePlayerData.list = "List-2"
+                  singlePlayerData.position = savedPenaltyTaker.position
+               } else {
+                  singlePlayerData.list = "List-1"
+                  singlePlayerData.position = null
+               }
+               
                singlePlayerData.internalID = index
-               singlePlayerData.position = null
                index++
 
                players.value.push(singlePlayerData)
