@@ -81,7 +81,7 @@
          </div>
       </div>
       <input
-         v-if="ownerParticipant && presidents.includes(ownerParticipant.name)"
+         v-if="loggedUser && presidents.includes(loggedUser.name)"
          class="upload-input"
          type="file"
          accept=".csv"
@@ -102,7 +102,7 @@
 
    let loading = ref<boolean>(true)
    const teamId = route.params.id as string
-   const { participant: ownerParticipant, loading: participantLoading, error, fetchParticipant } = useLoggedUser()
+   const { participant: loggedUser, loading: participantLoading, error, fetchParticipant } = useLoggedUser()
    const teamData = ref<any>(null)
    const players = ref<{name: string, role: string, squadra: string, team: any, list?: string, internalID?: number, position?: number | null}[]>([])
    const presidents = ref<string[]>([])
