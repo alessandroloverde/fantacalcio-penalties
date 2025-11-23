@@ -291,7 +291,6 @@
             )
             const playerDocs = await Promise.all(playerPromises)
 
-            let index = 0
             for (const singlePlayerDoc of playerDocs) {
                const singlePlayerData = singlePlayerDoc.data() as {name: string, role: string, squadra: string, team: any, list: string, internalID: number, position: number | null}
 
@@ -305,13 +304,17 @@
                   singlePlayerData.list = "List-1"
                   singlePlayerData.position = null
                }
-               
-               singlePlayerData.internalID = index
-               index++
 
                players.value.push(singlePlayerData)
             }
-            players.value = sortPlayersByRole(players.value) // *** Sorting ***
+            
+            // Sort players by role first
+            players.value = sortPlayersByRole(players.value)
+            
+            // Then assign internalID based on sorted order
+            players.value.forEach((player, index) => {
+               player.internalID = index
+            })
 
             // Fetch all presidents in parallel
             const presidentPromises = Object.keys(presidentReference).map(president =>
