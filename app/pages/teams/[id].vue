@@ -97,7 +97,6 @@
    import { useRoute } from 'vue-router';
    import Papa from 'papaparse';
    import { useAuthStore } from '../../stores/auth';
-   import { usePenaltiesStore } from '../../stores/penalties'
 
    const route = useRoute()
    const { $firebaseApp } = useNuxtApp()
@@ -105,7 +104,6 @@
    // Use Pinia stores
    const authStore = useAuthStore()
    const loggedUser = computed(() => authStore.participant)
-   const penaltiesStore = usePenaltiesStore()
 
    let loading = ref<boolean>(true)
    const teamId = route.params.id as string
@@ -286,9 +284,6 @@
 
             const playersReference = teamData.value.players
             const presidentReference = teamData.value.president
-
-            // Get saved penalty takers for this team
-            //const savedPenaltyTakers = penaltiesStore.penalties[teamId] || []
 
             // Fetch all players in parallel
             const playerPromises = Object.keys(playersReference).map(playerKey => 
