@@ -272,9 +272,9 @@
          const db = getFirestore($firebaseApp)
          
          // Fetch penalties if not already loaded
-         if (Object.keys(penaltiesStore.penalties).length === 0) {
-            await penaltiesStore.fetchPenalties()
-         }
+         const penaltiesRef = doc(db, "penalties", teamId)
+         const penaltiesSnap = await getDoc(penaltiesRef)
+         const savedPenaltyTakers = penaltiesSnap.exists() ? penaltiesSnap.data()?.penaltyTakers || [] : []
 
          const teamRef = doc(db, "teams", teamId)
          const teamSnap = await getDoc(teamRef)
@@ -288,12 +288,16 @@
             const presidentReference = teamData.value.president
 
             // Get saved penalty takers for this team
-            const savedPenaltyTakers = penaltiesStore.penalties[teamId] || []
+            //const savedPenaltyTakers = penaltiesStore.penalties[teamId] || []
+
+            // Fetch all players in parallel
+            const playerPromises = Object.keys(playersReference).map(playerKey => 
+               getDoc(playersReference[playerKey])
+            )
+            const playerDocs = await Promise.all(playerPromises)
 
             let index = 0
-            for (const playerKey in playersReference) {
-               const singlePlayerReference = playersReference[playerKey]
-               const singlePlayerDoc = await getDoc(singlePlayerReference)
+            for (const singlePlayerDoc of playerDocs) {
                const singlePlayerData = singlePlayerDoc.data() as {name: string, role: string, squadra: string, team: any, list: string, internalID: number, position: number | null}
 
                // Check if this player is in saved penalty takers
@@ -314,10 +318,13 @@
             }
             players.value = sortPlayersByRole(players.value) // *** Sorting ***
 
+            // Fetch all presidents in parallel
+            const presidentPromises = Object.keys(presidentReference).map(president =>
+               getDoc(presidentReference[president])
+            )
+            const presidentDocs = await Promise.all(presidentPromises)
 
-            for (const president in presidentReference) {
-               const singlePresidentReference = presidentReference[president]
-               const singlePresidentDoc = await getDoc(singlePresidentReference)
+            for (const singlePresidentDoc of presidentDocs) {
                const singlePresidentData = singlePresidentDoc.data() as {name: string}
 
                presidents.value.push(singlePresidentData.name)

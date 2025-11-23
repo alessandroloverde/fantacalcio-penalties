@@ -58,10 +58,6 @@ export const useAuthStore = defineStore('auth', () => {
       }
    }
 
-   if (process.client) {
-      fetchParticipant()
-   }
-
    return {
       participant: readonly(participant),
       loading: readonly(loading),
