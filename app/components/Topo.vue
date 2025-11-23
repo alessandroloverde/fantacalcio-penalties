@@ -71,10 +71,10 @@ onMounted(async () => {
          criceto.value = Object.fromEntries(
             penaltiesSnapshot.docs.map(penaltyDoc => {
                const penaltyData = penaltyDoc.data()
+               
                return [penaltyDoc.id, penaltyData.penaltyTakers || []]
             })
          )
-
 
          // Process all teams in parallel
          const teamPromises = teamsSnapshot.docs.map(async (teamDoc) => {
