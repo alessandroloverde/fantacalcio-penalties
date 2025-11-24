@@ -3,15 +3,13 @@
       <LoggedUser></LoggedUser>
       <h1 class="text-3xl font-bold text-gray-900 mb-6">Settings</h1>
       
-      <section class="bg-white rounded-lg shadow-md p-6">
+      <div class="bg-white rounded-lg shadow-md p-6">
          <h2 class="text-2xl font-semibold text-gray-800 mb-4">Time Windows</h2>
          
          <form id="timeWindow" @submit.prevent="saveTimeWindow" class="space-y-4 mb-8">
             <!-- Name Input -->
-            <div>
-               <label for="windowName" class="block text-sm font-medium text-gray-700 mb-1">
-                  Window Name
-               </label>
+            <section id="edit--windowName">
+               <label for="windowName" class="block text-sm font-medium text-gray-700 mb-1">Window Name</label>
                <input
                   v-model="formData.name"
                   type="text"
@@ -20,15 +18,13 @@
                   required
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                />
-            </div>
+            </section>
 
             <!-- Date and Time Inputs -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <section id="edit--dateAndTime" class="grid grid-cols-2 gap-4">
                <!-- Start Date/Time -->
-               <div>
-                  <label for="startDateTime" class="block text-sm font-medium text-gray-700 mb-1">
-                     Start Date & Time
-                  </label>
+               <div class="w-full">
+                  <label for="startDateTime" class="block text-sm font-medium text-gray-700 mb-1">Start Date & Time</label>
                   <input
                      v-model="formData.startDateTime"
                      type="datetime-local"
@@ -39,10 +35,8 @@
                </div>
 
                <!-- End Date/Time -->
-               <div>
-                  <label for="endDateTime" class="block text-sm font-medium text-gray-700 mb-1">
-                     End Date & Time
-                  </label>
+               <div class="w-full">
+                  <label for="endDateTime" class="block text-sm font-medium text-gray-700 mb-1">End Date & Time</label>
                   <input
                      v-model="formData.endDateTime"
                      type="datetime-local"
@@ -51,7 +45,29 @@
                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                </div>
-            </div>
+            </section>
+
+            <section id="edit--selectTeams" class="grid grid-cols-2 gap-4">
+               <label for="selectTeams" class="col-span-2">Select teams</label>
+               <select
+                  v-model="formData.teamA"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+               >
+                  <option value="">Select team A</option>
+                  <option v-for="team in teamStore.teamsWithPlayers" :key="team.teamId" :value="team.teamId">
+                     {{ team.teamData.name }}
+                  </option>
+               </select>
+               <select
+                  v-model="formData.teamB"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+               >
+                  <option value="">Select team B</option>
+                  <option v-for="team in teamStore.teamsWithPlayers" :key="team.teamId" :value="team.teamId">
+                     {{ team.teamData.name }}
+                  </option>
+               </select>
+            </section>
 
             <!-- Submit Button -->
             <button
@@ -114,91 +130,113 @@
          <div v-else class="text-center py-8 text-gray-500">
             <p>No time windows created yet. Add your first time window above.</p>
          </div>
-      </section>
+      </div>
    </div>
 </template>
 
 <script setup lang="ts">
-interface TimeWindow {
-   name: string
-   startDateTime: string
-   endDateTime: string
-}
+   import { useTeamsStore } from '../stores/teams'
 
-const timeWindows = ref<TimeWindow[]>([])
-const editingIndex = ref<number | null>(null)
-
-const formData = ref({
-   name: '',
-   startDateTime: '',
-   endDateTime: ''
-})
-
-const saveTimeWindow = () => {
-   const newWindow: TimeWindow = {
-      name: formData.value.name,
-      startDateTime: formData.value.startDateTime,
-      endDateTime: formData.value.endDateTime
+   interface TimeWindow {
+      name: string
+      startDateTime: string
+      endDateTime: string,
+      teamA: string,
+      teamB: string
    }
-   
-   if (editingIndex.value !== null) {
-      // Update existing time window
-      timeWindows.value[editingIndex.value] = newWindow
-      editingIndex.value = null
-   } else {
-      // Add new time window
-      timeWindows.value.push(newWindow)
-   }
-   
-   // Reset form
-   formData.value = {
+
+   const teamStore = useTeamsStore()
+
+   const timeWindows = ref<TimeWindow[]>([])
+   const editingIndex = ref<number | null>(null)
+
+   const formData = ref({
       name: '',
       startDateTime: '',
-      endDateTime: ''
-   }
-}
+      endDateTime: '',
+      teamA: '',
+      teamB: ''
+   })
 
-const editTimeWindow = (index: number) => {
-   const window = timeWindows.value[index]
-   if (!window) return
-   
-   editingIndex.value = index
-   formData.value = {
-      name: window.name,
-      startDateTime: window.startDateTime,
-      endDateTime: window.endDateTime
-   }
-}
-
-const cancelEdit = () => {
-   editingIndex.value = null
-   formData.value = {
-      name: '',
-      startDateTime: '',
-      endDateTime: ''
-   }
-}
-
-const deleteTimeWindow = (index: number) => {
-   if (confirm('Are you sure you want to delete this time window?')) {
-      timeWindows.value.splice(index, 1)
-      if (editingIndex.value === index) {
-         cancelEdit()
+   const saveTimeWindow = () => {
+      const newWindow: TimeWindow = {
+         name: formData.value.name,
+         startDateTime: formData.value.startDateTime,
+         endDateTime: formData.value.endDateTime,  
+         teamA: formData.value.teamA,
+         teamB: formData.value.teamB
+      }
+      
+      if (editingIndex.value !== null) {
+         // Update existing time window
+         timeWindows.value[editingIndex.value] = newWindow
+         editingIndex.value = null
+      } else {
+         // Add new time window
+         timeWindows.value.push(newWindow)
+      }
+      
+      // Reset form
+      formData.value = {
+         name: '',
+         startDateTime: '',
+         endDateTime: '',
+         teamA: '',
+         teamB: ''
       }
    }
-}
 
-const formatDateTime = (dateTimeString: string) => {
-   const date = new Date(dateTimeString)
-   return date.toLocaleString('it-IT', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+   const editTimeWindow = (index: number) => {
+      const window = timeWindows.value[index]
+      if (!window) return
+      
+      editingIndex.value = index
+      formData.value = {
+         name: window.name,
+         startDateTime: window.startDateTime,
+         endDateTime: window.endDateTime,
+         teamA: window.teamA,
+         teamB: window.teamB
+      }
+   }
+
+   const cancelEdit = () => {
+      editingIndex.value = null
+      formData.value = {
+         name: '',
+         startDateTime: '',
+         endDateTime: '',
+         teamA: '',
+         teamB: ''
+      }
+   }
+
+   const deleteTimeWindow = (index: number) => {
+      if (confirm('Are you sure you want to delete this time window?')) {
+         timeWindows.value.splice(index, 1)
+         if (editingIndex.value === index) {
+            cancelEdit()
+         }
+      }
+   }
+
+   const formatDateTime = (dateTimeString: string) => {
+      const date = new Date(dateTimeString)
+      return date.toLocaleString('it-IT', {
+         year: 'numeric',
+         month: 'short',
+         day: 'numeric',
+         hour: '2-digit',
+         minute: '2-digit'
+      })
+   }
+
+
+   onMounted(async () => {
+      await teamStore.fetchTeams()
    })
-}
 </script>
 
 <style lang="scss" scoped>
+   form { color: black; }
 </style>
