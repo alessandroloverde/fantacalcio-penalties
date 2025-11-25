@@ -47,32 +47,66 @@
                </div>
             </section>
 
-            <section id="edit--selectTeams" class="grid grid-cols-2 gap-4">
-               <label for="selectTeams" class="col-span-2">Select teams</label>
-               <select
-                  v-model="formData.teamA"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            <section id="edit--selectTeams" class="space-y-4">
+               <label class="block text-sm font-medium text-gray-700 mb-2">Select Matches</label>
+               
+               <div 
+                  v-for="(match, matchIndex) in formData.matches" 
+                  :key="matchIndex"
+                  class="flex items-end gap-3"
                >
-                  <option value="">Select team A</option>
-                  <option v-for="team in teamStore.teamsWithPlayers" :key="team.teamId" :value="team.teamId">
-                     {{ team.teamData.name }}
-                  </option>
-               </select>
-               <select
-                  v-model="formData.teamB"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  <div class="grid grid-cols-2 gap-3 flex-1">
+                     <select
+                        v-model="match.teamA"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                     >
+                        <option value="">Select team A</option>
+                        <option v-for="team in teamStore.teamsWithPlayers" :key="team.teamId" :value="team.teamId">
+                           {{ team.teamData.name }}
+                        </option>
+                     </select>
+                     <select
+                        v-model="match.teamB"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                     >
+                        <option value="">Select team B</option>
+                        <option v-for="team in teamStore.teamsWithPlayers" :key="team.teamId" :value="team.teamId">
+                           {{ team.teamData.name }}
+                        </option>
+                     </select>
+                  </div>
+                  
+                  <button
+                     v-if="matchIndex > 0"
+                     @click="removeMatch(matchIndex)"
+                     type="button"
+                     class="px-3 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg shadow transition"
+                     title="Remove match"
+                  >
+                     ✕
+                  </button>
+               </div>
+               
+               <button
+                  v-if="formData.matches.length < 4"
+                  @click="addMatch"
+                  type="button"
+                  class="mt-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg shadow transition"
                >
-                  <option value="">Select team B</option>
-                  <option v-for="team in teamStore.teamsWithPlayers" :key="team.teamId" :value="team.teamId">
-                     {{ team.teamData.name }}
-                  </option>
-               </select>
+                  + Add Another Match
+               </button>
             </section>
+
+            <hr />
 
             <!-- Submit Button -->
             <button
                type="submit"
-               class="w-full md:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+               class="w-full md:w-auto px-6 py-3 
+                    bg-blue-600 hover:bg-blue-700 
+                    text-white font-semibold 
+                    rounded-lg shadow-md 
+                    transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
                {{ editingIndex !== null ? 'Update Time Window' : 'Add New Time Window' }}
             </button>
@@ -81,7 +115,11 @@
                v-if="editingIndex !== null"
                @click="cancelEdit"
                type="button"
-               class="w-full md:w-auto ml-0 md:ml-3 mt-2 md:mt-0 px-6 py-3 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold rounded-lg shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+               class="w-full md:w-auto ml-0 md:ml-3 mt-2 md:mt-0 px-6 py-3 
+                    bg-gray-300 hover:bg-gray-400 
+                    text-gray-800 font-semibold 
+                    rounded-lg shadow-md 
+                    transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
             >
                Cancel
             </button>
@@ -107,6 +145,14 @@
                         <span class="font-medium">End:</span>
                         {{ formatDateTime(window.endDateTime) }}
                      </p>
+                     <div class="mt-2">
+                        <span class="font-medium">Matches:</span>
+                        <ul class="ml-4 mt-1 space-y-1">
+                           <li v-for="(match, matchIdx) in window.matches" :key="matchIdx">
+                              {{ getTeamName(match.teamA) }} vs {{ getTeamName(match.teamB) }}
+                           </li>
+                        </ul>
+                     </div>
                   </div>
                </div>
 
@@ -137,12 +183,16 @@
 <script setup lang="ts">
    import { useTeamsStore } from '../stores/teams'
 
+   interface Match {
+      teamA: string
+      teamB: string
+   }
+
    interface TimeWindow {
       name: string
       startDateTime: string
-      endDateTime: string,
-      teamA: string,
-      teamB: string
+      endDateTime: string
+      matches: Match[]
    }
 
    const teamStore = useTeamsStore()
@@ -154,17 +204,15 @@
       name: '',
       startDateTime: '',
       endDateTime: '',
-      teamA: '',
-      teamB: ''
+      matches: [{ teamA: '', teamB: '' }] as Match[]
    })
 
    const saveTimeWindow = () => {
       const newWindow: TimeWindow = {
          name: formData.value.name,
          startDateTime: formData.value.startDateTime,
-         endDateTime: formData.value.endDateTime,  
-         teamA: formData.value.teamA,
-         teamB: formData.value.teamB
+         endDateTime: formData.value.endDateTime,
+         matches: [...formData.value.matches]
       }
       
       if (editingIndex.value !== null) {
@@ -181,8 +229,7 @@
          name: '',
          startDateTime: '',
          endDateTime: '',
-         teamA: '',
-         teamB: ''
+         matches: [{ teamA: '', teamB: '' }]
       }
    }
 
@@ -195,8 +242,7 @@
          name: window.name,
          startDateTime: window.startDateTime,
          endDateTime: window.endDateTime,
-         teamA: window.teamA,
-         teamB: window.teamB
+         matches: [...window.matches]
       }
    }
 
@@ -206,8 +252,19 @@
          name: '',
          startDateTime: '',
          endDateTime: '',
-         teamA: '',
-         teamB: ''
+         matches: [{ teamA: '', teamB: '' }]
+      }
+   }
+
+   const addMatch = () => {
+      if (formData.value.matches.length < 4) {
+         formData.value.matches.push({ teamA: '', teamB: '' })
+      }
+   }
+
+   const removeMatch = (index: number) => {
+      if (formData.value.matches.length > 1) {
+         formData.value.matches.splice(index, 1)
       }
    }
 
@@ -229,6 +286,11 @@
          hour: '2-digit',
          minute: '2-digit'
       })
+   }
+
+   const getTeamName = (teamId: string) => {
+      const team = teamStore.teamsWithPlayers.find(t => t.teamId === teamId)
+      return team ? team.teamData.name : 'Unknown Team'
    }
 
 
