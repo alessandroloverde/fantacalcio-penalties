@@ -29,6 +29,7 @@
                      v-model="formData.startDateTime"
                      type="datetime-local"
                      id="startDateTime"
+                     :min="timeWindows?.[timeWindows.length -1]?.endDateTime || new Date().toISOString().slice(0, 16)"
                      required
                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
@@ -41,6 +42,7 @@
                      v-model="formData.endDateTime"
                      type="datetime-local"
                      id="endDateTime"
+                     :min="formData.startDateTime || new Date().toISOString().slice(0, 16)"
                      required
                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
