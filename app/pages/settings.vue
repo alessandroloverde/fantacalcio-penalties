@@ -61,7 +61,12 @@
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                      >
                         <option value="">Select team A</option>
-                        <option v-for="team in teamStore.teamsWithPlayers" :key="team.teamId" :value="team.teamId">
+                        <option 
+                           v-for="team in teamStore.teamsWithPlayers" 
+                           :key="team.teamId" 
+                           :value="team.teamId"
+                           :disabled="formData.matches.some(match => match.teamA === team.teamId || match.teamB === team.teamId)"
+                        >
                            {{ team.teamData.name }}
                         </option>
                      </select>
@@ -70,7 +75,12 @@
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                      >
                         <option value="">Select team B</option>
-                        <option v-for="team in teamStore.teamsWithPlayers" :key="team.teamId" :value="team.teamId">
+                        <option 
+                           v-for="team in teamStore.teamsWithPlayers" 
+                           :key="team.teamId" 
+                           :value="team.teamId" 
+                           :disabled="formData.matches.some(match => match.teamA === team.teamId || match.teamB === team.teamId)"
+                        >
                            {{ team.teamData.name }}
                         </option>
                      </select>
