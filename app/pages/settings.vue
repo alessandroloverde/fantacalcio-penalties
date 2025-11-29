@@ -203,12 +203,12 @@
    import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore'
    import { useNuxtApp } from '#app'
 
-   interface Match {
+   export interface Match {
       teamA: string
       teamB: string
    }
 
-   interface TimeWindow {
+   export interface TimeWindow {
       id?: string
       name: string
       startDateTime: string
