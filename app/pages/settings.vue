@@ -248,8 +248,10 @@
          if (editingIndex.value !== null) {
             // Update existing time window in Firestore
             const windowToUpdate = timeWindows.value[editingIndex.value]
+
             if (windowToUpdate && windowToUpdate.id) {
                const docRef = doc(db, "session", windowToUpdate.id)
+               
                await updateDoc(docRef, {
                   name: newWindow.name,
                   startDateTime: newWindow.startDateTime,

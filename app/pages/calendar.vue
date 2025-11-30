@@ -10,9 +10,9 @@
          <div class="flex-1">
             <p>Fine: {{ session.endDateTime }}</p>
          </div>
-         <div>
+         <div class="w-full">
             <ul>
-               <li v-for="match in session.matches">{{ match.teamA }} – {{ match.teamB }}</li>
+               <li v-for="(match, index) in session.matches" :key="index">{{ teamsMap[match.teamA] }} – {{ teamsMap[match.teamB] }}</li>
             </ul>
          </div>
       </section>
@@ -23,10 +23,18 @@
 <script setup lang="ts">
    import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore'
    import { useNuxtApp } from '#app'
+   import { useTeamsStore } from '../stores/teams'
    import type { Match, TimeWindow } from './settings.vue'
 
-
    const timeWindows = ref<TimeWindow[]>([])
+   const teamsStore = useTeamsStore()
+
+   const teamsMap = computed(() => {
+      return teamsStore.teamsWithPlayers.reduce((map, team) => {
+         map[team.teamId] = team.teamData?.name || team.teamId
+         return map
+      }, {} as Record<string, string>)
+   })
 
    const fetchTimeWindows = async () => {
       if (!process.client) return
