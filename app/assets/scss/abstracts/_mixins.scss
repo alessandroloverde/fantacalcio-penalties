@@ -102,6 +102,7 @@
     $styles: map.get($typography, $variant);
     font-size: map.get($styles, 'size');
     font-weight: map.get($styles, 'weight');
+    color: map.get($styles, 'color');
     line-height: map.get($styles, 'line-height');
   } @else {
     @warn "Typography variant `#{$variant}` not found in $typography map.";
@@ -115,16 +116,15 @@
     $headlineKey: str.slice(#{&}, $stringIndex + 2, -9);
   
     //@debug "inspect #{&}";
-    //@debug "index: #{$stringIndex}";
-    //@debug "headline key: #{$headlineKey}";
+    //@debug "headline key: #{$colorKey}";
 
     content: '';
     position: absolute;
     left: 0;
     top: 50%;
     transform: translateY(-50%);
-    width: 1em;
-    height: 1em;
+    width: 1.25em;
+    height: 1.25em;
 
     -webkit-mask: url('/assets/icons/icon-#{$headlineKey}.svg') no-repeat center / contain;
     mask: url('/assets/icons/icon-#{$headlineKey}.svg') no-repeat center / contain;

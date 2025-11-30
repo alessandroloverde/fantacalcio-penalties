@@ -1,19 +1,19 @@
 <template>
-   <div class="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1>Calendario incontri</h1>
-      <br />
-      <section v-for="session in timeWindows" class="flex flex-wrap mb-6">
-         <h3 class="w-full">{{ session.name }}</h3>
-         <div class="flex-1">
-            <p>Inizio: {{ session.startDateTime }}</p>
+   <div class="container h-full max-w-7xl mx-auto my-12 px-4 sm:px-6 lg:px-8 py-8 boxed">
+      <h1 class="withIcon--calendar-duo">Calendario incontri</h1>
+      <hr class="divider my-4" />
+      <section v-for="session in timeWindows" class="grid grid-cols-4 mb-8">
+         <h2 class="withIcon--ball-duo col-span-4 mb-4">{{ session.name }}</h2>
+         <div class="col-span-2 mb-2">
+            <p class="withIcon--calendar">Inizio: {{ session.startDateTime }}</p>
          </div>
-         <div class="flex-1">
-            <p>Fine: {{ session.endDateTime }}</p>
+         <div class="col-span-2 mb-2">
+            <p class="withIcon--calendar">Fine: {{ session.endDateTime }}</p>
          </div>
-         <div class="w-full">
-            <ul>
-               <li v-for="(match, index) in session.matches" :key="index">{{ teamsMap[match.teamA] }} – {{ teamsMap[match.teamB] }}</li>
-            </ul>
+         <div class="col-span-4 grid grid-cols-4">
+            <div v-for="(match, index) in session.matches" :key="index" class="col-span-2">
+               <h4>{{ teamsMap[match.teamA] }} – {{ teamsMap[match.teamB] }}</h4>
+            </div>
          </div>
       </section>
    </div>

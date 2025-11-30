@@ -7,27 +7,45 @@
 
 .withIcon {
   &--password {
-      &::before { 
-        @include getIcon;
-        background-color: $blush;
-      }
+    &::before { 
+      @include getIcon;
+      background-color: $blush;
+    }
   }
   &--login {
-      &::before { 
-        @include getIcon;
-        background-color: $blush;
-      }
+    &::before { 
+      @include getIcon;
+      background-color: $blush;
+    }
   }
   &--email {
-      &::before { 
-        @include getIcon;
-        background-color: $blush;
-      }
+    &::before { 
+      @include getIcon;
+      background-color: $blush;
+    }
   }
   &--cloudQuestion {
-        &::before { 
-        @include getIcon;
-        background-color: $blush;
-      }      
+      &::before { 
+      @include getIcon;
+      background-color: $blush;
+    }      
+  }
+  &--calendar-duo {
+    &::before { 
+      @include getIcon;
+      background-color: $blush;
+    }
+  }
+  &--calendar {
+    &::before { 
+      @include getIcon;
+      background-color: $blush;
+    }
+  }
+    &--ball-duo {
+    &::before { 
+      @include getIcon;
+      background-color: $blush;
+    }
   }
 }
