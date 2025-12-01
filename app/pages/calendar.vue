@@ -2,7 +2,7 @@
    <div class="container h-full max-w-7xl mx-auto my-12 px-4 sm:px-6 lg:px-8 py-8 boxed">
       <h1 class="withIcon--calendar-duo">Calendario incontri</h1>
       <hr class="divider my-4" />
-      <section v-for="session in timeWindows" class="grid grid-cols-4 mb-8">
+      <section v-for="session in timeWindows" class="card grid grid-cols-4 gap-x-8 gap-y-4 mb-8 px-8 py-6">
          <h2 class="withIcon--ball-duo col-span-4 mb-4">{{ session.name }}</h2>
          <div class="col-span-2 mb-2">
             <p class="withIcon--calendar">Inizio: {{ session.startDateTime }}</p>
@@ -10,9 +10,12 @@
          <div class="col-span-2 mb-2">
             <p class="withIcon--calendar">Fine: {{ session.endDateTime }}</p>
          </div>
-         <div class="col-span-4 grid grid-cols-4">
-            <div v-for="(match, index) in session.matches" :key="index" class="col-span-2">
-               <h4>{{ teamsMap[match.teamA] }} – {{ teamsMap[match.teamB] }}</h4>
+         <div class="col-span-4 grid grid-cols-subgrid gap-y-4">
+            <div v-for="(match, index) in session.matches" :key="index" class="col-span-2 pill--white">
+               <h4 class="withIcon--flag-duo oval flex justify-between items-center">
+                  {{ teamsMap[match.teamA] }} – {{ teamsMap[match.teamB] }}
+                  <button class="btn">calcola</button>
+               </h4>
             </div>
          </div>
       </section>
@@ -70,4 +73,18 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+@use '@/assets/scss/main' as *;
+
+   .card {
+      background-color: #fff7ed;
+      border-radius: 16px;
+      border: 1px solid #d3d2cb;
+   }
+   .pill--white {
+      background-color: white;
+      border-radius: 12px;
+      padding: 8px;
+      border: 1px solid #d3d2cb;
+   }
+</style>

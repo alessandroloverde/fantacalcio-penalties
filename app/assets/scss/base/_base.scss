@@ -60,6 +60,18 @@ button {
   cursor: pointer;
   border: none;
   transition: background-color $transition-fast;
+
+  &.btn {
+    background: $navyBlue;
+    color: $cream;
+    font-weight: 600;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1.5rem;
+    transition: background-color 150ms ease, transform 150ms ease;
+  }
 }
 
 hr.divider {
