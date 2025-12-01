@@ -42,10 +42,35 @@
       background-color: $blush;
     }
   }
-    &--ball-duo {
+  &--ball-duo {
     &::before { 
       @include getIcon;
       background-color: $blush;
     }
+  }
+  &--flag-duo {
+    &::before { 
+      @include getIcon;
+      background-color: $cream;
+      z-index: 1;
+
+    }
+    &[class*="oval"] {
+      padding-left: 2.5em;
+      
+      &:before { transform: translate(25%, -50%);}
+      &::after {
+        content: "";
+        display: block;
+        background-color: $blush;
+        border-radius: 50%;
+        width: 2em;
+        height: 2em;
+        position: absolute;
+        left: 0;
+        z-index: 0;
+      }
+    }
+
   }
 }
