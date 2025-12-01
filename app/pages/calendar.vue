@@ -4,10 +4,10 @@
       <hr class="divider my-4" />
       <section v-for="session in timeWindows" class="card grid grid-cols-4 gap-x-8 gap-y-4 mb-8 px-8 py-6">
          <h2 class="withIcon--ball-duo col-span-4 mb-4">{{ session.name }}</h2>
-         <div class="col-span-2 mb-2">
+         <div class="col-span-2 mb-2 pill--beige">
             <p class="withIcon--calendar">Inizio: {{ session.startDateTime }}</p>
          </div>
-         <div class="col-span-2 mb-2">
+         <div class="col-span-2 mb-2 pill--beige">
             <p class="withIcon--calendar">Fine: {{ session.endDateTime }}</p>
          </div>
          <div class="col-span-4 grid grid-cols-subgrid gap-y-4">
@@ -81,10 +81,5 @@
       border-radius: 16px;
       border: 1px solid #d3d2cb;
    }
-   .pill--white {
-      background-color: white;
-      border-radius: 12px;
-      padding: 8px;
-      border: 1px solid #d3d2cb;
-   }
+
 </style>
