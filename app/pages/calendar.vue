@@ -4,11 +4,11 @@
       <hr class="divider my-4" />
       <section v-for="session in timeWindows" class="card grid grid-cols-4 gap-x-8 gap-y-4 mb-8 px-8 py-6">
          <h2 class="withIcon--ball-duo col-span-4 mb-4">{{ session.name }}</h2>
-         <div class="col-span-2 mb-2 pill--beige">
-            <p class="withIcon--calendar">Inizio: {{ session.startDateTime }}</p>
+         <div class="col-span-2 mb-2 pill--beige dateWindow">
+            <p class="withIcon--calendar"><span>inizio: </span>{{ formatToITDate(session.startDateTime) }}</p>
          </div>
-         <div class="col-span-2 mb-2 pill--beige">
-            <p class="withIcon--calendar">Fine: {{ session.endDateTime }}</p>
+         <div class="col-span-2 mb-2 pill--beige dateWindow">
+            <p class="withIcon--calendar"><span>fine: </span>{{ formatToITDate(session.endDateTime) }}</p>
          </div>
          <div class="col-span-4 grid grid-cols-subgrid gap-y-4">
             <div v-for="(match, index) in session.matches" :key="index" class="col-span-2 pill--white">
@@ -32,12 +32,27 @@
    const timeWindows = ref<TimeWindow[]>([])
    const teamsStore = useTeamsStore()
 
+   // *** Retireve team's name from ID ***
    const teamsMap = computed(() => {
       return teamsStore.teamsWithPlayers.reduce((map, team) => {
          map[team.teamId] = team.teamData?.name || team.teamId
          return map
       }, {} as Record<string, string>)
    })
+   
+   // *** Format date and time in italian locale ***
+   const formatToITDate = (dateString: string) => {
+      const date = new Date(dateString)
+
+      return date.toLocaleDateString('it-IT', {
+         weekday: 'long',
+         day: '2-digit',
+         month: 'long',
+         year: 'numeric',
+         hour: '2-digit',
+         minute: '2-digit'
+      })
+   }
 
    const fetchTimeWindows = async () => {
       if (!process.client) return
@@ -80,6 +95,16 @@
       background-color: #fff7ed;
       border-radius: 16px;
       border: 1px solid #d3d2cb;
+   }
+
+   .dateWindow {
+      padding: 0.5em 1.5em;
+
+      p {
+         padding-left: 2.5em; 
+
+         & > span { font-weight: $font-weight-semibold }
+      } 
    }
 
 </style>
