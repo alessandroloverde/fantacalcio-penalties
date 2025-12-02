@@ -31,14 +31,14 @@
                <!-- Start Date/Time -->
                <div class="w-full">
                   <label for="startDateTime" class="block text-sm font-medium text-gray-700 mb-1">Start Date & Time</label>
-                  <input
-                     v-model="formData.startDateTime"
-                     type="datetime-local"
-                     id="startDateTime"
-                     :min="timeWindows?.[timeWindows.length -1]?.endDateTime || new Date().toISOString().slice(0, 16)"
-                     required
-                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
+               <input
+                  v-model="formData.startDateTime"
+                  type="datetime-local"
+                  id="startDateTime"
+                  :min="getMinStartDate()"
+                  required
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+               />
                </div>
 
                <!-- End Date/Time -->
@@ -387,6 +387,21 @@
       
       return ''
    })
+
+   const getMinStartDate = () => {
+      // If editing, find the previous window's end date
+      if (editingIndex.value !== null && editingIndex.value > 0) {
+         return timeWindows.value[editingIndex.value - 1]?.endDateTime || new Date().toISOString().slice(0, 16)
+      }
+      
+      // If creating new, use the last window's end date
+      if (editingIndex.value === null && timeWindows.value.length > 0) {
+         return timeWindows.value[timeWindows.value.length - 1]?.endDateTime || new Date().toISOString().slice(0, 16)
+      }
+      
+      // Default: current date/time
+      return new Date().toISOString().slice(0, 16)
+   }
 
    const getTeamName = (teamId: string) => {
       const team = teamStore.teamsWithPlayers.find(t => t.teamId === teamId)
