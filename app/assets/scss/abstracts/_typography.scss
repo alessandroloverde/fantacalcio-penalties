@@ -18,6 +18,7 @@ $font-family-mono: 'Courier New', Courier, monospace;
 $font-size-xs: 0.75rem;    // 12px
 $font-size-sm: 0.875rem;   // 14px
 $font-size-base: 1rem;     // 16px
+$font-size-med: 1.125rem;   // 18px
 $font-size-lg: 1.25rem;    // 20px
 $font-size-xl: 1.5rem;     // 24px
 $font-size-2xl: 1.875rem;  // 30px
@@ -67,7 +68,7 @@ $typography: (
     'color': $color-primary
   ),
   'h4': (
-    'size': $font-size-lg,
+    'size': $font-size-med,
     'weight': $font-weight-semibold,
     'line-height': $line-height-snug,
     'color': $color-primary
