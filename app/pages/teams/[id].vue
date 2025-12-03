@@ -11,7 +11,9 @@
          <span>Presidenti:</span> {{ presidents.join(' | ') }}
       </p>
       <hr class="divider my-4" />
-      <div v-if="loading">Loading...</div>
+      <div v-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4 my-4">
+         <p class="text-red-700">{{ error }}</p>
+      </div>
 
       <div class="flex flex-col lg:flex-row lg:items-start lg:gap-6">
          <div id="availablePlayers-list" class="w-full bg-red-300">
@@ -93,7 +95,7 @@
 </template>
 
 <script setup lang="ts">
-   import { getFirestore, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+   import { getFirestore, doc, getDoc, getDocs, query, collection, where, setDoc, updateDoc } from 'firebase/firestore';
    import { useRoute } from 'vue-router';
    import Papa from 'papaparse';
    import { useAuthStore } from '../../stores/auth';
@@ -106,6 +108,7 @@
    const loggedUser = computed(() => authStore.participant)
 
    let loading = ref<boolean>(true)
+   const error = ref<string | null>(null)
    const teamId = route.params.id as string
    const teamData = ref<any>(null)
    const players = ref<{name: string, role: string, squadra: string, team: any, list?: string, internalID?: number, position?: number | null}[]>([])
@@ -211,8 +214,9 @@
       if(penaltyTakers.length <10) {
          alert("completa i rigoristi")
       } else {
+         alert("rigori salvati")
          await updateDoc(penaltiesColl, {
-            penaltyTakers: penaltyTakers
+            penaltyTakers: penaltyTakers     
          })
       }
 
@@ -266,67 +270,79 @@
    }
 
    onMounted(async () => {
-      if (process.client && $firebaseApp) {
-         const db = getFirestore($firebaseApp)
-         
-         // Fetch penalties if not already loaded
+   if (process.client && $firebaseApp) {
+      const db = getFirestore($firebaseApp)
+      
+      try {
+         // Fetch penalties
          const penaltiesRef = doc(db, "penalties", teamId)
          const penaltiesSnap = await getDoc(penaltiesRef)
          const savedPenaltyTakers = penaltiesSnap.exists() ? penaltiesSnap.data()?.penaltyTakers || [] : []
 
+         // Fetch team data
          const teamRef = doc(db, "teams", teamId)
          const teamSnap = await getDoc(teamRef)
 
-         if(teamSnap.exists()) {
-            teamData.value = teamSnap.data()
-
+         if (!teamSnap.exists()) {
             loading.value = false
-
-            const playersReference = teamData.value.players
-            const presidentReference = teamData.value.president
-
-            // Fetch all players in parallel
-            const playerPromises = Object.keys(playersReference).map(playerKey => 
-               getDoc(playersReference[playerKey])
-            )
-            const playerDocs = await Promise.all(playerPromises)
-
-            let index = 0
-            for (const singlePlayerDoc of playerDocs) {
-               const singlePlayerData = singlePlayerDoc.data() as {name: string, role: string, squadra: string, team: any, list: string, internalID: number, position: number | null}
-
-               // Check if this player is in saved penalty takers
-               const savedPenaltyTaker = savedPenaltyTakers.find((pt: any) => pt.name === singlePlayerData.name)
-               
-               if (savedPenaltyTaker) {
-                  singlePlayerData.list = "List-2"
-                  singlePlayerData.position = savedPenaltyTaker.position
-               } else {
-                  singlePlayerData.list = "List-1"
-                  singlePlayerData.position = null
-               }
-               
-               singlePlayerData.internalID = index
-               index++
-
-               players.value.push(singlePlayerData)
-            }
-            players.value = sortPlayersByRole(players.value) // *** Sorting ***
-
-            // Fetch all presidents in parallel
-            const presidentPromises = Object.keys(presidentReference).map(president =>
-               getDoc(presidentReference[president])
-            )
-            const presidentDocs = await Promise.all(presidentPromises)
-
-            for (const singlePresidentDoc of presidentDocs) {
-               const singlePresidentData = singlePresidentDoc.data() as {name: string}
-
-               presidents.value.push(singlePresidentData.name)
-            }       
+            return
          }
+
+         teamData.value = teamSnap.data()
+         
+         // ✅ OPTIMIZATION: Query all players at once instead of fetching references
+         const playersQuery = query(
+            collection(db, "players"),
+            where("team", "==", teamRef)
+         )
+         const playerDocs = await getDocs(playersQuery)
+
+         let index = 0
+         playerDocs.forEach((singlePlayerDoc) => {
+            const singlePlayerData = singlePlayerDoc.data() as {
+               name: string
+               role: string
+               squadra: string
+               team: any
+               list?: string
+               internalID?: number
+               position?: number | null
+            }
+
+            // Check if this player is in saved penalty takers
+            const savedPenaltyTaker = savedPenaltyTakers.find((pt: any) => pt.name === singlePlayerData.name)
+            
+            singlePlayerData.list = savedPenaltyTaker ? "List-2" : "List-1"
+            singlePlayerData.position = savedPenaltyTaker ? savedPenaltyTaker.position : null
+            singlePlayerData.internalID = index
+            index++
+
+            players.value.push(singlePlayerData)
+         })
+         
+         players.value = sortPlayersByRole(players.value)
+
+         // ✅ OPTIMIZATION: Query all presidents at once
+         const presidentReference = teamData.value.president
+         const presidentPromises = Object.keys(presidentReference).map(president =>
+            getDoc(presidentReference[president])
+         )
+         const presidentDocs = await Promise.all(presidentPromises)
+
+         presidentDocs.forEach((singlePresidentDoc) => {
+            if (singlePresidentDoc.exists()) {
+               const singlePresidentData = singlePresidentDoc.data() as {name: string}
+               presidents.value.push(singlePresidentData.name)
+            }
+         })
+
+         loading.value = false
+      } catch (error) {
+         console.error('Error loading team data:', error)
+         loading.value = false
       }
-   })
+   }
+})
 
 </script>
 
