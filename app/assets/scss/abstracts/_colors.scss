@@ -14,7 +14,7 @@ $coral: #f37748;
 $blush: #ca6680;
 $indianRed: #d05353;
 $brownSugar: #be6e46;
-$eerieBlack:#1d1f1f;
+$eerieBlack:#232322;
 /* –––––––––––––––––––––––––––––––––––––––––––––––––––––––– */
 
 // Primary Colors (extracted from existing styles)
@@ -23,10 +23,11 @@ $color-primary-dark: color.mix(black, $color-primary, 10%);
 $color-primary-light: color.mix(white, $color-primary, 10%);
 
 // Text Colors
-$color-text-primary: $eerieBlack;           // Main text (beige/cream)
-$color-text-secondary: $cream;           // White text
-$color-text-muted: darkgrey;            // Placeholder/muted text
-$color-text-dark: #1a1a1a;              // Dark text for light backgrounds
+$color-text-primary: $eerieBlack;        // Color for body copy
+$color-text-accent: $navyBlue;           // ????
+$color-text-secondary: $cream;           // ????
+$color-text-muted: darkgrey;           // Placeholder/muted text
+$color-text-dark: #1a1a1a;             // Dark text for light backgrounds
 
 // Background Colors
 $color-bg-light: $lightSlategrass;

@@ -1,5 +1,5 @@
 <template>
-   <div class="container h-full max-w-7xl mx-auto my-12 px-4 sm:px-6 lg:px-8 py-8 boxed">
+   <div class="container boxed h-full max-w-7xl mx-auto my-12 px-4 sm:px-6 lg:px-8 py-8">
       <h1 class="withIcon--calendar-duo">Calendario incontri</h1>
       <hr class="divider my-4" />
       <section v-for="session in timeWindows" class="card grid grid-cols-4 gap-x-8 gap-y-4 mb-8 px-8 py-6">
@@ -89,13 +89,7 @@
 
 
 <style lang="scss" scoped>
-@use '@/assets/scss/main' as *;
-
-   .card {
-      background-color: #fff7ed;
-      border-radius: 16px;
-      border: 1px solid #d3d2cb;
-   }
+   @use '@/assets/scss/main' as *;
 
    .dateWindow {
       padding: 0.5em 1.5em;
@@ -103,7 +97,10 @@
       p {
          padding-left: 2.5em; 
 
-         & > span { font-weight: $font-weight-semibold }
+         & > span { 
+            font-weight: $font-weight-semibold;
+            color: $color-text-accent;
+         }
       } 
    }
 
