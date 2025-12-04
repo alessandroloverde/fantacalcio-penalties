@@ -48,12 +48,23 @@
       background-color: $blush;
     }
   }
+  &--settings-duo {
+    &::before { 
+      @include getIcon;
+      background-color: $blush;
+    }
+  }
+  &--clock-duo {
+    &::before { 
+      @include getIcon;
+      background-color: $blush;
+    }
+  }
   &--flag-duo {
     &::before { 
       @include getIcon;
       background-color: $cream;
       z-index: 1;
-
     }
     &[class*="oval"] {
       padding-left: 2.5em;

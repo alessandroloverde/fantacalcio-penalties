@@ -1,11 +1,11 @@
 <template>
    <div class="container boxed h-full max-w-7xl mx-auto my-12 px-4 sm:px-6 lg:px-8 py-8">
       <!-- <LoggedUser></LoggedUser> -->
-      <h1 class="withIcon--calendar-duo">Settings</h1>
+      <h1 class="withIcon--settings-duo">Settings</h1>
       <hr class="divider my-4" />
       
       <div class="card grid grid-cols-4 gap-x-8 gap-y-4 mb-8 px-8 py-6">
-         <h2 class="withIcon--ball-duo col-span-4 mb-4">Time Windows</h2>
+         <h2 class="withIcon--clock-duo col-span-4 mb-4">Time Windows</h2>
          
          <form id="timeWindow" @submit.prevent="saveTimeWindow" class="col-span-4 grid grid-cols-subgrid gap-y-4">
             <!-- *** Name Input *** -->
@@ -62,7 +62,7 @@
                >
                   <select
                      v-model="match.teamA"
-                     class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                     class="w-[45%] px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                      <option value="">Select team A</option>
                      <option 
@@ -74,7 +74,7 @@
                   </select>
                   <select
                      v-model="match.teamB"
-                     class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                     class="w-[45%] px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                      <option value="">Select team B</option>
                      <option 
@@ -84,16 +84,17 @@
                         :disabled="formData.matches.some(match => match.teamA === team.teamId || match.teamB === team.teamId)"
                      >{{ team.teamData.name }}</option>
                   </select>
-                  
-                  <button
-                     v-if="matchIndex > 0"
-                     @click="removeMatch(matchIndex)"
-                     type="button"
-                     class="px-3 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg shadow transition"
-                     title="Remove match"
-                  > ✕ </button>
+                  <aside class="w-[10%]">
+                     <button
+                        v-if="matchIndex > 0"
+                        @click="removeMatch(matchIndex)"
+                        type="button"
+                        class="px-3 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg shadow transition"
+                        title="Remove match"
+                     > ✕ </button>
+                  </aside>
                </div>
-               
+
                <button
                   v-if="formData.matches.length < 4"
                   @click="addMatch"
