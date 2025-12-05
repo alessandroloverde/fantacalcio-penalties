@@ -50,26 +50,6 @@ ul, ol {
   padding: 0;
 }
 
-// Button base styles (can be extended with Tailwind or SCSS)
-button {
-  font-family: inherit;
-  cursor: pointer;
-  border: none;
-  transition: background-color $transition-fast;
-
-  &.btn {
-    background: $navyBlue;
-    color: $cream;
-    font-weight: 600;
-    font-size: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    border-radius: 0.5rem;
-    padding: 0.5rem 1.5rem;
-    transition: background-color 150ms ease, transform 150ms ease;
-  }
-}
-
 hr.divider {
   $color: $darkOlive;
 
@@ -197,7 +177,7 @@ select {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235f76a3' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+/*   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235f76a3' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); */
   background-repeat: no-repeat;
   background-position: right $spacing-sm center;
   background-size: 1rem;
@@ -206,6 +186,17 @@ select {
     border-color $transition-fast ease,
     box-shadow $transition-fast ease,
     background-color $transition-fast ease;
+
+  &::after {
+    content: '';
+    position: absolute;
+    right: $spacing-sm;
+    width: 1rem;
+    height: 1rem;
+    background-color: $navyBlue;
+    mask-image: url('/assets/icons/Arrow-down-bold-duotone.svg');
+    mask-size: contain;
+  }
 
   &:focus {
     outline: none;
@@ -231,5 +222,80 @@ select {
   &:user-invalid:focus {
     border-color: $color-error;
     box-shadow: 0 0 0 3px color.scale($color-error, $alpha: -70%);
+  }
+}
+
+// Button base styles (can be extended with Tailwind or SCSS)
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none
+}
+.btn {
+  // Box Model
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-xs;
+  min-height: 44px;
+  padding: $spacing-sm $spacing-lg;
+
+  // Typography
+  font-family: inherit;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  white-space: nowrap;
+
+  // Appearance
+  border: 2px solid transparent;
+  border-radius: $radius-md;
+  cursor: pointer;
+
+  // Transitions
+  $transition: $transition-base ease;
+  
+  transition: 
+    background-color $transition,
+    border-color $transition,
+    color $transition,
+    box-shadow $transition,
+    transform $transition;
+
+      // Focus state (accessibility)
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px color.scale($color-primary, $alpha: -50%);
+  }
+
+  // Active state
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  // Disabled state
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  &--primary {
+    $mainColor: $darkOlive;
+    
+    background-color: $mainColor;
+    color: $cream;
+    border-color: $mainColor;
+
+    &:hover:not(:disabled):not(:focus) {
+      background-color: color.scale($mainColor, $lightness: 10%);
+      border-color: color.scale($mainColor, $lightness: 10%);
+    }
+
+    &:focus-visible {
+      box-shadow: 0 0 0 3px color.scale($mainColor, $alpha: -50%);
+    }
   }
 }

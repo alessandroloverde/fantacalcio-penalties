@@ -89,7 +89,7 @@
                         v-if="matchIndex > 0"
                         @click="removeMatch(matchIndex)"
                         type="button"
-                        class="px-3 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg shadow transition"
+                        class="btn btn--primary bg-red-500 hover:bg-red-600 text-white text-sm font-medium"
                         title="Remove match"
                      > ✕ </button>
                   </aside>
@@ -99,29 +99,21 @@
                   v-if="formData.matches.length < 4"
                   @click="addMatch"
                   type="button"
-                  class="col-span-1 px-4 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg shadow transition"
+                  class="btn btn--primary my-2"
                > + Add Another Match</button>
             </section>
 
             <!-- *** Submit Button *** -->
             <button
                type="submit"
-               class="w-full md:w-auto px-6 py-3 
-                    bg-blue-600 hover:bg-blue-700 
-                    text-white font-semibold 
-                    rounded-lg shadow-md 
-                    transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+               class="btn btn--primary"
             >{{ editingIndex !== null ? 'Update Time Window' : 'Add New Time Window' }}</button>
             
             <button
                v-if="editingIndex !== null"
                @click="cancelEdit"
                type="button"
-               class="w-full md:w-auto ml-0 md:ml-3 mt-2 md:mt-0 px-6 py-3 
-                    bg-gray-300 hover:bg-gray-400 
-                    text-gray-800 font-semibold 
-                    rounded-lg shadow-md 
-                    transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+               class="btn btn--primary"
             >Cancel</button>
          </form>
 
@@ -159,11 +151,11 @@
                <div class="flex gap-2 mt-3 md:mt-0">
                   <button
                      @click="editTimeWindow(index)"
-                     class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white font-medium rounded-lg shadow transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                     class="btn btn--primary bg-yellow-500 hover:bg-yellow-600 text-white font-medium rounded-lg shadow transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-yellow-400"
                   >Edit</button>
                   <button
                      @click="deleteTimeWindow(index)"
-                     class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg shadow transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-400"
+                     class="btn btn--primary bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg shadow transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-400"
                   >Delete</button>
                </div>
             </div>
