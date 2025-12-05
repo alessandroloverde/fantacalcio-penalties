@@ -17,7 +17,7 @@
                   id="windowName"
                   placeholder="e.g., Week 1, Championship Round"
                   required
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  class="w-full"
                />
             </section>
 
@@ -35,7 +35,7 @@
                      id="startDateTime"
                      :min="timeWindows?.[timeWindows.length -1]?.endDateTime || new Date().toISOString().slice(0, 16)"
                      required
-                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                     class=""
                   />
                </div>
 
@@ -47,7 +47,7 @@
                      id="endDateTime"
                      :min="formData.startDateTime || new Date().toISOString().slice(0, 16)"
                      required
-                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                     class=""
                   />
                </div>
             </section>
@@ -62,7 +62,7 @@
                >
                   <select
                      v-model="match.teamA"
-                     class="w-[45%] px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                     class="w-[45%] my-2"
                   >
                      <option value="">Select team A</option>
                      <option 
@@ -74,7 +74,7 @@
                   </select>
                   <select
                      v-model="match.teamB"
-                     class="w-[45%] px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                     class="w-[45%] my-2"
                   >
                      <option value="">Select team B</option>
                      <option 
