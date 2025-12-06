@@ -62,7 +62,7 @@
                >
                   <select
                      v-model="match.teamA"
-                     class="w-[45%] my-2"
+                     class="w-[40%] my-2"
                   >
                      <option value="">Select team A</option>
                      <option 
@@ -74,7 +74,7 @@
                   </select>
                   <select
                      v-model="match.teamB"
-                     class="w-[45%] my-2"
+                     class="w-[40%] my-2"
                   >
                      <option value="">Select team B</option>
                      <option 
@@ -84,14 +84,14 @@
                         :disabled="formData.matches.some(match => match.teamA === team.teamId || match.teamB === team.teamId)"
                      >{{ team.teamData.name }}</option>
                   </select>
-                  <aside class="w-[10%]">
+                  <aside class="w-[20%]" v-if="matchIndex > 0">
                      <button
                         v-if="matchIndex > 0"
                         @click="removeMatch(matchIndex)"
                         type="button"
-                        class="btn btn--primary bg-red-500 hover:bg-red-600 text-white text-sm font-medium"
+                        class="btn btn--danger"
                         title="Remove match"
-                     > ✕ </button>
+                     > X </button>
                   </aside>
                </div>
 
