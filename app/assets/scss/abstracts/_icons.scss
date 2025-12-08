@@ -5,83 +5,82 @@
 @use './colors' as *;
 @use './mixins' as *;
 
+$icons: (
+  'password',
+  'login',
+  'email',
+  'cloudQuestion',
+  'calendar-duo',
+  'calendar',
+  'ball-duo',
+  'settings-duo',
+  'clock-duo',
+  'plus-rounded-duo',
+  'edit-duo',
+  'delete-duo',
+  'flag-duo',
+);
+
 .withIcon {
-  &--password {
-    &::before { 
-      @include getIcon;
-      background-color: $blush;
-    }
-  }
-  &--login {
-    &::before { 
-      @include getIcon;
-      background-color: $blush;
-    }
-  }
-  &--email {
-    &::before { 
-      @include getIcon;
-      background-color: $blush;
-    }
-  }
-  &--cloudQuestion {
-      &::before { 
-      @include getIcon;
-      background-color: $blush;
-    }      
-  }
-  &--calendar-duo {
-    &::before { 
-      @include getIcon;
-      background-color: $blush;
-    }
-  }
-  &--calendar {
-    &::before { 
-      @include getIcon;
-      background-color: $blush;
-    }
-  }
-  &--ball-duo {
-    &::before { 
-      @include getIcon;
-      background-color: $blush;
-    }
-  }
-  &--settings-duo {
-    &::before { 
-      @include getIcon;
-      background-color: $blush;
-    }
-  }
-  &--clock-duo {
-    &::before { 
-      @include getIcon;
-      background-color: $blush;
-    }
-  }
-  &--flag-duo {
-    &::before { 
-      @include getIcon;
-      background-color: $cream;
-      z-index: 1;
-    }
-    &[class*="oval"] {
-      padding-left: 2.5em;
+  // Generate all icon classes
+  @each $name in $icons {
+    &--#{$name} {
+      position: relative;
+      padding-left: 1.5em;
       
-      &:before { transform: translate(25%, -50%);}
-      &::after {
-        content: "";
-        display: block;
-        background-color: $blush;
-        border-radius: 50%;
-        width: 2em;
-        height: 2em;
-        position: absolute;
-        left: 0;
-        z-index: 0;
+      &::before {
+        @include getIcon-base;
+        @include getIcon-positioned;
+        background-color: var(--icon-color, currentColor);
+      }
+      
+      // Compound selector: higher specificity wins!
+      &.withIcon--inline {
+        padding-left: 0;
+        display: inline-flex;
+        align-items: center;
+        //gap: 2.5em;
+        
+        &::before {
+          @include getIcon-inline;
+        }
       }
     }
-
   }
+
+  // Color modifiers
+  &--color-blush { --icon-color: #{$blush}; }
+  &--color-cream { --icon-color: #{$cream}; }
+  &--color-olive { --icon-color: #{$darkOlive}; }
+  &--color-navy { --icon-color: #{$navyBlue}; }
 }
+
+
+.text-blush { color: $blush; }
+.text-cream { color: $cream; }
+.text-olive { color: $darkOlive; }
+
+/* &--flag-duo {
+  &::before { 
+    @include getIcon;
+    background-color: $cream;
+    z-index: 1;
+  }
+  &[class*="oval"] {
+    padding-left: 2.5em;
+    
+    &:before { transform: translate(25%, -50%);}
+    &::after {
+      content: "";
+      display: block;
+      background-color: $blush;
+      border-radius: 50%;
+      width: 2em;
+      height: 2em;
+      position: absolute;
+      left: 0;
+      z-index: 0;
+    }
+  }
+
+} */

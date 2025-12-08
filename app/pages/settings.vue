@@ -1,12 +1,14 @@
 <template>
    <div class="container boxed h-full max-w-7xl mx-auto my-12 px-4 sm:px-6 lg:px-8 py-8">
       <!-- <LoggedUser></LoggedUser> -->
-      <h1 class="withIcon--settings-duo">Settings</h1>
-      <hr class="divider my-4" />
+      <h1 class="withIcon--settings-duo withIcon--color-blush mb-8">Settings</h1>
       
-      <div class="card grid grid-cols-4 gap-x-8 gap-y-4 mb-8 px-8 py-6">
-         <h2 class="withIcon--clock-duo col-span-4 mb-4">Time Windows</h2>
-         
+      <div class="card grid grid-cols-4 gap-x-8 gap-y-0 mb-8 px-8 py-6">
+         <h2 class="withIcon--clock-duo withIcon--color-blush col-span-4">Time Windows</h2>
+
+         <div class="divider-text col-span-4 my-4">◎</div>
+
+         <h3 class="col-span-4">New Time Window</h3>         
          <form id="timeWindow" @submit.prevent="saveTimeWindow" class="col-span-4 grid grid-cols-subgrid gap-y-4">
             <!-- *** Name Input *** -->
             <section id="edit--windowName" class="col-span-2">
@@ -99,23 +101,25 @@
                   v-if="formData.matches.length < 4"
                   @click="addMatch"
                   type="button"
-                  class="btn btn--primary my-2"
-               > + Add Another Match</button>
+                  class="btn btn--secondary btn--icon-left my-2 withIcon--plus-rounded-duo"
+               >Add Another Match</button>
             </section>
 
             <!-- *** Submit Button *** -->
             <button
                type="submit"
-               class="btn btn--primary"
+               class="btn btn--primary col-span-4 mt-2 btn--icon-left withIcon--plus-rounded-duo"
             >{{ editingIndex !== null ? 'Update Time Window' : 'Add New Time Window' }}</button>
             
             <button
                v-if="editingIndex !== null"
                @click="cancelEdit"
                type="button"
-               class="btn btn--primary"
+               class="btn btn--danger"
             >Cancel</button>
          </form>
+
+         <div class="divider-text col-span-4 my-8">◎</div>
 
          <!-- *** Display Time Windows *** -->
          <div v-if="timeWindows.length > 0" class="col-span-4 grid grid-cols-subgrid gap-y-4">
@@ -129,12 +133,12 @@
                <div class="">
                   <h4 class="">{{ window.name }}</h4>
                   <div class="">
-                     <p>
-                        <span class="font-medium">Start:</span>
+                     <p class="withIcon--calendar withIcon--inline withIcon--color-blush col-span-2 mb-2 pill--beige dateWindow">
+                        <span class="font-medium">Inizio:</span>
                         {{ formatDateTime(window.startDateTime) }}
                      </p>
-                     <p>
-                        <span class="font-medium">End:</span>
+                     <p class="col-span-2 mb-2 pill--beige dateWindow">
+                        <span class="font-medium">Fine:</span>
                         {{ formatDateTime(window.endDateTime) }}
                      </p>
                      <div class="mt-2">
@@ -151,11 +155,11 @@
                <div class="flex gap-2 mt-3 md:mt-0">
                   <button
                      @click="editTimeWindow(index)"
-                     class="btn btn--primary bg-yellow-500 hover:bg-yellow-600 text-white font-medium rounded-lg shadow transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                     class="btn btn--secondary withIcon--edit-duo btn--icon-left"
                   >Edit</button>
                   <button
                      @click="deleteTimeWindow(index)"
-                     class="btn btn--primary bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg shadow transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-400"
+                     class="btn btn--danger withIcon--delete-duo btn--icon-left"
                   >Delete</button>
                </div>
             </div>

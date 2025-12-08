@@ -57,13 +57,13 @@ $typography: (
   ),
   'h2': (
     'size': $font-size-3xl,
-    'weight': $font-weight-bold,
+    'weight': $font-weight-extrabold,
     'line-height': $line-height-tight,
     'color': $color-primary
   ),
   'h3': (
     'size': $font-size-2xl,
-    'weight': $font-weight-semibold,
+    'weight': $font-weight-bold,
     'line-height': $line-height-snug,
     'color': $color-primary
   ),

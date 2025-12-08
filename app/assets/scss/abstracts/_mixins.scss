@@ -111,24 +111,35 @@
 
 // Typography Mixin
 /* –––––– dff –––––– */
-@mixin getIcon {
-    $stringIndex: str.index(#{&}, '--');
-    $headlineKey: str.slice(#{&}, $stringIndex + 2, -9);
-  
-    //@debug "inspect #{&}";
-    //@debug "headline key: #{$colorKey}";
+@mixin getIcon-base {
+  $stringIndex: str.index(#{&}, '--');
+  $headlineKey: str.slice(#{&}, $stringIndex + 2, -9);
 
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 1.25em;
-    height: 1.25em;
+  content: '';
+  width: 1.25em;
+  height: 1.25em;
+  background-color: currentColor;  // Inherits from text color
+  -webkit-mask: url('/assets/icons/icon-#{$headlineKey}.svg') no-repeat center / contain;
+          mask: url('/assets/icons/icon-#{$headlineKey}.svg') no-repeat center / contain;
+}
 
-    -webkit-mask: url('/assets/icons/icon-#{$headlineKey}.svg') no-repeat center / contain;
-    mask: url('/assets/icons/icon-#{$headlineKey}.svg') no-repeat center / contain;
+@mixin getIcon-positioned {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
 
-    background-color: currentColor;             // inherits text color
+@mixin getIcon-inline {
+  position: static;
+  display: inline-block;
+  flex-shrink: 0;
+  margin-right: $spacing-xs;
+  vertical-align: -0.125em;
+
+  // Reset positioned properties
+  top: auto;
+  left: auto;
+  transform: none;
 }
 
