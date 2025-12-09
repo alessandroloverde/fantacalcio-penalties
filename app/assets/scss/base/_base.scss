@@ -6,11 +6,9 @@
 @use '../abstracts/variables' as *;
 @use '../abstracts/colors' as *;
 @use '../abstracts/typography' as *;
-@use 'sass:string' as str;
 @use 'sass:color';
 
-
-// Base body styles (if not using Tailwind preflight)
+// Base body styles
 body {
   font-family: $font-family-sans;
   font-size: $font-size-base;
@@ -21,16 +19,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-
-// Heading styles (can be overridden by components)
+// Heading styles
 h1, h2, h3, h4, h5, h6 {
-    font-weight: $font-weight-bold;
-    line-height: $line-height-tight;
-}
-
-[class^="withIcon--"] {
-  position: relative;
-  padding-left: 1.5em;
+  font-weight: $font-weight-bold;
+  line-height: $line-height-tight;
 }
 
 // Link base styles
@@ -61,12 +53,12 @@ hr.divider {
   height: 8px;
 
   &::after {
-      background: $cream;
-      color: $color;
-      content: "●";
-      padding: 0 4px;
-      position: relative;
-      top: -14px;
+    background: $cream;
+    color: $color;
+    content: "●";
+    padding: 0 4px;
+    position: relative;
+    top: -14px;
   }
 }
 
@@ -128,7 +120,6 @@ input[type="search"] {
 
   &:focus {
     outline: none;
-    //border-color: $color-primary;
     border-color: transparent;
     box-shadow: 0 0 0 3px color.scale($color-primary, $alpha: -50%);
   }
@@ -141,7 +132,7 @@ input[type="search"] {
   }
   &::placeholder {
     color: $color-text-muted;
-    opacity: 1;                   // Firefox fix
+    opacity: 1;
     font-style: italic;           
   }
   // Modern browsers: only invalid after user interaction
@@ -153,7 +144,6 @@ input[type="search"] {
   }
 
   // Fallback for older browsers - TEXT INPUTS ONLY
-  // (Date inputs don't support :placeholder-shown)
   &[type="text"]:invalid:not(:placeholder-shown),
   &[type="email"]:invalid:not(:placeholder-shown),
   &[type="password"]:invalid:not(:placeholder-shown),
@@ -172,13 +162,11 @@ input[type="search"] {
   &[type="number"]:valid:not(:placeholder-shown) { border-color: $color-success }
 
   // Date inputs - only use :user-invalid (no fallback)
-  // :valid shows green when a date is selected
   &[type="date"]:valid,
   &[type="datetime-local"]:valid,
   &[type="time"]:valid,
   &[type="month"]:valid,
   &[type="week"]:valid { border-color: $color-success }
-
 }
 
 select {
@@ -220,7 +208,7 @@ select {
   }
   &::placeholder {
     color: $color-text-muted;
-    opacity: 1;                   // Firefox fix
+    opacity: 1;
     font-style: italic;           
   }
   &:user-invalid { border-color: $color-error }
@@ -231,7 +219,7 @@ select {
   }
 }
 
-// Button base styles (can be extended with Tailwind or SCSS)
+// Button base styles
 @mixin btn-variant($bg-color, $text-color: $cream) {
   background-color: $bg-color;
   color: $text-color;
@@ -253,19 +241,17 @@ button {
   font-family: inherit;
   cursor: pointer;
   border: none;
-  background: none
+  background: none;
 }
+
 .btn {
-  // Box Model
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: $spacing-xs;
   min-height: 44px;
   padding: $spacing-sm $spacing-lg;
-  position: relative;
 
-  // Typography
   font-family: inherit;
   font-size: $font-size-base;
   font-weight: $font-weight-semibold;
@@ -274,31 +260,16 @@ button {
   text-decoration: none;
   white-space: nowrap;
 
-  // Appearance
   border: 2px solid transparent;
   border-radius: $radius-md;
   cursor: pointer;
 
-  // Transitions
-  $transition: $transition-base ease;
-  
   transition: 
-    background-color $transition,
-    border-color $transition,
-    color $transition,
-    box-shadow $transition,
-    transform $transition;
-
-  &--icon-left {
-    &::before {
-      position: static !important;  // Override absolute
-      flex-shrink: 0;
-      width: 1.5em;
-      height: 1.5em;
-      margin-right: $spacing-xs;
-      transform: none
-    }
-  }
+    background-color $transition-base ease,
+    border-color $transition-base ease,
+    color $transition-base ease,
+    box-shadow $transition-base ease,
+    transform $transition-base ease;
 
   &:focus-visible {
     outline: none;
@@ -310,13 +281,7 @@ button {
     opacity: 0.6;
   }
 
-  &--primary {
-    @include btn-variant($blush)
-  }
-  &--secondary {
-    @include btn-variant($darkOlive)
-  }
-  &--danger {
-    @include btn-variant(FireBrick)
-  }
+  &--primary { @include btn-variant($blush) }
+  &--secondary { @include btn-variant($darkOlive) }
+  &--danger { @include btn-variant(FireBrick) }
 }

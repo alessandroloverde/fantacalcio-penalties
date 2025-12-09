@@ -96,7 +96,7 @@
   box-shadow: 0 0 0 2px currentColor;
 }
 
-// Typography Mixin - Apply typography styles from $typography map
+// Typography Mixin
 @mixin typography($variant: 'body') {
   @if map.has-key($typography, $variant) {
     $styles: map.get($typography, $variant);
@@ -109,8 +109,7 @@
   }
 }
 
-// Typography Mixin
-/* –––––– dff –––––– */
+// Icon Base Mixin
 @mixin getIcon-base {
   $stringIndex: str.index(#{&}, '--');
   $headlineKey: str.slice(#{&}, $stringIndex + 2, -9);
@@ -118,28 +117,6 @@
   content: '';
   width: 1.25em;
   height: 1.25em;
-  background-color: currentColor;  // Inherits from text color
   -webkit-mask: url('/assets/icons/icon-#{$headlineKey}.svg') no-repeat center / contain;
           mask: url('/assets/icons/icon-#{$headlineKey}.svg') no-repeat center / contain;
 }
-
-@mixin getIcon-positioned {
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-@mixin getIcon-inline {
-  position: static;
-  display: inline-block;
-  flex-shrink: 0;
-  margin-right: $spacing-xs;
-  vertical-align: -0.125em;
-
-  // Reset positioned properties
-  top: auto;
-  left: auto;
-  transform: none;
-}
-
