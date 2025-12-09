@@ -24,13 +24,10 @@ $icons: (
 .withIcon {
   @each $name in $icons {
     &--#{$name} {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      
       &::before {
         @include getIcon-base;
-        flex-shrink: 0;
+        display: inline-block;
+        vertical-align: -0.25em;
         margin-right: 0.25em;
         background-color: var(--icon-color, currentColor);
       }

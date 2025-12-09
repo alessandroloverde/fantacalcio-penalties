@@ -12,7 +12,7 @@
          <form id="timeWindow" @submit.prevent="saveTimeWindow" class="col-span-4 grid grid-cols-subgrid gap-y-4">
             <!-- *** Name Input *** -->
             <section id="edit--windowName" class="col-span-2">
-               <label for="windowName" class="block text-sm font-medium text-gray-700 mb-1">Window Name</label>
+               <label for="windowName" class="">Window Name</label>
                <input
                   v-model="formData.name"
                   type="text"
@@ -30,7 +30,7 @@
                </div>
 
                <div>
-                  <label for="startDateTime" class="block text-sm font-medium text-gray-700 mb-1">Start Date & Time</label>
+                  <label for="startDateTime" class="">Start Date & Time</label>
                   <input
                      v-model="formData.startDateTime"
                      type="datetime-local"
@@ -128,22 +128,22 @@
             <div
                v-for="(window, index) in timeWindows"
                :key="index"
-               class="col-span-4 pill--white"
+               class="col-span-2 pill--white flex flex-col"
             >
-               <div class="">
-                  <h4 class="">{{ window.name }}</h4>
-                  <div class="">
-                     <p class="withIcon--calendar withIcon--inline withIcon--color-blush col-span-2 mb-2 pill--beige dateWindow">
-                        <span class="font-medium">Inizio:</span>
+               <div class="flex-1">
+                  <h4 class="mb-2">{{ window.name }}</h4>
+                  <div class="grid grid-cols-2 gap-4">
+                     <p class="withIcon--calendar withIcon--color-blush col-span-1 mb-2 pill--beige dateWindow">
+                        <span>Inizio:</span>
                         {{ formatDateTime(window.startDateTime) }}
                      </p>
-                     <p class="col-span-2 mb-2 pill--beige dateWindow">
-                        <span class="font-medium">Fine:</span>
+                     <p class="withIcon--calendar withIcon--color-blush col-span-1 mb-2 pill--beige dateWindow">
+                        <span>Fine:</span>
                         {{ formatDateTime(window.endDateTime) }}
                      </p>
-                     <div class="mt-2">
-                        <span class="font-medium">Matches:</span>
-                        <ul class="ml-4 mt-1 space-y-1">
+                     <div class="mt-2 col-span-2">
+                        <span>Matches:</span>
+                        <ul class="ml-4 mt-1 grid grid-cols-2 gap-2">
                            <li v-for="(match, matchIdx) in window.matches" :key="matchIdx">
                               {{ getTeamName(match.teamA) }} vs {{ getTeamName(match.teamB) }}
                            </li>
@@ -152,7 +152,7 @@
                   </div>
                </div>
 
-               <div class="flex gap-2 mt-3 md:mt-0">
+               <div class="controls flex gap-2 mt-auto pt-4">
                   <button
                      @click="editTimeWindow(index)"
                      class="btn btn--secondary withIcon--edit-duo btn--icon-left"
