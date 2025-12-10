@@ -11,11 +11,16 @@
             <p class="withIcon--calendar withIcon--color-blush"><span>fine: </span>{{ formatToITDate(session.endDateTime) }}</p>
          </div>
          <div class="col-span-4 grid grid-cols-subgrid gap-y-4">
-            <div v-for="(match, index) in session.matches" :key="index" class="col-span-2 pill--white flex items-center gap-4">
-               <h4 class="w-3/4">
-                  {{ teamsMap[match.teamA] }} – {{ teamsMap[match.teamB] }} 
-               </h4>
-               <button class="btn btn--primary w-1/4">calcola</button>
+            <div 
+            v-for="(match, index) in session.matches" 
+            :key="index" 
+            class="col-span-2 pill--white flex items-center gap-4"
+            >
+               <h4 class="w-3/4">{{ teamsMap[match.teamA] }} – {{ teamsMap[match.teamB] }}</h4>
+               <button 
+                  class="btn btn--primary w-1/4"
+                  @click="goToCalculate(match.teamA, match.teamB)"
+               >calcola</button>
             </div>
          </div>
       </section>
@@ -78,6 +83,16 @@
       } catch(error) {
          console.error('Error fetching time windows:', error)
       }
+   }
+
+   const goToCalculate = (teamA: string, teamB: string) => {
+      navigateTo({
+         path: `/calculate`,
+         query: {
+            teamA,
+            teamB
+         }
+      })
    }
 
    onMounted(async () => {
