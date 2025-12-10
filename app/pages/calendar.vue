@@ -1,21 +1,21 @@
 <template>
    <div class="container boxed h-full max-w-7xl mx-auto my-12 px-4 sm:px-6 lg:px-8 py-8">
-      <h1 class="withIcon--calendar-duo">Calendario incontri</h1>
+      <h1 class="withIcon--calendar-duo withIcon--color-blush">Calendario incontri</h1>
       <hr class="divider my-4" />
       <section v-for="session in timeWindows" class="card grid grid-cols-4 gap-x-8 gap-y-4 mb-8 px-8 py-6">
-         <h2 class="withIcon--ball-duo col-span-4 mb-4">{{ session.name }}</h2>
+         <h2 class="withIcon--ball-duo withIcon--color-blush col-span-4 mb-4">{{ session.name }}</h2>
          <div class="col-span-2 mb-2 pill--beige dateWindow">
-            <p class="withIcon--calendar"><span>inizio: </span>{{ formatToITDate(session.startDateTime) }}</p>
+            <p class="withIcon--calendar withIcon--color-blush"><span>inizio: </span>{{ formatToITDate(session.startDateTime) }}</p>
          </div>
          <div class="col-span-2 mb-2 pill--beige dateWindow">
-            <p class="withIcon--calendar"><span>fine: </span>{{ formatToITDate(session.endDateTime) }}</p>
+            <p class="withIcon--calendar withIcon--color-blush"><span>fine: </span>{{ formatToITDate(session.endDateTime) }}</p>
          </div>
          <div class="col-span-4 grid grid-cols-subgrid gap-y-4">
-            <div v-for="(match, index) in session.matches" :key="index" class="col-span-2 pill--white">
-               <h4 class="withIcon--flag-duo oval flex justify-between items-center">
-                  {{ teamsMap[match.teamA] }} – {{ teamsMap[match.teamB] }}
-                  <button class="btn">calcola</button>
+            <div v-for="(match, index) in session.matches" :key="index" class="col-span-2 pill--white flex items-center gap-4">
+               <h4 class="w-3/4">
+                  {{ teamsMap[match.teamA] }} – {{ teamsMap[match.teamB] }} 
                </h4>
+               <button class="btn btn--primary w-1/4">calcola</button>
             </div>
          </div>
       </section>

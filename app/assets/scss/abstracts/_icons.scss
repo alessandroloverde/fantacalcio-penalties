@@ -24,12 +24,30 @@ $icons: (
 .withIcon {
   @each $name in $icons {
     &--#{$name} {
+      &.oval {
+        &::before { 
+          background-color: #fff7ed;
+          margin-right: 1.25em;
+        }
+        &::after {
+          content: "";
+          display: inline-block;
+          width: 2em;
+          height: 2em;
+          border-radius: 50%;
+          background-color: var(--icon-color, currentColor);
+          position: relative;
+          right: calc(100% - 1.625em);
+          z-index: 0;
+        }
+      }
       &::before {
         @include getIcon-base;
         display: inline-block;
         vertical-align: -0.25em;
         margin-right: 0.25em;
         background-color: var(--icon-color, currentColor);
+        z-index: 1;
       }
     }
   }
