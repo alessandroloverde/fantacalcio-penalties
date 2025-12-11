@@ -7,13 +7,21 @@
          <section>
             <h4>{{teamAData?.teamData.name}}</h4>
             <ul>
-               <li v-for="player in teamAPenaltyTakers">{{ player.name }}</li>
+               <li v-for="player in teamAPenaltyTakers">
+                  <span>{{ player.role }}</span> –
+                  <span>{{ player.name }}</span> – 
+                  <span>{{ player.squadra }}</span>
+               </li>
             </ul>
          </section>
          <section>
             <h4>{{teamBData?.teamData.name}}</h4>
             <ul>
-               <li v-for="player in teamBPenaltyTakers">{{ player.name }}</li>
+               <li v-for="player in teamBPenaltyTakers">
+                  <span>{{ player.role }}</span> – 
+                  <span>{{ player.name }}</span> – 
+                  <span>{{ player.squadra }}</span>
+               </li>
             </ul>
          </section>
 
