@@ -80,14 +80,22 @@
             >Save to DB</button>
          </div>
       </div>
-      <input
+<!--       <input
          v-if="loggedUser && presidents.includes(loggedUser.name)"
          class="upload-input"
          type="file"
          accept=".csv"
          ref="fileInput"
          @change="handleFileUpload"
-      >
+      >Carica giocatori
+      </input> -->
+      <input
+         class="upload-input"
+         type="file"
+         accept=".csv"
+         ref="fileInput"
+         @change="handleFileUpload"
+      >Carica giocatori
       </input>
    </div>
 </template>
@@ -108,7 +116,16 @@
    let loading = ref<boolean>(true)
    const teamId = route.params.id as string
    const teamData = ref<any>(null)
-   const players = ref<{name: string, role: string, squadra: string, team: any, list?: string, internalID?: number, position?: number | null}[]>([])
+   const players = ref<{
+      playerID?: string,
+      name: string, 
+      role: string, 
+      squadra: string, 
+      team: any, 
+      list?: string, 
+      internalID?: number, 
+      position?: number | null
+   }[]>([])
    const presidents = ref<string[]>([])
    const fileInput = ref<HTMLInputElement | null>(null)
    const roleOrder: Record<string, number> = { 'P': 1, 'D': 2, 'C': 3, 'A': 4 }
@@ -142,42 +159,52 @@
          complete: async (results) => {
          players.value = [] // clear existing players
 
-         // Skip rows 0-2, process rows 3-27 (A3:C27)
-         const rows = results.data.slice(2, 27) as string[][]   
          const db = getFirestore($firebaseApp)
-         
+
+         const csvTeamId = (results.data[0] as string[])[1]?.trim()
+
+         if(csvTeamId !== teamId) {
+            alert(`Team ID mismatch: ${csvTeamId} !== ${teamId}`)
+            return
+         }
+
+         // Skip rows 0-2, process rows 3-27 (A3:C27)
+         const rows = results.data.slice(2, 27) as string[][]
+
          // Build new players object to replace existing one
          const newPlayers: Record<string, any> = {}
          
          for (const row of rows) {
-            const [role, name, squadra] = row
+            const [role, name, squadra, , playerID] = row
             
-            if (!name) continue // Skip empty rows
-            
-            // Generate player ID
-            const playerPascalCase = toPascalCase(name)
-            const playerId = `id-${playerPascalCase}`
+            // Skip empty rows
+            if (!name || !playerID || !role || !squadra) continue
+
+            const trimmedPlayerID = playerID.trim()
             
             // Create player document
             const playerData = {
-               name,
-               role,
-               squadra,
+               playerID: trimmedPlayerID,  // Store as field too
+               name: name.trim(),
+               role: role.trim(),
+               squadra: squadra.trim(),
                team: doc(db, "teams", teamId),
+            }
+            
+            // Use playerID from CSV as document ID
+            await setDoc(doc(db, "players", trimmedPlayerID), playerData)
+            
+            // Add reference to new players object
+            const playerRef = doc(db, "players", trimmedPlayerID)
+            newPlayers[trimmedPlayerID] = playerRef
+            
+            // Add to local display
+            players.value.push({
+               ...playerData,
                list: "List-1",
                internalID: players.value.length,
                position: null
-            }
-            
-            // Add to players collection
-            await setDoc(doc(db, "players", playerId), playerData)
-            
-            // Add reference to new players object
-            const playerRef = doc(db, "players", playerId)
-            newPlayers[playerId] = playerRef
-            
-            // Add to local display
-            players.value.push(playerData as {name: string, role: string, squadra: string, team: any})
+            })
          }
 
          players.value = sortPlayersByRole(players.value)
@@ -204,16 +231,30 @@
 
    async function savePenaltyTakers() {
       const db = getFirestore($firebaseApp)
-      const penaltiesColl = doc(db, "penalties", teamId)
+      const penaltiesDoc = doc(db, "penalties", teamId)
 
-      const penaltyTakers = players.value.filter(player => player.list === 'List-2')
+      const penaltyTakers = players.value
+         .filter(player => player.list === 'List-2')
+         .map(player => ({
+            name: player.name,
+            role: player.role,
+            squadra: player.squadra,
+            position: player.position
+         }))
 
-      if(penaltyTakers.length <10) {
-         alert("completa i rigoristi")
-      } else {
-         await updateDoc(penaltiesColl, {
-            penaltyTakers: penaltyTakers
-         })
+      try {
+         if(penaltyTakers.length <10) {
+            alert("completa i rigoristi")
+         } else {
+            // setDoc creates if doesn't exist, merge: true preserves other fields
+            await setDoc(penaltiesDoc, {
+               penaltyTakers: penaltyTakers
+            }, { merge: true })
+            
+            alert('Rigoristi salvati!')
+         }
+      } catch(error) {
+         alert(error)
       }
 
 
