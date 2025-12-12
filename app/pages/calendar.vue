@@ -1,7 +1,7 @@
 <template>
    <div class="container boxed h-full max-w-7xl mx-auto my-12 px-4 sm:px-6 lg:px-8 py-8">
-      <h1 class="withIcon--calendar-duo withIcon--color-blush">Calendario incontri</h1>
-      <hr class="divider my-4" />
+      <h1 class="withIcon--calendar-duo withIcon--color-blush mb-8">Calendario incontri</h1>
+      
       <section v-for="session in timeWindows" class="card grid grid-cols-4 gap-x-8 gap-y-4 mb-8 px-8 py-6">
          <h2 class="withIcon--ball-duo withIcon--color-blush col-span-4 mb-4">{{ session.name }}</h2>
          <div class="col-span-2 mb-2 pill--beige dateWindow">
