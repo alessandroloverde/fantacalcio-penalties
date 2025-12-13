@@ -24,7 +24,7 @@
                @drop="onDrop($event, 'List-1')" 
             >
                <li v-for="player in players.filter(item => item.list == 'List-1')" 
-                  :key="player.name"
+                  :key="player.playerID"
                   draggable="true"
                   @dragstart="startDrag($event, player)" 
                   class="player" 
@@ -38,6 +38,29 @@
          </div>
 
          <div id="penaltyTakers-list" class="w-full">
+            <h2>Portiere</h2>
+            <div class="drop-zones-list mb-6">
+               <div 
+                  class="drop-slot goalkeeper-slot"
+                  @dragenter.prevent
+                  @dragover.prevent
+                  @drop="onDropGoalkeeper($event)"
+               >
+                  <span class="slot-number">GK</span>
+                  <div 
+                     v-if="goalkeeper"
+                     draggable="true"
+                     @dragstart="startDrag($event, goalkeeper)" 
+                     class="player role--P"
+                  >
+                     <span class="player--name">{{ goalkeeper.name }}</span>
+                     <span class="player--role">{{ goalkeeper.role }}</span>
+                     <span class="player--team">{{ goalkeeper.squadra }}</span>
+                  </div>
+                  <div v-else class="empty-slot">Drop goalkeeper here (role P only)</div>
+            </div>
+            </div>
+
             <h2>Rigoristi</h2>
             <ol class="drop-zones-list">
                <li 
@@ -116,14 +139,22 @@
    let loading = ref<boolean>(true)
    const teamId = route.params.id as string
    const teamData = ref<any>(null)
-   const players = ref<{
-      playerID?: string,
+   const goalkeeper = ref<{
+      playerID: string,
       name: string, 
       role: string, 
       squadra: string, 
       team: any, 
       list?: string, 
-      internalID?: number, 
+      position?: number | null
+   } | null>(null)
+   const players = ref<{
+      playerID: string,
+      name: string, 
+      role: string, 
+      squadra: string, 
+      team: any, 
+      list?: string, 
       position?: number | null
    }[]>([])
    const presidents = ref<string[]>([])
@@ -131,23 +162,11 @@
    const roleOrder: Record<string, number> = { 'P': 1, 'D': 2, 'C': 3, 'A': 4 }
 
 
-   function sortPlayersByRole(playersArray: {name: string, role: string, squadra: string, team: any, list?: string, internalID?: number, position?: number | null}[] | null | undefined) {
+   function sortPlayersByRole(playersArray: {playerID: string, name: string, role: string, squadra: string, team: any, list?: string, position?: number | null}[] | null | undefined) {
       if (!playersArray) return [];
       return playersArray.sort((a, b) => (roleOrder[a.role] ?? 0) - (roleOrder[b.role] ?? 0));
    }
 
-
-   function toPascalCase(string: string): string {
-      return string
-               .split(' ')
-               .map(
-                  word => {
-                     const cleaned = word.replace(/[^a-zA-Z]/g, '')
-                     return cleaned.charAt(0).toUpperCase() + cleaned.slice(1).toLowerCase()
-               })
-               .filter(word => word) // Remove empty strings
-               .join('')
-   }
 
    async function handleFileUpload(event: Event) {
       const target = event.target as HTMLInputElement
@@ -202,7 +221,6 @@
             players.value.push({
                ...playerData,
                list: "List-1",
-               internalID: players.value.length,
                position: null
             })
          }
@@ -236,22 +254,34 @@
       const penaltyTakers = players.value
          .filter(player => player.list === 'List-2')
          .map(player => ({
+            playerID: player.playerID,
             name: player.name,
             role: player.role,
             squadra: player.squadra,
             position: player.position
          }))
+      
+      // Prepare goalkeeper data
+      const goalkeeperData = goalkeeper.value ? {
+         playerID: goalkeeper.value.playerID,
+         name: goalkeeper.value.name,
+         role: goalkeeper.value.role,
+         squadra: goalkeeper.value.squadra,
+      } : null
 
       try {
-         if(penaltyTakers.length <10) {
-            alert("completa i rigoristi")
+         if(penaltyTakers.length < 10) {
+            alert("Completa i rigoristi (10 giocatori)")
+         } else if(!goalkeeperData) {
+            alert("Seleziona un portiere!")
          } else {
             // setDoc creates if doesn't exist, merge: true preserves other fields
             await setDoc(penaltiesDoc, {
-               penaltyTakers: penaltyTakers
+               penaltyTakers: penaltyTakers,
+               goalkeeper: goalkeeperData
             }, { merge: true })
             
-            alert('Rigoristi salvati!')
+            alert('Rigoristi e portiere salvati!')
          }
       } catch(error) {
          alert(error)
@@ -259,13 +289,12 @@
 
 
    }
-
    const startDrag = (event: DragEvent, item: any) => {
-      if(!event.dataTransfer || item.internalID == null) return
+      if(!event.dataTransfer || !item.playerID) return
 
       event.dataTransfer.dropEffect = "move"
       event.dataTransfer.effectAllowed = "move"
-      event.dataTransfer.setData('itemID', String(item.internalID))
+      event.dataTransfer.setData('playerID', item.playerID)
    }
 
    const getPlayerAtPosition = (position: number) => {
@@ -279,32 +308,64 @@
       event.dataTransfer.dropEffect = "move"
       event.dataTransfer.effectAllowed = "move"
 
-      const itemID = event.dataTransfer.getData('itemID')
-      if(!itemID) return
+      const playerID = event.dataTransfer.getData('playerID')
+      if(!playerID) return
 
-      const selectedPlayer = players.value.find(item => item.internalID === Number(itemID))
+      const selectedPlayer = players.value.find(item => item.playerID === playerID)
 
       if(selectedPlayer) {
-         // If dropping in List-2 with a position
          if(list === 'List-2' && position !== undefined) {
-            // If there's already a player at this position, swap or move them
             const existingPlayer = getPlayerAtPosition(position)
 
-            if(existingPlayer && existingPlayer.internalID !== selectedPlayer.internalID) {
-               // Move existing player back to List-1
+            if(existingPlayer && existingPlayer.playerID !== selectedPlayer.playerID) {
                existingPlayer.list = 'List-1'
                existingPlayer.position = null
             }
-            // Assign the dropped player to this position
+            
+            if(goalkeeper.value?.playerID === selectedPlayer.playerID) {
+               goalkeeper.value = null
+            }
+
             selectedPlayer.list = 'List-2'
             selectedPlayer.position = position
          } else if(list === 'List-1') {
-            // When moving to List-1, clear position
+            if(goalkeeper.value?.playerID === selectedPlayer.playerID) {
+               goalkeeper.value = null
+            }
+
             selectedPlayer.list = 'List-1'
             selectedPlayer.position = null
          }
       }
    }
+
+
+   const onDropGoalkeeper = (event: DragEvent) => {
+      if(!event.dataTransfer) return
+
+      event.preventDefault()
+      const playerID = event.dataTransfer.getData('playerID')
+      if(!playerID) return
+
+      const selectedPlayer = players.value.find(item => item.playerID === playerID)
+
+      if(!selectedPlayer) return
+
+      if(selectedPlayer.role !== 'P') {
+         alert('Solo i portieri (P) possono essere assegnati a questo slot!')
+         return
+      }
+
+      if(goalkeeper.value) {
+         goalkeeper.value.list = 'List-1'
+         goalkeeper.value.position = null
+      }
+
+      selectedPlayer.list = 'Goalkeeper'
+      selectedPlayer.position = 0
+      goalkeeper.value = selectedPlayer
+   }
+
 
    onMounted(async () => {
       if (process.client && $firebaseApp) {
@@ -314,6 +375,8 @@
          const penaltiesRef = doc(db, "penalties", teamId)
          const penaltiesSnap = await getDoc(penaltiesRef)
          const savedPenaltyTakers = penaltiesSnap.exists() ? penaltiesSnap.data()?.penaltyTakers || [] : []
+         const savedGoalkeeper = penaltiesSnap.exists() ? penaltiesSnap.data()?.goalkeeper || null : null  // NEW
+
 
          const teamRef = doc(db, "teams", teamId)
          const teamSnap = await getDoc(teamRef)
@@ -332,26 +395,31 @@
             )
             const playerDocs = await Promise.all(playerPromises)
 
-            let index = 0
             for (const singlePlayerDoc of playerDocs) {
-               const singlePlayerData = singlePlayerDoc.data() as {name: string, role: string, squadra: string, team: any, list: string, internalID: number, position: number | null}
+               const singlePlayerData = singlePlayerDoc.data() as {playerID: string, name: string, role: string, squadra: string, team: any, list: string, position: number | null}
 
-               // Check if this player is in saved penalty takers
-               const savedPenaltyTaker = savedPenaltyTakers.find((pt: any) => pt.name === singlePlayerData.name)
-               
-               if (savedPenaltyTaker) {
-                  singlePlayerData.list = "List-2"
-                  singlePlayerData.position = savedPenaltyTaker.position
-               } else {
-                  singlePlayerData.list = "List-1"
-                  singlePlayerData.position = null
+               // Check if this player is the saved goalkeeper
+               if (savedGoalkeeper && singlePlayerData.playerID === savedGoalkeeper.playerID) {
+                  singlePlayerData.list = "Goalkeeper"
+                  singlePlayerData.position = 0
+                  goalkeeper.value = singlePlayerData
                }
-               
-               singlePlayerData.internalID = index
-               index++
+               // Check if this player is in saved penalty takers
+               else {
+                  const savedPenaltyTaker = savedPenaltyTakers.find((pt: any) => pt.playerID === singlePlayerData.playerID)
+                  
+                  if (savedPenaltyTaker) {
+                     singlePlayerData.list = "List-2"
+                     singlePlayerData.position = savedPenaltyTaker.position
+                  } else {
+                     singlePlayerData.list = "List-1"
+                     singlePlayerData.position = null
+                  }
+               }
 
                players.value.push(singlePlayerData)
             }
+
             players.value = sortPlayersByRole(players.value) // *** Sorting ***
 
             // Fetch all presidents in parallel

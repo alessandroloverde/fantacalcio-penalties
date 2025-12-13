@@ -11,8 +11,13 @@
       <section v-for="item, index in teamsWithPlayers" :key="index">
          <nuxtLink :to="`/teams/${item.teamId}`">{{ item.teamData.name }}</nuxtLink>
          <ol>
-            <!-- <li v-for="player in item.players ">{{ player.name }}</li> -->
-             <li v-for="penaltyTaker in criceto[item.teamId]?.sort((a, b) => {return a.position -b.position })">
+            <li v-if="criceto[item.teamId]?.goalkeeper">
+               <span>GK – </span>{{ criceto[item.teamId]?.goalkeeper?.name }}
+            </li>
+            <li v-else>
+               <span>GK – </span><em>Non assegnato</em>
+            </li>
+            <li v-for="penaltyTaker in criceto[item.teamId]?.penaltyTakers?.sort((a, b) => a.position - b.position)">
                <span>{{ penaltyTaker.position }} – </span>{{ penaltyTaker.name }}
             </li>
          </ol>
@@ -53,8 +58,7 @@ const penalties = ref<Array<{
    squadra: string,
    team: any[]
 }>>([])
-const criceto = ref<Record<string, any[]>>({})
-
+const criceto = ref<Record<string, { penaltyTakers: any[], goalkeeper: any | null }>>({})
 
 onMounted(async () => {
    // Only run Firebase code on client side
@@ -72,7 +76,10 @@ onMounted(async () => {
             penaltiesSnapshot.docs.map(penaltyDoc => {
                const penaltyData = penaltyDoc.data()
                
-               return [penaltyDoc.id, penaltyData.penaltyTakers || []]
+               return [penaltyDoc.id, {
+                  penaltyTakers: penaltyData.penaltyTakers || [],
+                  goalkeeper: penaltyData.goalkeeper || null                
+               }]
             })
          )
 
@@ -89,7 +96,7 @@ onMounted(async () => {
                   getDoc(playerRef).then(playerDoc => {
                      if (playerDoc.exists()) {
                         return { 
-                           id: playerDoc.id, 
+                           id: playerDoc.id,
                            ...(playerDoc.data() || {})
                         }
                      }

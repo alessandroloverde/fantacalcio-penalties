@@ -3,7 +3,7 @@ import { getFirestore, collection, getDocs } from 'firebase/firestore'
 import { useNuxtApp } from '#app'
 
 export const usePenaltiesStore = defineStore('penalties', () => {
-   const penalties = ref<Record<string, any[]>>({})
+   const penalties = ref<Record<string, { penaltyTakers: any[], goalkeeper: any | null }>>({})
    const loading = ref<boolean>(false)
    const error = ref<string | null>(null)
 
@@ -26,7 +26,10 @@ export const usePenaltiesStore = defineStore('penalties', () => {
          penalties.value = Object.fromEntries(
             penaltiesSnapshot.docs.map(penaltyDoc => {
                const penaltyData = penaltyDoc.data()
-               return [penaltyDoc.id, penaltyData.penaltyTakers || []]
+               return [penaltyDoc.id, {
+                  penaltyTakers: penaltyData.penaltyTakers || [],
+                  goalkeeper: penaltyData.goalkeeper || null
+               }]
             })
          )
 
