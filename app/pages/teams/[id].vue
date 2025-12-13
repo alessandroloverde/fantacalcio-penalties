@@ -124,10 +124,11 @@
 </template>
 
 <script setup lang="ts">
-   import { getFirestore, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+   import { getFirestore, doc, setDoc, updateDoc } from 'firebase/firestore';
    import { useRoute } from 'vue-router';
    import Papa from 'papaparse';
    import { useAuthStore } from '../../stores/auth';
+   import { getDocRest, getDocsRest } from '../../utils/firestoreRest';
 
    const route = useRoute()
    const { $firebaseApp } = useNuxtApp()
@@ -368,41 +369,41 @@
 
 
    onMounted(async () => {
-      if (process.client && $firebaseApp) {
-         const db = getFirestore($firebaseApp)
+      if (process.client) {
+         // Use REST API instead of SDK (no WebSocket overhead)
+         const [penaltiesResult, teamResult] = await Promise.all([
+            getDocRest("penalties", teamId),
+            getDocRest("teams", teamId)
+         ])
          
-         // Fetch penalties if not already loaded
-         const penaltiesRef = doc(db, "penalties", teamId)
-         const penaltiesSnap = await getDoc(penaltiesRef)
-         const savedPenaltyTakers = penaltiesSnap.exists() ? penaltiesSnap.data()?.penaltyTakers || [] : []
-         const savedGoalkeeper = penaltiesSnap.exists() ? penaltiesSnap.data()?.goalkeeper || null : null  // NEW
+         const savedPenaltyTakers = penaltiesResult?.data?.penaltyTakers || []
+         const savedGoalkeeper = penaltiesResult?.data?.goalkeeper || null
 
+         if(teamResult) {
+            teamData.value = teamResult.data
 
-         const teamRef = doc(db, "teams", teamId)
-         const teamSnap = await getDoc(teamRef)
+            // Get player IDs from team document (keys of the players map)
+            const playerIds = Object.keys(teamResult.data.players || {})
+            const presidentIds = Object.keys(teamResult.data.president || {})
 
-         if(teamSnap.exists()) {
-            teamData.value = teamSnap.data()
+            // Fetch players AND presidents in parallel using REST API
+            const [playerDocs, presidentDocs] = await Promise.all([
+               getDocsRest("players", playerIds),
+               getDocsRest("participants", presidentIds)
+            ])
 
-            loading.value = false
+            // Process players - build array FIRST, then assign once
+            const processedPlayers: typeof players.value = []
+            let foundGoalkeeper: typeof goalkeeper.value = null
 
-            const playersReference = teamData.value.players
-            const presidentReference = teamData.value.president
-
-            // Fetch all players in parallel
-            const playerPromises = Object.keys(playersReference).map(playerKey => 
-               getDoc(playersReference[playerKey])
-            )
-            const playerDocs = await Promise.all(playerPromises)
-
-            for (const singlePlayerDoc of playerDocs) {
-               const singlePlayerData = singlePlayerDoc.data() as {playerID: string, name: string, role: string, squadra: string, team: any, list: string, position: number | null}
+            for (const playerDoc of playerDocs) {
+               const singlePlayerData = playerDoc.data as {playerID: string, name: string, role: string, squadra: string, team: any, list: string, position: number | null}
 
                // Check if this player is the saved goalkeeper
                if (savedGoalkeeper && singlePlayerData.playerID === savedGoalkeeper.playerID) {
                   singlePlayerData.list = "Goalkeeper"
                   singlePlayerData.position = 0
-                  goalkeeper.value = singlePlayerData
+                  foundGoalkeeper = singlePlayerData
                }
                // Check if this player is in saved penalty takers
                else {
@@ -417,22 +418,17 @@
                   }
                }
 
-               players.value.push(singlePlayerData)
+               processedPlayers.push(singlePlayerData)
             }
 
-            players.value = sortPlayersByRole(players.value) // *** Sorting ***
+            // Single reactive assignment
+            players.value = sortPlayersByRole(processedPlayers)
+            goalkeeper.value = foundGoalkeeper
 
-            // Fetch all presidents in parallel
-            const presidentPromises = Object.keys(presidentReference).map(president =>
-               getDoc(presidentReference[president])
-            )
-            const presidentDocs = await Promise.all(presidentPromises)
-
-            for (const singlePresidentDoc of presidentDocs) {
-               const singlePresidentData = singlePresidentDoc.data() as {name: string}
-
-               presidents.value.push(singlePresidentData.name)
-            }       
+            // Process presidents
+            presidents.value = presidentDocs.map(doc => doc.data.name as string)
+            
+            loading.value = false
          }
       }
    })

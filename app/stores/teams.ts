@@ -1,68 +1,33 @@
-import { getFirestore, collection, getDocs, doc, getDoc } from 'firebase/firestore'
-import { useNuxtApp } from '#app'
 import { defineStore } from 'pinia'
+import { getCollectionRest } from '../utils/firestoreRest'
 
-export interface TeamWithPlayers {
+export interface TeamData {
    teamId: string
    teamData: any
-   players: any[]
 }
 
 export const useTeamsStore = defineStore('teams', () => {
-   const teamsWithPlayers = ref<TeamWithPlayers[]>([])
+   const teams = ref<TeamData[]>([])
    const loading = ref<boolean>(false)
    const error = ref<string | null>(null)
 
    const fetchTeams = async () => {
       if (!process.client) return
-
-      const { $firebaseApp } = useNuxtApp()
-      if (!$firebaseApp) {
-         error.value = 'Firebase app not initialized'
-         return
-      }
+      
+      // Don't refetch if already loaded
+      if (teams.value.length > 0) return
 
       try {
          loading.value = true
          error.value = null
          
-         const db = getFirestore($firebaseApp)
-         const teamsSnapshot = await getDocs(collection(db, "teams"))
+         // Use REST API instead of SDK (no WebSocket overhead)
+         const teamsResult = await getCollectionRest("teams")
 
-         // Process all teams in parallel
-         const teamPromises = teamsSnapshot.docs.map(async (teamDoc) => {
-            const teamData = teamDoc.data()
-            
-            if (teamData.players) {
-               // Collect all player references first
-               const playerRefs = Object.values(teamData.players) as any[]
-               
-               // Fetch all players in parallel using Promise.all
-               const playerPromises = playerRefs.map(playerRef => 
-                  getDoc(playerRef).then(playerDoc => {
-                     if (playerDoc.exists()) {
-                        return { 
-                           id: playerDoc.id, 
-                           ...(playerDoc.data() || {})
-                        }
-                     }
-                     return null
-                  })
-               )
-               
-               const players = (await Promise.all(playerPromises)).filter(p => p !== null)
-               
-               return {
-                  teamId: teamDoc.id,
-                  teamData: teamData,
-                  players: players,
-               }
-            }
-            return null
-         })
-         
-         const results = await Promise.all(teamPromises)
-         teamsWithPlayers.value = results.filter(t => t !== null) as TeamWithPlayers[]
+         teams.value = teamsResult.map(doc => ({
+            teamId: doc.id,
+            teamData: doc.data
+         }))
 
       } catch (err: any) {
          error.value = err.message || 'Unknown error'
@@ -71,8 +36,12 @@ export const useTeamsStore = defineStore('teams', () => {
       }
    }
 
+   // Backward compatibility alias
+   const teamsWithPlayers = computed(() => teams.value)
+
    return {
-      teamsWithPlayers: readonly(teamsWithPlayers),
+      teams: readonly(teams),
+      teamsWithPlayers,  // Alias for backward compatibility
       loading: readonly(loading),
       error: readonly(error),
       fetchTeams

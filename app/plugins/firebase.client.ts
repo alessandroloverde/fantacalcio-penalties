@@ -1,8 +1,8 @@
 import { defineNuxtPlugin } from '#app'
 import { initializeApp, getApps } from 'firebase/app'
 import type { FirebaseApp } from 'firebase/app'
-import { getAuth, connectAuthEmulator } from 'firebase/auth'
-import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore'
+import { getAuth } from 'firebase/auth'
+import { initializeFirestore, memoryLocalCache } from 'firebase/firestore'
 
 export default defineNuxtPlugin(() => {
   if (!process.client) return
@@ -31,7 +31,11 @@ export default defineNuxtPlugin(() => {
 
   // ✅ Initialize services with guaranteed non-undefined app
   const auth = getAuth(app)
-  const db = getFirestore(app)
+  
+  // ✅ Use memory cache instead of IndexedDB persistence (faster initial load)
+  const db = initializeFirestore(app, {
+    localCache: memoryLocalCache()
+  })
 
   // Connect to emulators only in dev mode
 /*   if (process.dev) {
