@@ -1,25 +1,30 @@
 <template>
-   <div>
-      <nav class="appNav">
-         <NuxtLink 
-         to="/"
-         class="appNav--link"
-         :class="{active: route.path === '/' }"
-         >Home</NuxtLink>
+   <header class="w-full">
+      <div class="container flex max-w-7xl mx-auto p-0 sm:px-6 lg:px-8">
+         <div class="logo w-1/3">
+            <h1 class="main-title">Fantacalcio <span>25/26</span></h1>
+         </div>
+         <nav class="appNav w-2/3">
+            <NuxtLink 
+            to="/"
+            class="appNav--link withIcon--home-duo"
+            :class="{active: route.path === '/' }"
+            >Home</NuxtLink>
 
-         <NuxtLink 
-         to="settings"
-         class="appNav--link"
-         :class="{active: route.path === '/settings' }"
-         >Settings</NuxtLink>
+            <NuxtLink 
+            to="settings"
+            class="appNav--link withIcon--settings-duo"
+            :class="{active: route.path === '/settings' }"
+            >Settings</NuxtLink>
 
-         <NuxtLink 
-         to="calendar"
-         class="appNav--link"
-         :class="{active: route.path === '/calendar' }"
-         >Calendar</NuxtLink>
-      </nav>
-   </div>
+            <NuxtLink 
+            to="calendar"
+            class="appNav--link withIcon--calendar-duo"
+            :class="{active: route.path === '/calendar' }"
+            >Calendar</NuxtLink>
+         </nav>
+      </div>
+   </header>
 </template>
 
 <script setup lang="ts">
@@ -29,13 +34,25 @@
 <style lang="scss" scoped>
    @use '@/assets/scss/main' as *;
 
+   header { background-color: $navyBlue }
+
+   .main-title { 
+      font-family: $font-family-momo;
+      font-size: 36px;
+      color: $cream;
+      text-transform: uppercase;
+      text-align: center;
+      margin: 3vh auto;
+
+      span { color: $blush }
+   }
+
    .appNav {
       display: flex;
       justify-content: center;
       gap: 2rem;
       padding: 1rem 2rem;
       background-color: $navyBlue;
-      border-bottom: 3px solid $blush;
 
       &--link {
          display: flex;
