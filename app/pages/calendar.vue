@@ -1,5 +1,6 @@
 <template>
    <div class="container boxed h-full max-w-7xl mx-auto my-12 px-4 sm:px-6 lg:px-8 py-8">
+      <AppNav />
       <h1 class="withIcon--calendar-duo withIcon--color-blush mb-8">Calendario incontri</h1>
       
       <section v-for="session in timeWindows" class="card grid grid-cols-4 gap-x-8 gap-y-4 mb-8 px-8 py-6">
