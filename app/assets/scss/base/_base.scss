@@ -32,8 +32,8 @@ a {
   transition: color $transition-fast;
   font-weight: 500;  
 
-  &:visited { color: $color-link-visited }
   &:hover { opacity: 0.8 }
+  &:active { color: inherit; }
 }
 
 // List styles
