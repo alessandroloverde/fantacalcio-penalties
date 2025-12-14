@@ -16,6 +16,8 @@
 
 // 3. Components (Shared Component Styles)
 @use 'components/components';
+@use 'components/theme';
+
 
 // Note: Component-specific styles should remain in their respective .vue files
 // Components can import abstracts using:

@@ -5,29 +5,59 @@
 @use './colors' as *;
 @use './mixins' as *;
 
+$icons: (
+  'password',
+  'login',
+  'email',
+  'cloudQuestion',
+  'calendar-duo',
+  'calendar',
+  'ball-duo',
+  'settings-duo',
+  'clock-duo',
+  'plus-rounded-duo',
+  'edit-duo',
+  'delete-duo',
+  'flag-duo',
+  'calculate-duo',
+  'shirt-duo',
+  'soccerBall-duo'
+);
+
 .withIcon {
-  &--password {
-      &::before { 
-        @include getIcon;
-        background-color: $blush;
-      }
-  }
-  &--login {
-      &::before { 
-        @include getIcon;
-        background-color: $blush;
-      }
-  }
-  &--email {
-      &::before { 
-        @include getIcon;
-        background-color: $blush;
-      }
-  }
-  &--cloudQuestion {
+  @each $name in $icons {
+    &--#{$name} {
+      &.oval {
         &::before { 
-        @include getIcon;
-        background-color: $blush;
-      }      
+          background-color: #fff7ed;
+          margin-right: 1.25em;
+        }
+        &::after {
+          content: "";
+          display: inline-block;
+          width: 2em;
+          height: 2em;
+          border-radius: 50%;
+          background-color: var(--icon-color, currentColor);
+          position: relative;
+          right: calc(100% - 1.625em);
+          z-index: 0;
+        }
+      }
+      &::before {
+        @include getIcon-base;
+        display: inline-block;
+        vertical-align: -0.25em;
+        margin-right: 0.25em;
+        background-color: var(--icon-color, currentColor);
+        z-index: 1;
+      }
+    }
   }
+
+  // Color modifiers
+  &--color-blush { --icon-color: #{$blush}; }
+  &--color-cream { --icon-color: #{$cream}; }
+  &--color-olive { --icon-color: #{$darkOlive}; }
+  &--color-navy { --icon-color: #{$navyBlue}; }
 }

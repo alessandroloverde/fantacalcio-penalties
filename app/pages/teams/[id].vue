@@ -24,7 +24,7 @@
                @drop="onDrop($event, 'List-1')" 
             >
                <li v-for="player in players.filter(item => item.list == 'List-1')" 
-                  :key="player.name"
+                  :key="player.playerID"
                   draggable="true"
                   @dragstart="startDrag($event, player)" 
                   class="player" 
@@ -38,6 +38,29 @@
          </div>
 
          <div id="penaltyTakers-list" class="w-full">
+            <h2>Portiere</h2>
+            <div class="drop-zones-list mb-6">
+               <div 
+                  class="drop-slot goalkeeper-slot"
+                  @dragenter.prevent
+                  @dragover.prevent
+                  @drop="onDropGoalkeeper($event)"
+               >
+                  <span class="slot-number">GK</span>
+                  <div 
+                     v-if="goalkeeper"
+                     draggable="true"
+                     @dragstart="startDrag($event, goalkeeper)" 
+                     class="player role--P"
+                  >
+                     <span class="player--name">{{ goalkeeper.name }}</span>
+                     <span class="player--role">{{ goalkeeper.role }}</span>
+                     <span class="player--team">{{ goalkeeper.squadra }}</span>
+                  </div>
+                  <div v-else class="empty-slot">Drop goalkeeper here (role P only)</div>
+            </div>
+            </div>
+
             <h2>Rigoristi</h2>
             <ol class="drop-zones-list">
                <li 
@@ -80,23 +103,32 @@
             >Save to DB</button>
          </div>
       </div>
-      <input
+<!--       <input
          v-if="loggedUser && presidents.includes(loggedUser.name)"
          class="upload-input"
          type="file"
          accept=".csv"
          ref="fileInput"
          @change="handleFileUpload"
-      >
+      >Carica giocatori
+      </input> -->
+      <input
+         class="upload-input"
+         type="file"
+         accept=".csv"
+         ref="fileInput"
+         @change="handleFileUpload"
+      >Carica giocatori
       </input>
    </div>
 </template>
 
 <script setup lang="ts">
-   import { getFirestore, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+   import { getFirestore, doc, setDoc, updateDoc } from 'firebase/firestore';
    import { useRoute } from 'vue-router';
    import Papa from 'papaparse';
    import { useAuthStore } from '../../stores/auth';
+   import { getDocRest, getDocsRest } from '../../utils/firestoreRest';
 
    const route = useRoute()
    const { $firebaseApp } = useNuxtApp()
@@ -108,29 +140,34 @@
    let loading = ref<boolean>(true)
    const teamId = route.params.id as string
    const teamData = ref<any>(null)
-   const players = ref<{name: string, role: string, squadra: string, team: any, list?: string, internalID?: number, position?: number | null}[]>([])
+   const goalkeeper = ref<{
+      playerID: string,
+      name: string, 
+      role: string, 
+      squadra: string, 
+      team: any, 
+      list?: string, 
+      position?: number | null
+   } | null>(null)
+   const players = ref<{
+      playerID: string,
+      name: string, 
+      role: string, 
+      squadra: string, 
+      team: any, 
+      list?: string, 
+      position?: number | null
+   }[]>([])
    const presidents = ref<string[]>([])
    const fileInput = ref<HTMLInputElement | null>(null)
    const roleOrder: Record<string, number> = { 'P': 1, 'D': 2, 'C': 3, 'A': 4 }
 
 
-   function sortPlayersByRole(playersArray: {name: string, role: string, squadra: string, team: any, list?: string, internalID?: number, position?: number | null}[] | null | undefined) {
+   function sortPlayersByRole(playersArray: {playerID: string, name: string, role: string, squadra: string, team: any, list?: string, position?: number | null}[] | null | undefined) {
       if (!playersArray) return [];
       return playersArray.sort((a, b) => (roleOrder[a.role] ?? 0) - (roleOrder[b.role] ?? 0));
    }
 
-
-   function toPascalCase(string: string): string {
-      return string
-               .split(' ')
-               .map(
-                  word => {
-                     const cleaned = word.replace(/[^a-zA-Z]/g, '')
-                     return cleaned.charAt(0).toUpperCase() + cleaned.slice(1).toLowerCase()
-               })
-               .filter(word => word) // Remove empty strings
-               .join('')
-   }
 
    async function handleFileUpload(event: Event) {
       const target = event.target as HTMLInputElement
@@ -142,42 +179,51 @@
          complete: async (results) => {
          players.value = [] // clear existing players
 
-         // Skip rows 0-2, process rows 3-27 (A3:C27)
-         const rows = results.data.slice(2, 27) as string[][]   
          const db = getFirestore($firebaseApp)
-         
+
+         const csvTeamId = (results.data[0] as string[])[1]?.trim()
+
+         if(csvTeamId !== teamId) {
+            alert(`Team ID mismatch: ${csvTeamId} !== ${teamId}`)
+            return
+         }
+
+         // Skip rows 0-2, process rows 3-27 (A3:C27)
+         const rows = results.data.slice(2, 27) as string[][]
+
          // Build new players object to replace existing one
          const newPlayers: Record<string, any> = {}
          
          for (const row of rows) {
-            const [role, name, squadra] = row
+            const [role, name, squadra, , playerID] = row
             
-            if (!name) continue // Skip empty rows
-            
-            // Generate player ID
-            const playerPascalCase = toPascalCase(name)
-            const playerId = `id-${playerPascalCase}`
+            // Skip empty rows
+            if (!name || !playerID || !role || !squadra) continue
+
+            const trimmedPlayerID = playerID.trim()
             
             // Create player document
             const playerData = {
-               name,
-               role,
-               squadra,
+               playerID: trimmedPlayerID,  // Store as field too
+               name: name.trim(),
+               role: role.trim(),
+               squadra: squadra.trim(),
                team: doc(db, "teams", teamId),
-               list: "List-1",
-               internalID: players.value.length,
-               position: null
             }
             
-            // Add to players collection
-            await setDoc(doc(db, "players", playerId), playerData)
+            // Use playerID from CSV as document ID
+            await setDoc(doc(db, "players", trimmedPlayerID), playerData)
             
             // Add reference to new players object
-            const playerRef = doc(db, "players", playerId)
-            newPlayers[playerId] = playerRef
+            const playerRef = doc(db, "players", trimmedPlayerID)
+            newPlayers[trimmedPlayerID] = playerRef
             
             // Add to local display
-            players.value.push(playerData as {name: string, role: string, squadra: string, team: any})
+            players.value.push({
+               ...playerData,
+               list: "List-1",
+               position: null
+            })
          }
 
          players.value = sortPlayersByRole(players.value)
@@ -204,27 +250,52 @@
 
    async function savePenaltyTakers() {
       const db = getFirestore($firebaseApp)
-      const penaltiesColl = doc(db, "penalties", teamId)
+      const penaltiesDoc = doc(db, "penalties", teamId)
 
-      const penaltyTakers = players.value.filter(player => player.list === 'List-2')
+      const penaltyTakers = players.value
+         .filter(player => player.list === 'List-2')
+         .map(player => ({
+            playerID: player.playerID,
+            name: player.name,
+            role: player.role,
+            squadra: player.squadra,
+            position: player.position
+         }))
+      
+      // Prepare goalkeeper data
+      const goalkeeperData = goalkeeper.value ? {
+         playerID: goalkeeper.value.playerID,
+         name: goalkeeper.value.name,
+         role: goalkeeper.value.role,
+         squadra: goalkeeper.value.squadra,
+      } : null
 
-      if(penaltyTakers.length <10) {
-         alert("completa i rigoristi")
-      } else {
-         await updateDoc(penaltiesColl, {
-            penaltyTakers: penaltyTakers
-         })
+      try {
+         if(penaltyTakers.length < 10) {
+            alert("Completa i rigoristi (10 giocatori)")
+         } else if(!goalkeeperData) {
+            alert("Seleziona un portiere!")
+         } else {
+            // setDoc creates if doesn't exist, merge: true preserves other fields
+            await setDoc(penaltiesDoc, {
+               penaltyTakers: penaltyTakers,
+               goalkeeper: goalkeeperData
+            }, { merge: true })
+            
+            alert('Rigoristi e portiere salvati!')
+         }
+      } catch(error) {
+         alert(error)
       }
 
 
    }
-
    const startDrag = (event: DragEvent, item: any) => {
-      if(!event.dataTransfer || item.internalID == null) return
+      if(!event.dataTransfer || !item.playerID) return
 
       event.dataTransfer.dropEffect = "move"
       event.dataTransfer.effectAllowed = "move"
-      event.dataTransfer.setData('itemID', String(item.internalID))
+      event.dataTransfer.setData('playerID', item.playerID)
    }
 
    const getPlayerAtPosition = (position: number) => {
@@ -238,95 +309,126 @@
       event.dataTransfer.dropEffect = "move"
       event.dataTransfer.effectAllowed = "move"
 
-      const itemID = event.dataTransfer.getData('itemID')
-      if(!itemID) return
+      const playerID = event.dataTransfer.getData('playerID')
+      if(!playerID) return
 
-      const selectedPlayer = players.value.find(item => item.internalID === Number(itemID))
+      const selectedPlayer = players.value.find(item => item.playerID === playerID)
 
       if(selectedPlayer) {
-         // If dropping in List-2 with a position
          if(list === 'List-2' && position !== undefined) {
-            // If there's already a player at this position, swap or move them
             const existingPlayer = getPlayerAtPosition(position)
 
-            if(existingPlayer && existingPlayer.internalID !== selectedPlayer.internalID) {
-               // Move existing player back to List-1
+            if(existingPlayer && existingPlayer.playerID !== selectedPlayer.playerID) {
                existingPlayer.list = 'List-1'
                existingPlayer.position = null
             }
-            // Assign the dropped player to this position
+            
+            if(goalkeeper.value?.playerID === selectedPlayer.playerID) {
+               goalkeeper.value = null
+            }
+
             selectedPlayer.list = 'List-2'
             selectedPlayer.position = position
          } else if(list === 'List-1') {
-            // When moving to List-1, clear position
+            if(goalkeeper.value?.playerID === selectedPlayer.playerID) {
+               goalkeeper.value = null
+            }
+
             selectedPlayer.list = 'List-1'
             selectedPlayer.position = null
          }
       }
    }
 
+
+   const onDropGoalkeeper = (event: DragEvent) => {
+      if(!event.dataTransfer) return
+
+      event.preventDefault()
+      const playerID = event.dataTransfer.getData('playerID')
+      if(!playerID) return
+
+      const selectedPlayer = players.value.find(item => item.playerID === playerID)
+
+      if(!selectedPlayer) return
+
+      if(selectedPlayer.role !== 'P') {
+         alert('Solo i portieri (P) possono essere assegnati a questo slot!')
+         return
+      }
+
+      if(goalkeeper.value) {
+         goalkeeper.value.list = 'List-1'
+         goalkeeper.value.position = null
+      }
+
+      selectedPlayer.list = 'Goalkeeper'
+      selectedPlayer.position = 0
+      goalkeeper.value = selectedPlayer
+   }
+
+
    onMounted(async () => {
-      if (process.client && $firebaseApp) {
-         const db = getFirestore($firebaseApp)
+      if (process.client) {
+         // Use REST API instead of SDK (no WebSocket overhead)
+         const [penaltiesResult, teamResult] = await Promise.all([
+            getDocRest("penalties", teamId),
+            getDocRest("teams", teamId)
+         ])
          
-         // Fetch penalties if not already loaded
-         const penaltiesRef = doc(db, "penalties", teamId)
-         const penaltiesSnap = await getDoc(penaltiesRef)
-         const savedPenaltyTakers = penaltiesSnap.exists() ? penaltiesSnap.data()?.penaltyTakers || [] : []
+         const savedPenaltyTakers = penaltiesResult?.data?.penaltyTakers || []
+         const savedGoalkeeper = penaltiesResult?.data?.goalkeeper || null
 
-         const teamRef = doc(db, "teams", teamId)
-         const teamSnap = await getDoc(teamRef)
+         if(teamResult) {
+            teamData.value = teamResult.data
 
-         if(teamSnap.exists()) {
-            teamData.value = teamSnap.data()
+            // Get player IDs from team document (keys of the players map)
+            const playerIds = Object.keys(teamResult.data.players || {})
+            const presidentIds = Object.keys(teamResult.data.president || {})
 
-            loading.value = false
+            // Fetch players AND presidents in parallel using REST API
+            const [playerDocs, presidentDocs] = await Promise.all([
+               getDocsRest("players", playerIds),
+               getDocsRest("participants", presidentIds)
+            ])
 
-            const playersReference = teamData.value.players
-            const presidentReference = teamData.value.president
+            // Process players - build array FIRST, then assign once
+            const processedPlayers: typeof players.value = []
+            let foundGoalkeeper: typeof goalkeeper.value = null
 
-            // Fetch all players in parallel
-            const playerPromises = Object.keys(playersReference).map(playerKey => 
-               getDoc(playersReference[playerKey])
-            )
-            const playerDocs = await Promise.all(playerPromises)
+            for (const playerDoc of playerDocs) {
+               const singlePlayerData = playerDoc.data as {playerID: string, name: string, role: string, squadra: string, team: any, list: string, position: number | null}
 
-            for (const singlePlayerDoc of playerDocs) {
-               const singlePlayerData = singlePlayerDoc.data() as {name: string, role: string, squadra: string, team: any, list: string, internalID: number, position: number | null}
-
+               // Check if this player is the saved goalkeeper
+               if (savedGoalkeeper && singlePlayerData.playerID === savedGoalkeeper.playerID) {
+                  singlePlayerData.list = "Goalkeeper"
+                  singlePlayerData.position = 0
+                  foundGoalkeeper = singlePlayerData
+               }
                // Check if this player is in saved penalty takers
-               const savedPenaltyTaker = savedPenaltyTakers.find((pt: any) => pt.name === singlePlayerData.name)
-               
-               if (savedPenaltyTaker) {
-                  singlePlayerData.list = "List-2"
-                  singlePlayerData.position = savedPenaltyTaker.position
-               } else {
-                  singlePlayerData.list = "List-1"
-                  singlePlayerData.position = null
+               else {
+                  const savedPenaltyTaker = savedPenaltyTakers.find((pt: any) => pt.playerID === singlePlayerData.playerID)
+                  
+                  if (savedPenaltyTaker) {
+                     singlePlayerData.list = "List-2"
+                     singlePlayerData.position = savedPenaltyTaker.position
+                  } else {
+                     singlePlayerData.list = "List-1"
+                     singlePlayerData.position = null
+                  }
                }
 
-               players.value.push(singlePlayerData)
+               processedPlayers.push(singlePlayerData)
             }
+
+            // Single reactive assignment
+            players.value = sortPlayersByRole(processedPlayers)
+            goalkeeper.value = foundGoalkeeper
+
+            // Process presidents
+            presidents.value = presidentDocs.map(doc => doc.data.name as string)
             
-            // Sort players by role first
-            players.value = sortPlayersByRole(players.value)
-            
-            // Then assign internalID based on sorted order
-            players.value.forEach((player, index) => {
-               player.internalID = index
-            })
-
-            // Fetch all presidents in parallel
-            const presidentPromises = Object.keys(presidentReference).map(president =>
-               getDoc(presidentReference[president])
-            )
-            const presidentDocs = await Promise.all(presidentPromises)
-
-            for (const singlePresidentDoc of presidentDocs) {
-               const singlePresidentData = singlePresidentDoc.data() as {name: string}
-
-               presidents.value.push(singlePresidentData.name)
-            }       
+            loading.value = false
          }
       }
    })

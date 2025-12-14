@@ -12,13 +12,31 @@ node_modules
 # Logs
 logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Firebase specific
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+database-debug.log
+pubsub-debug.log
+emulator-data/
+.firebase/
 
 # Misc
 .DS_Store
 .fleet
 .idea
+.vscode/
+
 
 # Local env files
 .env
 .env.*
 !.env.example
+
+# OS generated
+Thumbs.db

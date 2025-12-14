@@ -2,12 +2,15 @@
 // Typography
 // ========================================
 
+@use 'colors' as *;
+
 // Font Families
 $font-family-momo: 'Momo Trust Display', system-ui, sans-serif;
 $font-family-suse: 'SUSE', system-ui, sans-serif;
 $font-family-outfit: 'Outfit', system-ui, sans-serif;
 $font-family-figtree: 'Figtree', system-ui, sans-serif;
-$font-family-sans: $font-family-figtree; // Default sans-serif
+
+$font-family-sans: $font-family-suse;
 $font-family-serif: Georgia, 'Times New Roman', serif;
 $font-family-mono: 'Courier New', Courier, monospace;
 
@@ -15,6 +18,7 @@ $font-family-mono: 'Courier New', Courier, monospace;
 $font-size-xs: 0.75rem;    // 12px
 $font-size-sm: 0.875rem;   // 14px
 $font-size-base: 1rem;     // 16px
+$font-size-med: 1.125rem;   // 18px
 $font-size-lg: 1.25rem;    // 20px
 $font-size-xl: 1.5rem;     // 24px
 $font-size-2xl: 1.875rem;  // 30px
@@ -49,31 +53,42 @@ $typography: (
     'size': $font-size-4xl,
     'weight': $font-weight-extrabold,
     'line-height': $line-height-tight,
+    'color': $color-primary
   ),
   'h2': (
     'size': $font-size-3xl,
-    'weight': $font-weight-bold,
+    'weight': $font-weight-extrabold,
     'line-height': $line-height-tight,
+    'color': $color-primary
   ),
   'h3': (
     'size': $font-size-2xl,
+    'weight': $font-weight-bold,
+    'line-height': $line-height-snug,
+    'color': $color-primary
+  ),
+  'h4': (
+    'size': $font-size-med,
     'weight': $font-weight-semibold,
     'line-height': $line-height-snug,
+    'color': $color-primary
   ),
   'body': (
     'size': $font-size-base,
-    'weight': $font-weight-normal,
+    'weight': $font-weight-medium,
     'line-height': $line-height-normal,
+    'color': $color-text-primary
   ),
   'label': (
     'size': $font-size-base,
     'weight': $font-weight-semibold,
     'line-height': $line-height-normal,
+    'color': $color-primary
   ),
   'small': (
     'size': $font-size-sm,
     'weight': $font-weight-normal,
     'line-height': $line-height-normal,
+    'color': $color-text-primary
   ),
 );
-

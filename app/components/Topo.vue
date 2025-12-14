@@ -8,11 +8,16 @@
       <h2 v-if="loading">Loading...</h2>
       <hr/>
       <h3>Elenco delle squadre con giocatori</h3>
-      <section v-for="item, index in teamsWithPlayers" :key="index">
+      <section v-for="item, index in teams" :key="index">
          <nuxtLink :to="`/teams/${item.teamId}`">{{ item.teamData.name }}</nuxtLink>
          <ol>
-            <!-- <li v-for="player in item.players ">{{ player.name }}</li> -->
-             <li v-for="penaltyTaker in criceto[item.teamId]?.sort((a, b) => {return a.position -b.position })">
+            <li v-if="criceto[item.teamId]?.goalkeeper">
+               <span>GK – </span>{{ criceto[item.teamId]?.goalkeeper?.name }}
+            </li>
+            <li v-else>
+               <span>GK – </span><em>Non assegnato</em>
+            </li>
+            <li v-for="penaltyTaker in criceto[item.teamId]?.penaltyTakers?.sort((a, b) => a.position - b.position)">
                <span>{{ penaltyTaker.position }} – </span>{{ penaltyTaker.name }}
             </li>
          </ol>
@@ -31,107 +36,55 @@
 </style>
 
 <script setup lang="ts">
-import { getApp } from 'firebase/app'
-import { getFirestore, doc, getDoc, collection, getDocs } from 'firebase/firestore'
-
-const { $firebaseApp } = useNuxtApp()
+import { getCollectionRest, getDocRest } from '../utils/firestoreRest'
 
 const settings = ref<any>(null)
 const err = ref(false)
 const loading = ref(false)
-const teamsWithPlayers = ref<Array<{
+const teams = ref<Array<{
   teamId: string,
-  teamData: any,
-  players: any[]
+  teamData: any
 }>>([])
-const penalties = ref<Array<{
-   internalID: number,
-   list: string,
-   name: string,
-   position: number,
-   role: string,
-   squadra: string,
-   team: any[]
-}>>([])
-const criceto = ref<Record<string, any[]>>({})
-
+const criceto = ref<Record<string, { penaltyTakers: any[], goalkeeper: any | null }>>({})
 
 onMounted(async () => {
-   // Only run Firebase code on client side
-   if (process.client && $firebaseApp) {
+   if (process.client) {
       loading.value = true
       
-      const db = getFirestore($firebaseApp)
-      
-      // *** Retrieve all teams ***
+      // Use REST API instead of SDK (no WebSocket overhead)
       try {
-         const teamsSnapshot = await getDocs(collection(db, "teams"))
-         const penaltiesSnapshot = await getDocs(collection(db, "penalties"))
+         const [teamsResult, penaltiesResult] = await Promise.all([
+            getCollectionRest("teams"),
+            getCollectionRest("penalties")
+         ])
 
+         // Process penalties
          criceto.value = Object.fromEntries(
-            penaltiesSnapshot.docs.map(penaltyDoc => {
-               const penaltyData = penaltyDoc.data()
-               
-               return [penaltyDoc.id, penaltyData.penaltyTakers || []]
-            })
+            penaltiesResult.map(doc => [doc.id, {
+               penaltyTakers: doc.data.penaltyTakers || [],
+               goalkeeper: doc.data.goalkeeper || null                
+            }])
          )
 
-         // Process all teams in parallel
-         const teamPromises = teamsSnapshot.docs.map(async (teamDoc) => {
-            const teamData = teamDoc.data()
-            
-            if (teamData.players) {
-               // Collect all player references first
-               const playerRefs = Object.values(teamData.players) as any[]
-               
-               // Fetch all players in parallel using Promise.all
-               const playerPromises = playerRefs.map(playerRef => 
-                  getDoc(playerRef).then(playerDoc => {
-                     if (playerDoc.exists()) {
-                        return { 
-                           id: playerDoc.id, 
-                           ...(playerDoc.data() || {})
-                        }
-                     }
-                     return null
-                  })
-               )
-               
-               const players = (await Promise.all(playerPromises)).filter(p => p !== null)
-               
-               return {
-                  teamId: teamDoc.id,
-                  teamData: teamData,
-                  players: players,
-               }
-            }
-            return null
-         })
-         
-         const results = await Promise.all(teamPromises)
-         teamsWithPlayers.value = results.filter(t => t !== null) as any[]
+         // Process teams
+         teams.value = teamsResult.map(doc => ({
+            teamId: doc.id,
+            teamData: doc.data
+         }))
 
       } catch (error: any) {
          err.value = error.message || 'Unknown error'
       }
 
-      // *** Retrieve Settings ***
+      // Retrieve Settings
       try {         
-         const docRef = doc(db, 'gameSettings', 'wUDv5Wr31ETbShASdx7u') 
-         const docSnap = await getDoc(docRef)
-
-         if(docSnap.exists()) {
-            settings.value = docSnap.data()
-         } else {
-            settings.value = 'No game settings found'
-         }
+         const settingsResult = await getDocRest('gameSettings', 'wUDv5Wr31ETbShASdx7u')
+         settings.value = settingsResult?.data || 'No game settings found'
       } catch (error: any) {
          err.value = error.message || 'Unknown error'
       } finally {
          loading.value = false
       }
-   } else {
-      console.log('🔥 Not running on client or Firebase app not available')
    }
 })
 </script>

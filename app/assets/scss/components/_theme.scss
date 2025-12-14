@@ -1,0 +1,77 @@
+// ========================================
+// Main Theme Style
+// ========================================
+
+@use '../abstracts/variables' as *;
+@use '../abstracts/colors' as *;
+@use '../abstracts/typography' as *;
+@use '../abstracts/mixins' as *;
+@use "sass:color";
+@use "sass:map";
+
+
+
+.boxed {
+  background-color: $cream;
+  border-radius: $radius-2xl;
+  box-shadow: 2px 0 15px rgba($eerieBlack, .25);
+}
+
+.pill {
+  border-radius: 0.5em;
+  padding: 0.5em 1em;
+  border-style: solid;
+  border-width: 1px;
+}
+$pill-colors: (
+   'white': (
+      'bg': white,
+      'border': color.scale(white, $lightness: -20%),
+   ),
+   'beige': (
+      'bg': $cream,
+      'border': color.scale($cream, $lightness: -20%, $saturation: -30%),
+   ),
+   'green': (
+      'bg': $darkOlive,
+      'border': color.scale($darkOlive, $lightness: -20%),
+   ),
+   'coral': (
+      'bg': $coral,
+      'border': color.scale($coral, $lightness: -20%),
+   ),
+   'blush': (
+      'bg': $blush,
+      'border': color.scale($blush, $lightness: -20%),
+   ),
+);
+@each $name, $colors in $pill-colors {
+  .pill--#{$name} {
+    @extend .pill;
+    background-color: map.get($colors, 'bg');
+    border-color: map.get($colors, 'border');
+  }
+}
+
+h1 {
+  @include typography('h1');
+}
+h2 {
+  @include typography('h2');
+}
+h3 {
+  @include typography('h3');
+}
+h4 {
+  @include typography('h4');
+  text-transform: uppercase
+}
+p {
+  @include typography('body');
+}
+
+.card {
+  background-color: #fff7ed;
+  border-radius: 16px;
+  border: 1px solid #d3d2cb;
+}

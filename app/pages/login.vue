@@ -1,7 +1,7 @@
 <template>
    <div class="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 class="main-title">Fantacalcio <span>25/26</span></h1>
-      <div class="m-auto p-8" id="loginForm">
+      <div class="m-auto p-8 boxed" id="loginForm">
          <header>
             <h1 class="withIcon--login">Login</h1>
          </header>
@@ -14,7 +14,7 @@
                @submit.prevent="handleLogin"
             >
                <div class="flex flex-col gap-2">
-                  <label for="loginEmail" class="withIcon--email tracking-wide mx-2">email: </label>
+                  <label for="loginEmail" class="withIcon--email tracking-wide">email: </label>
                   <input 
                      type="email" 
                      id="loginEmail"
@@ -27,7 +27,7 @@
                   >
                </div>
                <div class="flex flex-col gap-2">
-                  <label for="loginPassword" class="withIcon--password tracking-wide mx-2">password: </label>
+                  <label for="loginPassword" class="withIcon--password tracking-wide">password: </label>
                   <div class="password-input-wrapper">
                      <input 
                         :type="showPassword ? 'text' : 'password'"
@@ -170,11 +170,8 @@
 
 
    #loginForm {
-      background-color: $cream;
       width: max(50vw, 400px);
       min-height: 50vh;
-      border-radius: $radius-2xl;
-      box-shadow: 2px 0 15px rgba($eerieBlack, .25);
 
       button[type='submit'] {
          background: $color-primary;
