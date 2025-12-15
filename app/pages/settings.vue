@@ -64,10 +64,7 @@
                   :key="matchIndex"
                   class="col-span-3 flex items-center gap-3"
                >
-                  <select
-                     v-model="match.teamA"
-                     class="w-[40%] my-2"
-                  >
+                  <select v-model="match.teamA" class="w-[40%] my-2">
                      <option value="">Select team A</option>
                      <option 
                         v-for="team in teamStore.teamsWithPlayers" 
@@ -76,10 +73,7 @@
                         :disabled="formData.matches.some(match => match.teamA === team.teamId || match.teamB === team.teamId)"
                      >{{ team.teamData.name }}</option>
                   </select>
-                  <select
-                     v-model="match.teamB"
-                     class="w-[40%] my-2"
-                  >
+                  <select v-model="match.teamB" class="w-[40%] my-2">
                      <option value="">Select team B</option>
                      <option 
                         v-for="team in teamStore.teamsWithPlayers" 
