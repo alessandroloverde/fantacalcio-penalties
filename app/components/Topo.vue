@@ -1,40 +1,41 @@
 <template>
-   <section>
+   <div>
      <!--  <LoggedUser /> -->
-
-      <h1>Mannagia al Castoro</h1>
-      <!-- <h2>{{ settings?.season }}</h2> -->
+      <h1 class="withIcon--shirt-duo withIcon--color-blush mb-8">Elenco delle squadre con rigoristi</h1>
       <h2 v-if="err">Errore: {{ err }}</h2>
       <h2 v-if="loading">Loading...</h2>
-      <hr/>
-      <h3>Elenco delle squadre con rigoristi</h3>
-      <section v-for="item, index in teams" :key="index" class="card mb-2 p-4">
-         <nuxtLink :to="`/teams/${item.teamId}`">{{ item.teamData.name }}</nuxtLink>
-         <ol class="penaltyTakersList">
-            <li>
-               <h4>Portiere</h4>
-            </li>
-            <li v-if="criceto[item.teamId]?.goalkeeper" class="penaltyTaker">
-               <div class="penaltyTaker--role P">P</div>
-               <div class="penaltyTaker--name">{{ criceto[item.teamId]?.goalkeeper?.name }}</div>
-               <div class="penaltyTaker--squadra">{{ criceto[item.teamId]?.goalkeeper?.squadra }}</div>        
-            </li>
-            <li v-else>
-               <span>GK – </span><em>Non assegnato</em>
-            </li>
-            <li class="mt-2">
-               <h4>Rigoristi</h4>
-            </li>
-            <li v-for="penaltyTaker in criceto[item.teamId]?.penaltyTakers?.sort((a, b) => a.position - b.position)" class="flex mb-2">
-               <!-- <span>{{ penaltyTaker.position }} – </span>{{ penaltyTaker.name }} -->
+      <div class="text-divider"></div>
+      <div class="grid grid-cols-4 gap-4">
+         <section v-for="item, index in teams" :key="index" class="card mb-2 p-4">
+            <nuxtLink :to="`/teams/${item.teamId}`">{{ item.teamData.name }}</nuxtLink>
+            <ol class="penaltyTakersList">
+               <li class="my-2">
+                  <h4>Portiere</h4>
+               </li>
+               <li v-if="criceto[item.teamId]?.goalkeeper" class="penaltyTaker">
+                  <div class="penaltyTaker--role P">P</div>
+                  <div class="penaltyTaker--name">{{ criceto[item.teamId]?.goalkeeper?.name }}</div>
+                  <div class="penaltyTaker--squadra ml-auto">{{ criceto[item.teamId]?.goalkeeper?.squadra }}</div>        
+               </li>
+               <li v-else>
+                  <span>GK – </span><em>Non assegnato</em>
+               </li>
+               <div class="divider-text my-2">◎</div>
+               <li class="my-2">
+                  <h4>Rigoristi</h4>
+               </li>
+               <li v-for="penaltyTaker in criceto[item.teamId]?.penaltyTakers?.sort((a, b) => a.position - b.position)" class="flex mb-2">
+                  <!-- <span>{{ penaltyTaker.position }} – </span>{{ penaltyTaker.name }} -->
 
-               <div class="penaltyTaker--role" :class="penaltyTaker.role">{{ penaltyTaker.role }}</div>
-               <div class="penaltyTaker--name">{{ penaltyTaker.name }}</div>
-               <div class="penaltyTaker--squadra">{{ penaltyTaker.squadra }}</div>        
-            </li>
-         </ol>
-      </section>
-   </section>
+                  <div class="penaltyTaker--role" :class="penaltyTaker.role">{{ penaltyTaker.role }}</div>
+                  <div class="penaltyTaker--name">{{ penaltyTaker.name }}</div>
+                  <div class="penaltyTaker--squadra ml-auto">{{ penaltyTaker.squadra }}</div>        
+               </li>
+            </ol>
+         </section>
+      </div>
+
+   </div>
 </template>
 
 <style>
