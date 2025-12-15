@@ -1,38 +1,44 @@
 <template>
    <section>
-      <LoggedUser></LoggedUser>
+     <!--  <LoggedUser /> -->
 
       <h1>Mannagia al Castoro</h1>
       <!-- <h2>{{ settings?.season }}</h2> -->
       <h2 v-if="err">Errore: {{ err }}</h2>
       <h2 v-if="loading">Loading...</h2>
       <hr/>
-      <h3>Elenco delle squadre con giocatori</h3>
-      <section v-for="item, index in teams" :key="index">
+      <h3>Elenco delle squadre con rigoristi</h3>
+      <section v-for="item, index in teams" :key="index" class="card mb-2 p-4">
          <nuxtLink :to="`/teams/${item.teamId}`">{{ item.teamData.name }}</nuxtLink>
-         <ol>
-            <li v-if="criceto[item.teamId]?.goalkeeper">
-               <span>GK – </span>{{ criceto[item.teamId]?.goalkeeper?.name }}
+         <ol class="penaltyTakersList">
+            <li>
+               <h4>Portiere</h4>
+            </li>
+            <li v-if="criceto[item.teamId]?.goalkeeper" class="penaltyTaker">
+               <div class="penaltyTaker--role P">P</div>
+               <div class="penaltyTaker--name">{{ criceto[item.teamId]?.goalkeeper?.name }}</div>
+               <div class="penaltyTaker--squadra">{{ criceto[item.teamId]?.goalkeeper?.squadra }}</div>        
             </li>
             <li v-else>
                <span>GK – </span><em>Non assegnato</em>
             </li>
-            <li v-for="penaltyTaker in criceto[item.teamId]?.penaltyTakers?.sort((a, b) => a.position - b.position)">
-               <span>{{ penaltyTaker.position }} – </span>{{ penaltyTaker.name }}
+            <li class="mt-2">
+               <h4>Rigoristi</h4>
+            </li>
+            <li v-for="penaltyTaker in criceto[item.teamId]?.penaltyTakers?.sort((a, b) => a.position - b.position)" class="flex mb-2">
+               <!-- <span>{{ penaltyTaker.position }} – </span>{{ penaltyTaker.name }} -->
+
+               <div class="penaltyTaker--role" :class="penaltyTaker.role">{{ penaltyTaker.role }}</div>
+               <div class="penaltyTaker--name">{{ penaltyTaker.name }}</div>
+               <div class="penaltyTaker--squadra">{{ penaltyTaker.squadra }}</div>        
             </li>
          </ol>
       </section>
    </section>
 </template>
 
-<style scoped>
-   h1, h2 {
-      color: #faebd7;
-   }
-   section {
-      background-color: rgb(95, 118, 163);
-   }
-   ol { list-style:decimal;}
+<style>
+
 </style>
 
 <script setup lang="ts">

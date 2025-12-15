@@ -75,3 +75,32 @@ p {
   border-radius: 16px;
   border: 1px solid #d3d2cb;
 }
+
+.P { background-color: color.change($navyBlue, $alpha: 0.6) }
+.D { background-color: color.change($blush, $alpha: 0.6) }
+.C { background-color: color.change($darkOlive, $alpha: 0.6) }
+.A { background-color: color.change($brownSugar, $alpha: 0.6) }
+
+.penaltyTaker {
+  display: flex;
+  align-items: center;
+
+  &--role {
+      border-radius: 100%;
+      color: $cream;
+      font-weight: 500;
+      width: 2em;
+      height: 2em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 1em;
+
+      &.P { background-color: color.change($navyBlue, $alpha: 0.6) }
+      &.D { background-color: color.change($blush, $alpha: 0.6) }
+      &.C { background-color: color.change($darkOlive, $alpha: 0.6); }
+      &.A { background-color: color.change($brownSugar, $alpha: 0.6); }
+  }
+  &--name {}
+  &--squadra {}
+}
