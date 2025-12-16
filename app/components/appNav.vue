@@ -4,7 +4,7 @@
          <div class="logo w-1/3">
             <h1 class="main-title">Fantacalcio <span>25/26</span></h1>
          </div>
-         <nav class="appNav w-2/3">
+         <nav class="appNav w-2/3 m-auto">
             <NuxtLink 
             to="/"
             class="appNav--link withIcon--home-duo"
@@ -42,7 +42,7 @@
       color: $cream;
       text-transform: uppercase;
       text-align: center;
-      margin: 3vh auto;
+      margin: 2vh auto;
 
       span { color: $blush }
    }

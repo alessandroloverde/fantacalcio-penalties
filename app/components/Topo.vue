@@ -1,38 +1,68 @@
 <template>
-   <section>
-      <LoggedUser></LoggedUser>
-
-      <h1>Mannagia al Castoro</h1>
-      <!-- <h2>{{ settings?.season }}</h2> -->
+   <div>
+     <!--  <LoggedUser /> -->
+      <h1 class="withIcon--shirt-duo withIcon--color-blush mb-8">Elenco delle squadre con rigoristi</h1>
       <h2 v-if="err">Errore: {{ err }}</h2>
       <h2 v-if="loading">Loading...</h2>
-      <hr/>
-      <h3>Elenco delle squadre con giocatori</h3>
-      <section v-for="item, index in teams" :key="index">
-         <nuxtLink :to="`/teams/${item.teamId}`">{{ item.teamData.name }}</nuxtLink>
-         <ol>
-            <li v-if="criceto[item.teamId]?.goalkeeper">
-               <span>GK – </span>{{ criceto[item.teamId]?.goalkeeper?.name }}
-            </li>
-            <li v-else>
-               <span>GK – </span><em>Non assegnato</em>
-            </li>
-            <li v-for="penaltyTaker in criceto[item.teamId]?.penaltyTakers?.sort((a, b) => a.position - b.position)">
-               <span>{{ penaltyTaker.position }} – </span>{{ penaltyTaker.name }}
-            </li>
-         </ol>
-      </section>
-   </section>
+      <div class="text-divider"></div>
+      <div class="grid grid-cols-4 gap-4">
+         <section v-for="item, index in teams" :key="index" class="card mb-2 p-4">
+            <header>
+               <nuxtLink :to="`/teams/${item.teamId}`">{{ item.teamData.name }}</nuxtLink>
+            </header>
+            <ol class="penaltyTakersList">
+               <li class="my-2">
+                  <h4>Portiere</h4>
+               </li>
+               <li v-if="criceto[item.teamId]?.goalkeeper" class="penaltyTaker">
+                  <div class="penaltyTaker--role P">P</div>
+                  <div class="penaltyTaker--name flex-3">{{ criceto[item.teamId]?.goalkeeper?.name }}</div>
+                  <div class="penaltyTaker--squadra flex-1">{{ criceto[item.teamId]?.goalkeeper?.squadra }}</div>        
+               </li>
+               <li v-else>
+                  <span>GK – </span><em>Non assegnato</em>
+               </li>
+               <div class="divider-text my-2">◎</div>
+               <li class="my-2">
+                  <h4>Rigoristi</h4>
+               </li>
+               <li v-for="penaltyTaker in criceto[item.teamId]?.penaltyTakers?.sort((a, b) => a.position - b.position)" class="flex mb-2">
+                  <div class="penaltyTaker--role" :class="penaltyTaker.role">{{ penaltyTaker.role }}</div>
+                  <div class="penaltyTaker--name flex-3">{{ penaltyTaker.name }}</div>
+                  <div class="penaltyTaker--squadra flex-1">{{ penaltyTaker.squadra }}</div>        
+               </li>
+            </ol>
+         </section>
+      </div>
+
+   </div>
 </template>
 
-<style scoped>
-   h1, h2 {
-      color: #faebd7;
+<style lang="scss" scoped>
+   @use '@/assets/scss/main' as *;
+
+   .card > header {
+      background-color: $darkOlive;
+      border-top-left-radius: 15px;
+      border-top-right-radius: 15px;
+      margin: -1em;
+      margin-bottom: 1em;
+      padding: 0.75em;
+      text-align: center;
+      transition: background-color 500ms;
+
+      &:hover { background-color: $blush }
+      & > a {
+         color: $cream;
+         font-size: 20px;
+         font-weight: 600;
+         text-transform: uppercase;
+         display: block;
+         width: 100%;
+
+         &:hover { opacity: inherit }
+      }
    }
-   section {
-      background-color: rgb(95, 118, 163);
-   }
-   ol { list-style:decimal;}
 </style>
 
 <script setup lang="ts">

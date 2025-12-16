@@ -20,7 +20,7 @@
             >
                <h4 class="w-3/4">{{ teamsMap[match.teamA] }} – {{ teamsMap[match.teamB] }}</h4>
                <button 
-                  class="btn btn--primary w-1/4"
+                  class="btn btn--primary withIcon--calculate-duo btn--icon-left"
                   @click="goToCalculate(match.teamA, match.teamB)"
                >calcola</button>
             </div>

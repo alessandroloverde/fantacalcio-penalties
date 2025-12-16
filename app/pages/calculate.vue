@@ -9,7 +9,7 @@
                <h2 class="match--title col-span-2 withIcon--shirt-duo withIcon--color-blush">
                   {{ teamAData?.teamData.name }} – {{ teamBData?.teamData.name }}
                </h2>
-               <h2 class="match--result">0 – 0</h2>
+               <h2 class="match--result">0 <span class="match--result--separator">–</span> 0</h2>
             </header>
             <div class="divider-text col-span-2 my-2">◎</div>
             <h3 class="col-span-2">{{teamAData?.teamData.name}}</h3>
@@ -98,6 +98,10 @@
    .match {
       display: flex;
       justify-content: space-between;
+
+      &--result {
+         &--separator { color: $blush }
+      }
    }
 
    .penaltyTaker {
@@ -115,10 +119,10 @@
          justify-content: center;
          margin-right: 1em;
 
-         &.P { background-color: color.change($navyBlue, $alpha: 0.6) }
+/*          &.P { background-color: color.change($navyBlue, $alpha: 0.6) }
          &.D { background-color: color.change($blush, $alpha: 0.6) }
          &.C { background-color: color.change($darkOlive, $alpha: 0.6); }
-         &.A { background-color: color.change($brownSugar, $alpha: 0.6); }
+         &.A { background-color: color.change($brownSugar, $alpha: 0.6); } */
       }
       &--name {}
       &--squadra {}
