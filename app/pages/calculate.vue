@@ -7,7 +7,7 @@
          <section class="card grid grid-cols-2 gap-x-20 gap-y-4 px-8 py-6">
             <header class="match col-span-2">
                <h2 class="match--title col-span-2 withIcon--shirt-duo withIcon--color-blush">
-                  {{ teamAData?.teamData.name }} – {{ teamBData?.teamData.name }}
+                  {{ teamAData?.teamData.name }} – {{ teamBData?.teamData.name }} ({{ currentTimeWindow }})
                </h2>
                <h2 class="match--result">0 <span class="match--result--separator">–</span> 0</h2>
             </header>
@@ -55,21 +55,29 @@
 <script setup lang="ts">
    import { useTeamsStore } from '../stores/teams'
    import { usePenaltiesStore } from '../stores/penalties'
+   import { getFirestore, collection, getDocs } from 'firebase/firestore'
+   import { useNuxtApp } from '#app'
+   import type { TimeWindow } from './settings.vue'
 
    const route = useRoute()
+   const { $firebaseApp } = useNuxtApp()
    const teamsStore = useTeamsStore()
    const penaltiesStore = usePenaltiesStore()
 
    const loading = ref(true)
+   const timeWindows = ref<TimeWindow[]>([])
+   const currentTimeWindow = computed(() => route.query.session as string)
 
    const teamA = computed(() => route.query.teamA as string)
    const teamB = computed(() => route.query.teamB as string)
+
    const teamAData = computed(() => 
       teamsStore.teamsWithPlayers.find(t => t.teamId === teamA.value)
    )
    const teamBData = computed(() => 
       teamsStore.teamsWithPlayers.find(t => t.teamId === teamB.value)
    )
+
    const teamAPenaltyTakers = computed(() => {
          const takers = penaltiesStore.penalties[teamA.value]?.penaltyTakers || []
 
@@ -83,8 +91,35 @@
       }    
    )
 
+   const fetchTimeWindows = async () => {
+      if (!process.client || !$firebaseApp) return
+
+      try {
+         const db = getFirestore($firebaseApp)
+         const sessionsSnapshot = await getDocs(collection(db, "session"))
+
+         timeWindows.value = sessionsSnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+         }) as TimeWindow)
+
+         timeWindows.value.sort((a, b) => 
+            new Date(a.startDateTime).getTime() - new Date(b.startDateTime).getTime()
+         )
+
+      } catch(error) {
+         console.error('Error fetching time windows:', error)
+      }
+
+
+   }
+
    onMounted(async () => {
-      await penaltiesStore.fetchPenalties()
+      await Promise.all([
+      teamsStore.fetchTeams(),
+      penaltiesStore.fetchPenalties(),
+      fetchTimeWindows()
+      ])
       
       loading.value = false
    })

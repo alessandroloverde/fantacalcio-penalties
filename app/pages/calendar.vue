@@ -21,7 +21,7 @@
                <h4 class="w-3/4">{{ teamsMap[match.teamA] }} – {{ teamsMap[match.teamB] }}</h4>
                <button 
                   class="btn btn--primary withIcon--calculate-duo btn--icon-left"
-                  @click="goToCalculate(match.teamA, match.teamB)"
+                  @click="goToCalculate(match.teamA, match.teamB, session.name)"
                   :disabled="!session.playersScores"
                >calcola</button>
             </div>
@@ -88,12 +88,13 @@
       }
    }
 
-   const goToCalculate = (teamA: string, teamB: string) => {
+   const goToCalculate = (teamA: string, teamB: string, session: string) => {
       navigateTo({
          path: `/calculate`,
          query: {
             teamA,
-            teamB
+            teamB,
+            session
          }
       })
    }
