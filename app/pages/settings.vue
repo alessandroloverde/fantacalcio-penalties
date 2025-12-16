@@ -171,8 +171,21 @@
          <div v-for="(window, index) in timeWindows" :key="index" class="matchDay pill--beige my-4">
             <h4 class="matchDay--title w-1/4">{{ window.name }}</h4>
             <div class="matchDay--status w-1/2">
-               <p class="pill--white color-error">Voti non ancora caricati</p>
+               <p 
+                  class="pill--white color-success" 
+                  v-if="(window.playersScores?.length ?? 0)"
+               >
+                     Voti disponibili
+               </p>
+               <p 
+                  class="pill--white color-error" 
+                  v-else
+               >
+                  Voti non ancora caricati
+               </p>
             </div>
+                     
+   
             <label class="btn btn--primary w-1/4 cursor-pointer">
                <input 
                   type="file" 
@@ -191,6 +204,7 @@
    import { useTeamsStore } from '../stores/teams'
    import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore'
    import { useNuxtApp } from '#app'
+   import Papa from 'papaparse'
 
    export interface Match {
       teamA: string
@@ -203,6 +217,8 @@
       startDateTime: string
       endDateTime: string
       matches: Match[]
+      matchDay?: string
+      playersScores?: any[]
    }
 
    const { $firebaseApp } = useNuxtApp()
@@ -401,13 +417,105 @@
       }
    }
 
+   interface PlayerScore {
+      playerID: string
+      role: string
+      playerScore: number
+      penaltiesSaved?: number     // Goalkeeper only
+      goalsScored?: number        // Takers only
+      penaltiesScored?: number    // Takers only
+      penaltiesFailed?: number    // Takers only
+   }
+
    const handleVotiUpload = (event: Event, window: TimeWindow) => {
       const target = event.target as HTMLInputElement
       const file = target.files?.[0]
 
       if (!file) return
 
-      alert(`Uploading file for ${window.name}: ${file.name}`)
+      Papa.parse(file, {
+         complete: async (results) => {
+            const rows = results.data as string[][]
+            
+            // Validation: Check if A1 starts with "Voti Fantacalcio"
+            const headerCell = (rows[0]?.[0] || '').trim()
+            if (!headerCell.toLowerCase().startsWith('voti fantacalcio')) {
+               alert(`File non valido: il documento deve iniziare con "Voti Fantacalcio"\nTrovato: "${headerCell}"`)
+               target.value = ''
+               return
+            }
+
+            // Extract matchDay from A1
+            const matchDay = headerCell
+
+            // Parse player scores starting from row 7 (index 6)
+            const playersScores: PlayerScore[] = []
+            
+            for (let i = 6; i < rows.length; i++) {
+               const row = rows[i]
+               if (!row || !row[0]) continue // Skip empty rows
+               
+               const playerID = row[0]?.trim()
+               const role = row[1]?.trim()
+               const playerScore = parseFloat(row[3] ?? '0') || 0
+               
+               if (!playerID || !role) continue
+               
+               const playerData: PlayerScore = {
+                  playerID,
+                  role,
+                  playerScore
+               }
+               
+               // Add role-specific fields
+               if (role === 'P') {
+                  // Goalkeeper
+                  playerData.penaltiesSaved = parseInt(row[6] ?? '0') || 0
+               } else {
+                  // Takers (non-goalkeepers)
+                  playerData.goalsScored = parseInt(row[4] ?? '0') || 0
+                  playerData.penaltiesScored = parseInt(row[7] ?? '0') || 0
+                  playerData.penaltiesFailed = parseInt(row[8] ?? '0') || 0
+               }
+               
+               playersScores.push(playerData)
+            }
+
+            // Save to Firestore
+            try {
+               const db = getFirestore($firebaseApp)
+               
+               if (!window.id) {
+                  alert('Errore: Time window non ha un ID')
+                  return
+               }
+               
+               const sessionRef = doc(db, "session", window.id)
+               await updateDoc(sessionRef, {
+                  playersScores: playersScores,
+                  matchDay: matchDay
+               })
+
+               // Update local timeWindows array with matchDay
+               const windowIndex = timeWindows.value.findIndex(w => w.id === window.id)
+               if (windowIndex !== -1) {
+                  const foundWindow = timeWindows.value[windowIndex]
+                  if (foundWindow) {
+                     foundWindow.matchDay = matchDay
+                  }
+               }
+               
+               alert(`Voti caricati con successo per ${window.name}!\n${playersScores.length} giocatori importati.`)
+            } catch (error) {
+               console.error('Error saving player scores:', error)
+               alert(`Errore durante il salvataggio: ${error}`)
+            }
+         },
+         error: (error) => {
+            console.error('Error parsing CSV:', error)
+            alert('Errore durante la lettura del file CSV')
+         }
+      })
 
       target.value = ''
    }
