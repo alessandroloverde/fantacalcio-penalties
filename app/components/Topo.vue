@@ -7,15 +7,17 @@
       <div class="text-divider"></div>
       <div class="grid grid-cols-4 gap-4">
          <section v-for="item, index in teams" :key="index" class="card mb-2 p-4">
-            <nuxtLink :to="`/teams/${item.teamId}`">{{ item.teamData.name }}</nuxtLink>
+            <header>
+               <nuxtLink :to="`/teams/${item.teamId}`">{{ item.teamData.name }}</nuxtLink>
+            </header>
             <ol class="penaltyTakersList">
                <li class="my-2">
                   <h4>Portiere</h4>
                </li>
                <li v-if="criceto[item.teamId]?.goalkeeper" class="penaltyTaker">
                   <div class="penaltyTaker--role P">P</div>
-                  <div class="penaltyTaker--name">{{ criceto[item.teamId]?.goalkeeper?.name }}</div>
-                  <div class="penaltyTaker--squadra ml-auto">{{ criceto[item.teamId]?.goalkeeper?.squadra }}</div>        
+                  <div class="penaltyTaker--name flex-3">{{ criceto[item.teamId]?.goalkeeper?.name }}</div>
+                  <div class="penaltyTaker--squadra flex-1">{{ criceto[item.teamId]?.goalkeeper?.squadra }}</div>        
                </li>
                <li v-else>
                   <span>GK – </span><em>Non assegnato</em>
@@ -25,11 +27,9 @@
                   <h4>Rigoristi</h4>
                </li>
                <li v-for="penaltyTaker in criceto[item.teamId]?.penaltyTakers?.sort((a, b) => a.position - b.position)" class="flex mb-2">
-                  <!-- <span>{{ penaltyTaker.position }} – </span>{{ penaltyTaker.name }} -->
-
                   <div class="penaltyTaker--role" :class="penaltyTaker.role">{{ penaltyTaker.role }}</div>
-                  <div class="penaltyTaker--name">{{ penaltyTaker.name }}</div>
-                  <div class="penaltyTaker--squadra ml-auto">{{ penaltyTaker.squadra }}</div>        
+                  <div class="penaltyTaker--name flex-3">{{ penaltyTaker.name }}</div>
+                  <div class="penaltyTaker--squadra flex-1">{{ penaltyTaker.squadra }}</div>        
                </li>
             </ol>
          </section>
@@ -38,8 +38,31 @@
    </div>
 </template>
 
-<style>
+<style lang="scss" scoped>
+   @use '@/assets/scss/main' as *;
 
+   .card > header {
+      background-color: $darkOlive;
+      border-top-left-radius: 15px;
+      border-top-right-radius: 15px;
+      margin: -1em;
+      margin-bottom: 1em;
+      padding: 0.75em;
+      text-align: center;
+      transition: background-color 500ms;
+
+      &:hover { background-color: $blush }
+      & > a {
+         color: $cream;
+         font-size: 20px;
+         font-weight: 600;
+         text-transform: uppercase;
+         display: block;
+         width: 100%;
+
+         &:hover { opacity: inherit }
+      }
+   }
 </style>
 
 <script setup lang="ts">

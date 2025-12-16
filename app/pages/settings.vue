@@ -165,6 +165,25 @@
             <p>No time windows created yet. Add your first time window above.</p>
          </div>
       </div>
+
+       <div class="card gap-x-8 gap-y-0 mb-8 px-8 py-6">
+         <h2 class="withIcon--calculate-duo withIcon--color-blush">Voti</h2>
+         <div v-for="(window, index) in timeWindows" :key="index" class="matchDay pill--beige my-4">
+            <h4 class="matchDay--title w-1/4">{{ window.name }}</h4>
+            <div class="matchDay--status w-1/2">
+               <p class="pill--white color-error">Voti non ancora caricati</p>
+            </div>
+            <label class="btn btn--primary w-1/4 cursor-pointer">
+               <input 
+                  type="file" 
+                  accept=".csv,.xlsx"
+                  class="hidden"
+                  @change="handleVotiUpload($event, window)"
+               />carica voti
+            </label>
+         </div>
+       </div>
+
    </div>
 </template>
 
@@ -382,6 +401,17 @@
       }
    }
 
+   const handleVotiUpload = (event: Event, window: TimeWindow) => {
+      const target = event.target as HTMLInputElement
+      const file = target.files?.[0]
+
+      if (!file) return
+
+      alert(`Uploading file for ${window.name}: ${file.name}`)
+
+      target.value = ''
+   }
+
    onMounted(async () => {
       await teamStore.fetchTeams()
       await fetchTimeWindows()
@@ -389,5 +419,21 @@
 </script>
 
 <style lang="scss" scoped>
-   form { color: black; }
+   @use '@/assets/scss/main' as *;
+
+   form { color: $eerieBlack }
+
+   .matchDay {
+      width: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+
+      &--name {}
+      &--status {
+         display: flex;
+         justify-content: center;
+      }
+      &--controls {}
+   }
 </style>

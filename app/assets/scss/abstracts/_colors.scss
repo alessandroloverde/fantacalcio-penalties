@@ -68,3 +68,12 @@ $colors: (
   'bg-light': $color-bg-light,
   'bg-dark': $color-bg-dark,
 );
+
+@each $name, $value in $colors {
+  .color-#{$name}--bkg { background-color: $value !important }
+  .color-#{$name}--text { color: $value !important }
+  .color-#{$name} { 
+    background-color: $value !important;
+    color: color.change($value, $lightness: 90%)  !important;
+  }
+}
