@@ -22,6 +22,7 @@
                <button 
                   class="btn btn--primary withIcon--calculate-duo btn--icon-left"
                   @click="goToCalculate(match.teamA, match.teamB)"
+                  :disabled="!session.playersScores"
                >calcola</button>
             </div>
          </div>
