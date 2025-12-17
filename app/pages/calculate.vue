@@ -7,46 +7,65 @@
          <section class="card grid grid-cols-2 gap-x-20 gap-y-4 px-8 py-6">
             <header class="match col-span-2">
                <h2 class="match--title col-span-2 withIcon--shirt-duo withIcon--color-blush">
-                  {{ teamAData?.teamData.name }} – {{ teamBData?.teamData.name }} ({{ currentTimeWindow }})
+                  {{ teamAData?.teamData.name }} – {{ teamBData?.teamData.name }} ({{ currentTimeWindow?.name}})
                </h2>
                <h2 class="match--result">0 <span class="match--result--separator">–</span> 0</h2>
             </header>
             <div class="divider-text col-span-2 my-2">◎</div>
             <h3 class="col-span-2">{{teamAData?.teamData.name}}</h3>
-            <div class="col-span-1">
+            <section class="col-span-1">
                <h4 class="mb-1">Portiere</h4>
                <div class="penaltyTaker mb-4">
                   <div class="penaltyTaker--role P">{{ penaltiesStore.penalties[teamA]?.goalkeeper?.role }}</div>
-                  <div class="penaltyTaker--name w-2/5">{{ penaltiesStore.penalties[teamA]?.goalkeeper?.name }}</div>
+                  <div class="penaltyTaker--name w-2/6">{{ penaltiesStore.penalties[teamA]?.goalkeeper?.name }}</div>
                   <div class="penaltyTaker--squadra">{{ penaltiesStore.penalties[teamA]?.goalkeeper?.squadra }}</div>
                </div>
                <h4 class="mb-1">Rigoristi</h4>
                <ul>
                   <li v-for="player in teamAPenaltyTakers" class="penaltyTaker mb-1">
                      <div class="penaltyTaker--role" :class="player.role">{{ player.role }}</div>
-                     <div class="penaltyTaker--name w-2/5">{{ player.name }}</div>
+                     <div class="penaltyTaker--name w-2/6">{{ player.name }}</div>
                      <div class="penaltyTaker--squadra">{{ player.squadra }}</div>
                      <button class="btn btn--secondary withIcon--soccerBall-duo btn--icon-left ml-auto">Tira</button>
                   </li>
                </ul>
-            </div>
-            <div class="col-span-1">
+            </section>
+            <section class="col-span-1">
                <h4 class="mb-1">Portiere</h4>
                <div class="penaltyTaker mb-4">
                   <div class="penaltyTaker--role P">{{ penaltiesStore.penalties[teamB]?.goalkeeper?.role }}</div>
-                  <div class="penaltyTaker--name w-2/5">{{ penaltiesStore.penalties[teamB]?.goalkeeper?.name }}</div>
+                  <div class="penaltyTaker--name w-2/6">{{ penaltiesStore.penalties[teamB]?.goalkeeper?.name }}</div>
                   <div class="penaltyTaker--squadra">{{ penaltiesStore.penalties[teamB]?.goalkeeper?.squadra }}</div>
+                  <div>{{ currentTimeWindow?.playersScores?.find(item => item.playerID === penaltiesStore.penalties[teamB]?.goalkeeper?.playerID).playerScore  }}</div>
                </div>
                <h4 class="mb-1">Rigoristi</h4>
                <ul>
+                  <div class="legend">
+                     <div class="w-2/20">Ruolo</div>
+                     <div class="w-6/20">Nome</div>
+                     <div class="w-1/20">Sq.</div>
+                     <div class="w-1/20"></div>
+                     <div class="w-1/20">Voto</div>
+                     <div class="w-2/20">Rigori<br/>segnati</div>
+                     <div class="w-2/20">Rigori<br/>falliti</div>
+                     <div class="w-1/20">Gol</div>
+                     <div class="w-1/20"></div>
+                     <div class="w-3/20"></div>
+                  </div>
                   <li v-for="player in teamBPenaltyTakers" class="penaltyTaker mb-1">
-                     <div class="penaltyTaker--role" :class="player.role">{{ player.role }}</div>
-                     <div class="penaltyTaker--name w-2/5">{{ player.name }}</div>
-                     <div class="penaltyTaker--squadra">{{ player.squadra }}</div>
-                     <button class="btn btn--primary withIcon--soccerBall-duo btn--icon-left ml-auto">Tira</button>
+                     <div class="w-2/20 penaltyTaker--role" :class="player.role">{{ player.role }}</div>
+                     <div class="w-6/20 penaltyTaker--name">{{ player.name }}</div>
+                     <div class="w-1/20 penaltyTaker--squadra">{{ player.squadra }}</div>
+                     <div class="w-1/20"></div>
+                     <div class="w-1/20">{{ currentTimeWindow?.playersScores?.find(item => item.playerID === player.playerID)?.playerScore }}</div>
+                     <div class="w-2/20">{{ currentTimeWindow?.playersScores?.find(item => item.playerID === player.playerID)?.penaltiesFailed }}</div>
+                     <div class="w-2/20">{{ currentTimeWindow?.playersScores?.find(item => item.playerID === player.playerID)?.penaltiesScored }}</div>
+                     <div class="w-1/20" :class="{'penaltyTaker--score': currentTimeWindow?.playersScores?.find(item => item.playerID === player.playerID)?.goalsScored > 0}">{{ currentTimeWindow?.playersScores?.find(item => item.playerID === player.playerID)?.goalsScored }}</div>
+                     <div class="w-1/20"></div>
+                     <button class="w-3/20 btn btn--primary withIcon--soccerBall-duo btn--icon-left"></button>
                   </li>
                </ul>
-            </div>
+            </section>
          </section>
         
       </div>
@@ -66,7 +85,13 @@
 
    const loading = ref(true)
    const timeWindows = ref<TimeWindow[]>([])
-   const currentTimeWindow = computed(() => route.query.session as string)
+   const currentTimeWindow = computed<TimeWindow | undefined>(() => {
+      const sessionName = route.query.session as string
+
+      if (!sessionName) return undefined
+      
+      return timeWindows.value.find(win => win.name === sessionName)
+   })
 
    const teamA = computed(() => route.query.teamA as string)
    const teamB = computed(() => route.query.teamB as string)
@@ -142,6 +167,15 @@
    .penaltyTaker {
       display: flex;
       align-items: center;
+      justify-content: flex-start;
+
+      & > div {
+         //outline: 1px solid color.change(salmon, $alpha: 0.5);
+         text-align: center;
+
+         &:nth-of-type(2),
+         &:nth-of-type(3) { text-align: left }
+      }
 
       &--role {
          border-radius: 100%;
@@ -150,16 +184,36 @@
          width: 2em;
          height: 2em;
          display: flex;
+         flex-shrink: 0;
          align-items: center;
          justify-content: center;
-         margin-right: 1em;
-
-/*          &.P { background-color: color.change($navyBlue, $alpha: 0.6) }
-         &.D { background-color: color.change($blush, $alpha: 0.6) }
-         &.C { background-color: color.change($darkOlive, $alpha: 0.6); }
-         &.A { background-color: color.change($brownSugar, $alpha: 0.6); } */
+         margin-right: auto;
       }
       &--name {}
       &--squadra {}
+      &--score {
+         background-color: $navyBlue;
+         font-weight: 700;
+         color: $cream;
+         border-radius: 50%;
+         aspect-ratio: 1;
+      }
+   }
+
+   .legend {
+      display: flex;
+      justify-content: flex-start;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 1em;
+      line-height: 1.25;
+
+      & > div {
+         //outline: 1px solid color.change(salmon, $alpha: 0.5);
+         text-align: center;
+
+         &:nth-of-type(2),
+         &:nth-of-type(3) { text-align: left }
+      }
    }
 </style>
