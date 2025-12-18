@@ -32,17 +32,17 @@
             </section>
             <section class="col-span-1">
                <h4 class="mb-1">Portiere</h4>
-               <div class="legend">
+               <div class="legend pill--beige">
                   <div class="w-2/20">Ruolo</div>
                   <div class="w-6/20">Nome</div>
                   <div class="w-2/20">Sq.</div>
                   <div class="w-1/20"></div>
                   <div class="w-1/20">Voto</div>
-                  <div class="w-3/20">Rigori<br/>parati</div>
+                  <div class="w-3/20">🥅 </div>
                   <div class="w-2/20"></div>
                   <div class="w-3/20"></div>
                </div>
-               <div class="penaltyTaker mb-4">
+               <div class="penaltyTaker mb-6">
                   <div class="w-2/20 penaltyTaker--role P">{{ penaltiesStore.penalties[teamB]?.goalkeeper?.role }}</div>
                   <div class="w-6/20 penaltyTaker--name">{{ penaltiesStore.penalties[teamB]?.goalkeeper?.name }}</div>
                   <div class="w-2/20 penaltyTaker--squadra">{{ penaltiesStore.penalties[teamB]?.goalkeeper?.squadra }}</div>
@@ -54,14 +54,14 @@
                </div>
                <h4 class="mb-1">Rigoristi</h4>
                <ul>
-                  <div class="legend">
+                  <div class="legend pill--beige">
                      <div class="w-2/20">Ruolo</div>
                      <div class="w-6/20">Nome</div>
                      <div class="w-2/20">Sq.</div>
                      <div class="w-1/20"></div>
                      <div class="w-1/20">Voto</div>
-                     <div class="w-3/20">Rigori<br/>sbagliati</div>
-                     <div class="w-1/20">Gol</div>
+                     <div class="w-3/20">⚽️ ❌</div>
+                     <div class="w-1/20">⚽️</div>
                      <div class="w-1/20"></div>
                      <div class="w-3/20"></div>
                   </div>
@@ -71,7 +71,7 @@
                      <div class="w-2/20 penaltyTaker--squadra">{{ player.squadra }}</div>
                      <div class="w-1/20"></div>
                      <div class="w-1/20">{{ player.score?.playerScore }}</div>
-                     <div class="w-3/20">{{ player.score?.penaltiesFailed }}</div>
+                     <div class="w-3/20" :class="{'penaltyTaker--score': player.score?.penaltiesFailed > 0}">{{ player.score?.penaltiesFailed }}</div>
                      <div class="w-1/20" :class="{'penaltyTaker--score': getTotalGoals(player.score) > 0}">{{ getTotalGoals(player.score) }}</div>
                      <div class="w-1/20"></div>
                      <button class="w-3/20 btn btn--primary withIcon--soccerBall-duo btn--icon-left"></button>
@@ -221,11 +221,28 @@
       &--name {}
       &--squadra {}
       &--score {
-         background-color: $navyBlue;
          font-weight: 700;
          color: $cream;
-         border-radius: 50%;
-         aspect-ratio: 1;
+         position: relative;
+         z-index: 0;
+
+         &::before {
+            content: "";
+            width: 1em;
+            height: 1em;
+            display: block;
+            background-color: $navyBlue;
+            border-radius: 50%;
+            aspect-ratio: 1;
+            z-index: -1;
+            position: absolute;
+            padding: 0.75em;
+            top: 0;
+            left: 50%;
+            right: 0;
+            border: 0;
+            transform: translateX(-50%);
+         }
       }
    }
 
