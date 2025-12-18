@@ -32,35 +32,47 @@
             </section>
             <section class="col-span-1">
                <h4 class="mb-1">Portiere</h4>
+               <div class="legend">
+                  <div class="w-2/20">Ruolo</div>
+                  <div class="w-6/20">Nome</div>
+                  <div class="w-2/20">Sq.</div>
+                  <div class="w-1/20"></div>
+                  <div class="w-1/20">Voto</div>
+                  <div class="w-3/20">Rigori<br/>parati</div>
+                  <div class="w-2/20"></div>
+                  <div class="w-3/20"></div>
+               </div>
                <div class="penaltyTaker mb-4">
-                  <div class="penaltyTaker--role P">{{ penaltiesStore.penalties[teamB]?.goalkeeper?.role }}</div>
-                  <div class="penaltyTaker--name w-2/6">{{ penaltiesStore.penalties[teamB]?.goalkeeper?.name }}</div>
-                  <div class="penaltyTaker--squadra">{{ penaltiesStore.penalties[teamB]?.goalkeeper?.squadra }}</div>
-                  <div>{{ currentTimeWindow?.playersScores?.find(item => item.playerID === penaltiesStore.penalties[teamB]?.goalkeeper?.playerID).playerScore  }}</div>
+                  <div class="w-2/20 penaltyTaker--role P">{{ penaltiesStore.penalties[teamB]?.goalkeeper?.role }}</div>
+                  <div class="w-6/20 penaltyTaker--name">{{ penaltiesStore.penalties[teamB]?.goalkeeper?.name }}</div>
+                  <div class="w-2/20 penaltyTaker--squadra">{{ penaltiesStore.penalties[teamB]?.goalkeeper?.squadra }}</div>
+                  <div class="w-1/20"></div>
+                  <div class="w-1/20">{{ teamBGoalkeeperScore?.playerScore }}</div>
+                  <div class="w-3/20">{{ teamBGoalkeeperScore?.penaltiesSaved }}</div>
+                  <div class="w-2/20"></div>
+                  <div class="w-3/20"></div>
                </div>
                <h4 class="mb-1">Rigoristi</h4>
                <ul>
                   <div class="legend">
                      <div class="w-2/20">Ruolo</div>
                      <div class="w-6/20">Nome</div>
-                     <div class="w-1/20">Sq.</div>
+                     <div class="w-2/20">Sq.</div>
                      <div class="w-1/20"></div>
                      <div class="w-1/20">Voto</div>
-                     <div class="w-2/20">Rigori<br/>segnati</div>
-                     <div class="w-2/20">Rigori<br/>falliti</div>
+                     <div class="w-3/20">Rigori<br/>sbagliati</div>
                      <div class="w-1/20">Gol</div>
                      <div class="w-1/20"></div>
                      <div class="w-3/20"></div>
                   </div>
-                  <li v-for="player in teamBPenaltyTakers" class="penaltyTaker mb-1">
+                  <li v-for="player in teamBPenaltyTakersWithScores" :key="player.playerID" class="penaltyTaker mb-1">
                      <div class="w-2/20 penaltyTaker--role" :class="player.role">{{ player.role }}</div>
                      <div class="w-6/20 penaltyTaker--name">{{ player.name }}</div>
-                     <div class="w-1/20 penaltyTaker--squadra">{{ player.squadra }}</div>
+                     <div class="w-2/20 penaltyTaker--squadra">{{ player.squadra }}</div>
                      <div class="w-1/20"></div>
-                     <div class="w-1/20">{{ currentTimeWindow?.playersScores?.find(item => item.playerID === player.playerID)?.playerScore }}</div>
-                     <div class="w-2/20">{{ currentTimeWindow?.playersScores?.find(item => item.playerID === player.playerID)?.penaltiesFailed }}</div>
-                     <div class="w-2/20">{{ currentTimeWindow?.playersScores?.find(item => item.playerID === player.playerID)?.penaltiesScored }}</div>
-                     <div class="w-1/20" :class="{'penaltyTaker--score': currentTimeWindow?.playersScores?.find(item => item.playerID === player.playerID)?.goalsScored > 0}">{{ currentTimeWindow?.playersScores?.find(item => item.playerID === player.playerID)?.goalsScored }}</div>
+                     <div class="w-1/20">{{ player.score?.playerScore }}</div>
+                     <div class="w-3/20">{{ player.score?.penaltiesFailed }}</div>
+                     <div class="w-1/20" :class="{'penaltyTaker--score': getTotalGoals(player.score) > 0}">{{ getTotalGoals(player.score) }}</div>
                      <div class="w-1/20"></div>
                      <button class="w-3/20 btn btn--primary withIcon--soccerBall-duo btn--icon-left"></button>
                   </li>
@@ -74,27 +86,21 @@
 <script setup lang="ts">
    import { useTeamsStore } from '../stores/teams'
    import { usePenaltiesStore } from '../stores/penalties'
-   import { getFirestore, collection, getDocs } from 'firebase/firestore'
-   import { useNuxtApp } from '#app'
-   import type { TimeWindow } from './settings.vue'
+   import { useSessionsStore } from '../stores/sessions'
+   import type { TimeWindow } from '../stores/sessions'
 
    const route = useRoute()
-   const { $firebaseApp } = useNuxtApp()
    const teamsStore = useTeamsStore()
    const penaltiesStore = usePenaltiesStore()
+   const sessionsStore = useSessionsStore()
 
    const loading = ref(true)
-   const timeWindows = ref<TimeWindow[]>([])
-   const currentTimeWindow = computed<TimeWindow | undefined>(() => {
-      const sessionName = route.query.session as string
-
-      if (!sessionName) return undefined
-      
-      return timeWindows.value.find(win => win.name === sessionName)
-   })
+   const error = ref<string | null>(null)
+   const currentTimeWindow = ref<TimeWindow | undefined>(undefined)
 
    const teamA = computed(() => route.query.teamA as string)
    const teamB = computed(() => route.query.teamB as string)
+   const sessionName = computed(() => route.query.session as string)
 
    const teamAData = computed(() => 
       teamsStore.teamsWithPlayers.find(t => t.teamId === teamA.value)
@@ -103,50 +109,73 @@
       teamsStore.teamsWithPlayers.find(t => t.teamId === teamB.value)
    )
 
+   // Optimized: Cache sorted penalty takers (only sort if needed)
    const teamAPenaltyTakers = computed(() => {
-         const takers = penaltiesStore.penalties[teamA.value]?.penaltyTakers || []
+      const takers = penaltiesStore.penalties[teamA.value]?.penaltyTakers || []
+      if (takers.length === 0) return []
+      return [...takers].sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+   })
 
-         return [...takers].sort((a,b) => a.position - b.position)
-      }    
-   )
    const teamBPenaltyTakers = computed(() => {
-         const takers = penaltiesStore.penalties[teamB.value]?.penaltyTakers || []
+      const takers = penaltiesStore.penalties[teamB.value]?.penaltyTakers || []
+      if (takers.length === 0) return []
+      return [...takers].sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+   })
 
-         return [...takers].sort((a,b) => a.position - b.position)
-      }    
-   )
+   // OPTIMIZATION: Create a Map for O(1) player score lookups instead of O(n) finds
+   const playersScoresMap = computed(() => {
+      if (!currentTimeWindow.value?.playersScores) return new Map()
+      
+      return new Map(
+         currentTimeWindow.value.playersScores.map(score => [
+            score.playerID,
+            score
+         ])
+      )
+   })
 
-   const fetchTimeWindows = async () => {
-      if (!process.client || !$firebaseApp) return
-
-      try {
-         const db = getFirestore($firebaseApp)
-         const sessionsSnapshot = await getDocs(collection(db, "session"))
-
-         timeWindows.value = sessionsSnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-         }) as TimeWindow)
-
-         timeWindows.value.sort((a, b) => 
-            new Date(a.startDateTime).getTime() - new Date(b.startDateTime).getTime()
-         )
-
-      } catch(error) {
-         console.error('Error fetching time windows:', error)
-      }
-
-
+   // Memoized lookup function
+   const getPlayerScore = (playerID: string) => {
+      return playersScoresMap.value.get(playerID)
    }
 
+   // Memoized goalkeeper score lookup
+   const teamBGoalkeeperScore = computed(() => {
+      const gkPlayerID = penaltiesStore.penalties[teamB.value]?.goalkeeper?.playerID
+      if (!gkPlayerID) return undefined
+      return getPlayerScore(gkPlayerID)
+   })
+
+   // OPTIMIZATION: Pre-compute scores for penalty takers (only computed once per player)
+   const teamBPenaltyTakersWithScores = computed(() => {
+      return teamBPenaltyTakers.value.map(player => ({
+         ...player,
+         score: getPlayerScore(player.playerID),
+      }))
+   })
+
+   const getTotalGoals = (score: any) => {
+      if (!score) return 0
+      return (score.goalsScored ?? 0) + (score.penaltiesScored ?? 0)
+   }
+
+
    onMounted(async () => {
-      await Promise.all([
-      teamsStore.fetchTeams(),
-      penaltiesStore.fetchPenalties(),
-      fetchTimeWindows()
-      ])
-      
-      loading.value = false
+      try {
+         // Parallel fetch with error handling
+         await Promise.all([
+            teamsStore.fetchTeams(),
+            penaltiesStore.fetchPenalties(),
+            sessionsStore.fetchSessionByName(sessionName.value).then(session => {
+               currentTimeWindow.value = session
+            })
+         ])
+      } catch (err: any) {
+         error.value = err?.message || 'Failed to load data'
+         console.error('Error in onMounted:', err)
+      } finally {
+         loading.value = false
+      }
    })
 
 </script>
@@ -203,10 +232,11 @@
    .legend {
       display: flex;
       justify-content: flex-start;
+      align-items: center;
       font-size: 14px;
       font-weight: 600;
       margin-bottom: 1em;
-      line-height: 1.25;
+      line-height: 1.15;
 
       & > div {
          //outline: 1px solid color.change(salmon, $alpha: 0.5);

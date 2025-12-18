@@ -32,13 +32,24 @@
 
 
 <script setup lang="ts">
-   import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore'
-   import { useNuxtApp } from '#app'
    import { useTeamsStore } from '../stores/teams'
-   import type { Match, TimeWindow } from './settings.vue'
+   import { useSessionsStore } from '../stores/sessions'
+   import type { TimeWindow } from '../stores/sessions'
 
-   const timeWindows = ref<TimeWindow[]>([])
    const teamsStore = useTeamsStore()
+   const sessionsStore = useSessionsStore()
+
+   // Convert sessions store (Record) to sorted array for display
+   const timeWindows = computed<TimeWindow[]>(() => {
+      const sessionsArray = Object.values(sessionsStore.sessions).map(session => ({
+         ...session,
+         matches: [...(session.matches || [])],
+         playersScores: session.playersScores ? [...session.playersScores] : undefined
+      })) as TimeWindow[]
+      return sessionsArray.sort((a, b) => 
+         new Date(a.startDateTime).getTime() - new Date(b.startDateTime).getTime()
+      )
+   })
 
    // *** Retireve team's name from ID ***
    const teamsMap = computed(() => {
@@ -62,32 +73,6 @@
       })
    }
 
-   const fetchTimeWindows = async () => {
-      if (!process.client) return
-
-      try {
-         const { $firebaseApp } = useNuxtApp()
-         if (!$firebaseApp) {
-            console.error('Firebase app not initialized')
-            return
-         }
-         const db = getFirestore($firebaseApp)
-         const sessionsSnapshot = await getDocs(collection(db, "session"))
-
-        timeWindows.value = sessionsSnapshot.docs.map(doc => {
-            return {
-               id: doc.id,
-               ...doc.data()
-            } as TimeWindow
-         })
-        timeWindows.value.sort((a, b) => new Date(a.startDateTime).getTime() - new Date(b.startDateTime).getTime())
-
-
-      } catch(error) {
-         console.error('Error fetching time windows:', error)
-      }
-   }
-
    const goToCalculate = (teamA: string, teamB: string, session: string) => {
       navigateTo({
          path: `/calculate`,
@@ -100,7 +85,8 @@
    }
 
    onMounted(async () => {
-      await fetchTimeWindows()
+      // Fetch all sessions (calendar needs all of them)
+      await sessionsStore.fetchAllSessions()
    })
 
 
