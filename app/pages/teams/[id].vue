@@ -13,6 +13,7 @@
       </p>
       <hr class="divider my-4" />
       <div v-if="loading">Loading...</div>
+      <button class="btn btn--secondary">Reset</button>
 
       <div class="flex flex-col lg:flex-row lg:items-start lg:gap-6">
          <div id="availablePlayers-list" class="w-full bg-red-300">
@@ -40,27 +41,29 @@
 
          <div id="penaltyTakers-list" class="w-full">
             <h2>Portiere</h2>
-            <div class="drop-zones-list mb-6">
-               <div 
-                  class="drop-slot goalkeeper-slot"
+            <ol class="drop-zones-list mb-6">
+               <li 
+                  v-for="position in getGoalkeeperSlotsCount()" 
+                  :key="position"
+                  class="drop-slot"
                   @dragenter.prevent
                   @dragover.prevent
-                  @drop="onDropGoalkeeper($event)"
+                  @drop="onDropGoalkeeper($event, position)"
                >
-                  <span class="slot-number">GK</span>
+                  <span class="slot-number">P{{ position }}</span>
                   <div 
-                     v-if="goalkeeper"
+                     v-if="getGoalkeeperAtPosition(position)"
                      draggable="true"
-                     @dragstart="startDrag($event, goalkeeper)" 
+                     @dragstart="startDrag($event, getGoalkeeperAtPosition(position))" 
                      class="player role--P"
                   >
-                     <span class="player--name">{{ goalkeeper.name }}</span>
-                     <span class="player--role">{{ goalkeeper.role }}</span>
-                     <span class="player--team">{{ goalkeeper.squadra }}</span>
+                     <span class="player--name">{{ getGoalkeeperAtPosition(position)?.name }}</span>
+                     <span class="player--role">{{ getGoalkeeperAtPosition(position)?.role }}</span>
+                     <span class="player--team">{{ getGoalkeeperAtPosition(position)?.squadra }}</span>
                   </div>
                   <div v-else class="empty-slot">Drop goalkeeper here (role P only)</div>
-            </div>
-            </div>
+               </li>
+            </ol>
 
             <h2>Rigoristi</h2>
             <ol class="drop-zones-list">
@@ -141,7 +144,7 @@
    let loading = ref<boolean>(true)
    const teamId = route.params.id as string
    const teamData = ref<any>(null)
-   const goalkeeper = ref<{
+   const goalkeepers = ref<Array<{
       playerID: string,
       name: string, 
       role: string, 
@@ -149,7 +152,7 @@
       team: any, 
       list?: string, 
       position?: number | null
-   } | null>(null)
+   } | null>>([])
    const players = ref<{
       playerID: string,
       name: string, 
@@ -163,12 +166,10 @@
    const fileInput = ref<HTMLInputElement | null>(null)
    const roleOrder: Record<string, number> = { 'P': 1, 'D': 2, 'C': 3, 'A': 4 }
 
-
    function sortPlayersByRole(playersArray: {playerID: string, name: string, role: string, squadra: string, team: any, list?: string, position?: number | null}[] | null | undefined) {
       if (!playersArray) return [];
       return playersArray.sort((a, b) => (roleOrder[a.role] ?? 0) - (roleOrder[b.role] ?? 0));
    }
-
 
    async function handleFileUpload(event: Event) {
       const target = event.target as HTMLInputElement
@@ -263,27 +264,31 @@
             position: player.position
          }))
       
-      // Prepare goalkeeper data
-      const goalkeeperData = goalkeeper.value ? {
-         playerID: goalkeeper.value.playerID,
-         name: goalkeeper.value.name,
-         role: goalkeeper.value.role,
-         squadra: goalkeeper.value.squadra,
-      } : null
+      // Prepare goalkeepers data (all goalkeepers with positions)
+      const goalkeepersData = goalkeepers.value
+         .filter(gk => gk !== null)
+         .map(gk => ({
+            playerID: gk!.playerID,
+            name: gk!.name,
+            role: gk!.role,
+            squadra: gk!.squadra,
+            position: gk!.position
+         }))
 
       try {
          if(penaltyTakers.length < 10) {
             alert("Completa i rigoristi (10 giocatori)")
-         } else if(!goalkeeperData) {
-            alert("Seleziona un portiere!")
+         } else if(goalkeepersData.length === 0) {
+            alert("Seleziona almeno un portiere!")
          } else {
             // setDoc creates if doesn't exist, merge: true preserves other fields
             await setDoc(penaltiesDoc, {
                penaltyTakers: penaltyTakers,
-               goalkeeper: goalkeeperData
+               goalkeepers: goalkeepersData,
+               goalkeeper: goalkeepersData[0] // Keep for backward compatibility
             }, { merge: true })
             
-            alert('Rigoristi e portiere salvati!')
+            alert('Rigoristi e portieri salvati!')
          }
       } catch(error) {
          alert(error)
@@ -291,6 +296,7 @@
 
 
    }
+
    const startDrag = (event: DragEvent, item: any) => {
       if(!event.dataTransfer || !item.playerID) return
 
@@ -301,6 +307,16 @@
 
    const getPlayerAtPosition = (position: number) => {
       return players.value.find(player => player.list === 'List-2' && player.position === position)
+   }
+
+   const getGoalkeeperSlotsCount = () => {
+      // Count how many goalkeepers (P role) are available, or use a fixed number
+      const availableGKs = players.value.filter(p => p.role === 'P').length
+      return availableGKs // At least 3 slots, or more if there are more GKs
+   }
+
+   const getGoalkeeperAtPosition = (position: number) => {
+      return goalkeepers.value[position - 1] || null
    }
 
    const onDrop = (event: DragEvent, list: string, position?: number) => {
@@ -316,6 +332,14 @@
       const selectedPlayer = players.value.find(item => item.playerID === playerID)
 
       if(selectedPlayer) {
+         // Remove player from goalkeepers if it's a goalkeeper
+         if (selectedPlayer.list === 'Goalkeeper') {
+            const gkIndex = goalkeepers.value.findIndex(gk => gk?.playerID === selectedPlayer.playerID)
+            if (gkIndex !== -1) {
+               goalkeepers.value[gkIndex] = null
+            }
+         }
+         
          if(list === 'List-2' && position !== undefined) {
             const existingPlayer = getPlayerAtPosition(position)
 
@@ -323,18 +347,10 @@
                existingPlayer.list = 'List-1'
                existingPlayer.position = null
             }
-            
-            if(goalkeeper.value?.playerID === selectedPlayer.playerID) {
-               goalkeeper.value = null
-            }
 
             selectedPlayer.list = 'List-2'
             selectedPlayer.position = position
          } else if(list === 'List-1') {
-            if(goalkeeper.value?.playerID === selectedPlayer.playerID) {
-               goalkeeper.value = null
-            }
-
             selectedPlayer.list = 'List-1'
             selectedPlayer.position = null
          }
@@ -342,7 +358,7 @@
    }
 
 
-   const onDropGoalkeeper = (event: DragEvent) => {
+   const onDropGoalkeeper = (event: DragEvent, position: number) => {
       if(!event.dataTransfer) return
 
       event.preventDefault()
@@ -358,14 +374,43 @@
          return
       }
 
-      if(goalkeeper.value) {
-         goalkeeper.value.list = 'List-1'
-         goalkeeper.value.position = null
+      // Remove player from any other goalkeeper position
+      const existingGKIndex = goalkeepers.value.findIndex(gk => gk?.playerID === selectedPlayer.playerID)
+      if (existingGKIndex !== -1) {
+         const oldGK = goalkeepers.value[existingGKIndex]
+         if (oldGK) {
+            oldGK.list = 'List-1'
+            oldGK.position = null
+         }
+         goalkeepers.value[existingGKIndex] = null
       }
 
+      // Remove player from penalty takers if it's there
+      const penaltyTakerIndex = players.value.findIndex(p => p.playerID === selectedPlayer.playerID && p.list === 'List-2')
+      if (penaltyTakerIndex !== -1 && players.value[penaltyTakerIndex]) {
+         players.value[penaltyTakerIndex].list = 'List-1'
+         players.value[penaltyTakerIndex].position = null
+      }
+
+      // Remove player from current position if there's already a goalkeeper there
+      const currentIndex = position - 1
+      if (goalkeepers.value[currentIndex]) {
+         const currentGK = goalkeepers.value[currentIndex]
+         if (currentGK) {
+            currentGK.list = 'List-1'
+            currentGK.position = null
+         }
+      }
+
+      // Ensure array is large enough
+      while (goalkeepers.value.length < position) {
+         goalkeepers.value.push(null)
+      }
+
+      // Set the player as goalkeeper at this position
       selectedPlayer.list = 'Goalkeeper'
-      selectedPlayer.position = 0
-      goalkeeper.value = selectedPlayer
+      selectedPlayer.position = position
+      goalkeepers.value[currentIndex] = selectedPlayer
    }
 
 
@@ -379,6 +424,7 @@
          
          const savedPenaltyTakers = penaltiesResult?.data?.penaltyTakers || []
          const savedGoalkeeper = penaltiesResult?.data?.goalkeeper || null
+         const savedGoalkeepers = penaltiesResult?.data?.goalkeepers || []
 
          if(teamResult) {
             teamData.value = teamResult.data
@@ -430,28 +476,19 @@
 
             // Process players - build array FIRST, then assign once
             const processedPlayers: typeof players.value = []
-            let foundGoalkeeper: typeof goalkeeper.value = null
 
             for (const playerDoc of playerDocs) {
                const singlePlayerData = playerDoc.data as {playerID: string, name: string, role: string, squadra: string, team: any, list: string, position: number | null}
 
-               // Check if this player is the saved goalkeeper
-               if (savedGoalkeeper && singlePlayerData.playerID === savedGoalkeeper.playerID) {
-                  singlePlayerData.list = "Goalkeeper"
-                  singlePlayerData.position = 0
-                  foundGoalkeeper = singlePlayerData
-               }
                // Check if this player is in saved penalty takers
-               else {
-                  const savedPenaltyTaker = savedPenaltyTakers.find((pt: any) => pt.playerID === singlePlayerData.playerID)
-                  
-                  if (savedPenaltyTaker) {
-                     singlePlayerData.list = "List-2"
-                     singlePlayerData.position = savedPenaltyTaker.position
-                  } else {
-                     singlePlayerData.list = "List-1"
-                     singlePlayerData.position = null
-                  }
+               const savedPenaltyTaker = savedPenaltyTakers.find((pt: any) => pt.playerID === singlePlayerData.playerID)
+               
+               if (savedPenaltyTaker) {
+                  singlePlayerData.list = "List-2"
+                  singlePlayerData.position = savedPenaltyTaker.position
+               } else {
+                  singlePlayerData.list = "List-1"
+                  singlePlayerData.position = null
                }
 
                processedPlayers.push(singlePlayerData)
@@ -459,7 +496,40 @@
 
             // Single reactive assignment
             players.value = sortPlayersByRole(processedPlayers)
-            goalkeeper.value = foundGoalkeeper
+            
+            // Load goalkeepers - find all saved goalkeepers and set them at their positions
+            goalkeepers.value = []
+            if (savedGoalkeepers.length > 0) {
+               // Use saved goalkeepers array
+               for (const savedGK of savedGoalkeepers) {
+                  const playerIndex = processedPlayers.findIndex(p => p.playerID === savedGK.playerID)
+                  if (playerIndex !== -1) {
+                     const player = processedPlayers[playerIndex]
+                     if (player) {
+                        player.list = 'Goalkeeper'
+                        player.position = savedGK.position || 1
+                        
+                        // Ensure array is large enough
+                        const position = savedGK.position || 1
+                        while (goalkeepers.value.length < position) {
+                           goalkeepers.value.push(null)
+                        }
+                        goalkeepers.value[position - 1] = player
+                     }
+                  }
+               }
+            } else if (savedGoalkeeper) {
+               // Fallback to single goalkeeper for backward compatibility
+               const playerIndex = processedPlayers.findIndex(p => p.playerID === savedGoalkeeper.playerID)
+               if (playerIndex !== -1) {
+                  const player = processedPlayers[playerIndex]
+                  if (player) {
+                     player.list = 'Goalkeeper'
+                     player.position = 1
+                     goalkeepers.value[0] = player
+                  }
+               }
+            }
 
             // Process presidents
             if (presidentDocs && presidentDocs.length > 0) {
