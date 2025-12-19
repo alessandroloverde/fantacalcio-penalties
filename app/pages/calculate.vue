@@ -9,7 +9,7 @@
                <h2 class="match--title col-span-2 withIcon--shirt-duo withIcon--color-blush">
                   {{ teamAData?.teamData.name }} – {{ teamBData?.teamData.name }} ({{ currentTimeWindow?.name}})
                </h2>
-               <h2 class="match--result">0 <span class="match--result--separator">–</span> 0</h2>
+               <h2 class="match--result">{{ teamAScore }} <span class="match--result--separator">–</span> {{ teamBScore }}</h2>
             </header>
             <div class="divider-text col-span-2 my-2">◎</div>
             <PlayersScoreTable
@@ -17,14 +17,32 @@
                :goalkeeper="penaltiesStore.penalties[teamA]?.goalkeeper"
                :goalkeeperScore="teamAGoalkeeperScore"
                :penaltyTakersWithScores="teamAPenaltyTakersWithScores"
+               :penaltyTaken="penaltyTaken"
+               :penaltyResults="penaltyResults"
+               @penalty-kick="(player) => handlePenaltyKick(player, 'A')"
             />
             <PlayersScoreTable
                :teamName="teamBData?.teamData.name"
                :goalkeeper="penaltiesStore.penalties[teamB]?.goalkeeper"
                :goalkeeperScore="teamBGoalkeeperScore"
                :penaltyTakersWithScores="teamBPenaltyTakersWithScores"
+               :penaltyTaken="penaltyTaken"
+               :penaltyResults="penaltyResults"
+               @penalty-kick="(player) => handlePenaltyKick(player, 'B')"
             />
          </section>
+         
+         <!-- Penalty Modal -->
+         <PenaltyModal
+            :isVisible="showPenaltyModal"
+            :player="currentPenalty?.player"
+            :goalkeeper="currentPenalty?.goalkeeper"
+            :playerScore="currentPenalty?.player?.score?.playerScore"
+            :goalkeeperScore="currentPenalty?.playerTeam === 'A' ? teamBGoalkeeperScore?.playerScore : teamAGoalkeeperScore?.playerScore"
+            :goalkeeperSaves="currentPenalty?.playerTeam === 'A' ? teamBGoalkeeperScore?.penaltiesSaved : teamAGoalkeeperScore?.penaltiesSaved"
+            :result="currentPenalty?.result"
+            @close="closeModal"
+         />
         
       </div>
 </template>
@@ -34,6 +52,7 @@
    import { usePenaltiesStore } from '../stores/penalties'
    import { useSessionsStore } from '../stores/sessions'
    import type { TimeWindow } from '../stores/sessions'
+   import PenaltyModal from '../components/PenaltyModal.vue'
 
    const route = useRoute()
    const teamsStore = useTeamsStore()
@@ -43,6 +62,23 @@
    const loading = ref(true)
    const error = ref<string | null>(null)
    const currentTimeWindow = ref<TimeWindow | undefined>(undefined)
+
+   // Reactive match scores
+   const teamAScore = ref(0)
+   const teamBScore = ref(0)
+
+   // Modal state
+   const showPenaltyModal = ref(false)
+   const currentPenalty = ref<{
+      player: any
+      goalkeeper: any
+      playerTeam: 'A' | 'B'
+      result: 'scored' | 'saved' | null
+   } | null>(null)
+
+   // Track which players have taken penalties and their results
+   const penaltyTaken = ref<Set<string>>(new Set())
+   const penaltyResults = ref<Map<string, 'scored' | 'saved'>>(new Map())
 
    const teamA = computed(() => route.query.teamA as string)
    const teamB = computed(() => route.query.teamB as string)
@@ -118,6 +154,171 @@
    const getTotalGoals = (score: any) => {
       if (!score) return 0
       return (score.goalsScored ?? 0) + (score.penaltiesScored ?? 0)
+   }
+
+   // Clamp goalkeeper score between 5 and 7 (without rounding)
+   const clampGoalkeeperScore = (score: number): number => {
+      return Math.max(5, Math.min(7, score))
+   }
+
+   // Calculate penalty outcome
+   const calculatePenalty = (
+      playerScore: number,
+      playerGoalsScored: number,
+      goalkeeperScore: number,
+      goalkeeperSaves: number
+   ): { scored: boolean; newGoalkeeperSaves: number } => {
+      
+      // Rule 4: Clamp goalkeeper score between 5 and 7
+      const clampedGKScore = clampGoalkeeperScore(goalkeeperScore)
+      
+      // Rule 2: If player has goalsScored > 0, it's a goal
+      // UNLESS goalkeeper has savedPenalties >= playerGoalsScored
+      // If denied, decrease savedPenalties by playerGoalsScored
+      if (playerGoalsScored > 0) {
+         if (goalkeeperSaves >= playerGoalsScored) {
+            // Goalkeeper has enough savedPenalties to deny the goal
+            // Decrease savedPenalties by playerGoalsScored
+            return {
+               scored: false,
+               newGoalkeeperSaves: goalkeeperSaves - playerGoalsScored
+            }
+         } else {
+            // Goalkeeper doesn't have enough to deny it - goal scored
+            return {
+               scored: true,
+               newGoalkeeperSaves: goalkeeperSaves
+            }
+         }
+      }
+      
+      // Rule 1: Check if penalty would be scored by score comparison (player score > goalkeeper score)
+      const wouldScoreByScore = playerScore > clampedGKScore
+      
+      if (wouldScoreByScore) {
+         // If penalty would score by score comparison AND goalkeeper has savedPenalties > 0
+         // Then penalty is denied and savedPenalties decreases by 1
+         if (goalkeeperSaves > 0) {
+            return {
+               scored: false,
+               newGoalkeeperSaves: goalkeeperSaves - 1
+            }
+         }
+         // Otherwise, penalty is scored
+         return {
+            scored: true,
+            newGoalkeeperSaves: goalkeeperSaves
+         }
+      }
+      
+      // Penalty wouldn't score, so it's saved
+      return {
+         scored: false,
+         newGoalkeeperSaves: goalkeeperSaves
+      }
+   }
+
+   // Handle penalty kick button click
+   const handlePenaltyKick = (player: any, playerTeam: 'A' | 'B') => {
+      if (penaltyTaken.value.has(player.playerID)) {
+         alert('Questo giocatore ha già tirato!')
+         return
+      }
+      
+      // Get actual team IDs, not 'A' or 'B'
+      const playerTeamId = playerTeam === 'A' ? teamA.value : teamB.value
+      const opponentTeamId = playerTeam === 'A' ? teamB.value : teamA.value
+      
+      const goalkeeper = penaltiesStore.penalties[opponentTeamId]?.goalkeeper
+      const goalkeeperScoreData = playerTeam === 'A' ? teamBGoalkeeperScore.value : teamAGoalkeeperScore.value
+      
+      // Check if we have the essential data
+      if (!goalkeeper) {
+         alert('Portiere mancante per il calcolo del rigore')
+         return
+      }
+      
+      if (!goalkeeperScoreData) {
+         alert('Dati del portiere mancanti. Assicurati che i voti siano stati caricati per questa giornata.')
+         return
+      }
+      
+      if (!player.score) {
+         alert(`Dati mancanti per ${player.name}. Assicurati che i voti siano stati caricati per questa giornata.`)
+         return
+      }
+      
+      // Get score values - use 0 as default if not present
+      const playerScore = typeof player.score.playerScore === 'number' ? player.score.playerScore : 0
+      const playerGoalsScored = getTotalGoals(player.score)
+      const goalkeeperScore = typeof goalkeeperScoreData.playerScore === 'number' ? goalkeeperScoreData.playerScore : 0
+      const goalkeeperSaves = typeof goalkeeperScoreData.penaltiesSaved === 'number' ? goalkeeperScoreData.penaltiesSaved : 0
+      
+      // Validate that we have at least a player score or goals
+      if (playerScore === 0 && playerGoalsScored === 0) {
+         alert(`Il giocatore ${player.name} non ha voti. Assicurati che i voti siano stati caricati.`)
+         return
+      }
+      
+      if (goalkeeperScore === 0) {
+         alert(`Il portiere ${goalkeeper.name} non ha un voto. Assicurati che i voti siano stati caricati.`)
+         return
+      }
+      
+      // Calculate penalty outcome
+      const { scored, newGoalkeeperSaves } = calculatePenalty(
+         playerScore,
+         playerGoalsScored,
+         goalkeeperScore,
+         goalkeeperSaves
+      )
+      
+      // Update modal state
+      currentPenalty.value = {
+         player,
+         goalkeeper,
+         playerTeam,
+         result: scored ? 'scored' : 'saved'
+      }
+      
+      showPenaltyModal.value = true
+      
+      // After animation (3 seconds), update scores
+      setTimeout(() => {
+         if (scored) {
+            // Goal scored - increment team score
+            if (playerTeam === 'A') {
+               teamAScore.value++
+            } else {
+               teamBScore.value++
+            }
+         } else {
+            // Penalty was saved - update goalkeeper's savedPenalties if it was decremented
+            if (newGoalkeeperSaves !== goalkeeperSaves) {
+               // Update goalkeeper saves in the source data
+               if (currentTimeWindow.value?.playersScores) {
+                  const gkPlayerID = goalkeeper.playerID
+                  const gkScoreIndex = currentTimeWindow.value.playersScores.findIndex(
+                     (score: any) => score.playerID === gkPlayerID
+                  )
+                  if (gkScoreIndex !== -1) {
+                     currentTimeWindow.value.playersScores[gkScoreIndex].penaltiesSaved = newGoalkeeperSaves
+                  }
+               }
+            }
+         }
+         
+         // Mark player as having taken penalty and store result
+         penaltyTaken.value.add(player.playerID)
+         penaltyResults.value.set(player.playerID, scored ? 'scored' : 'saved')
+         
+         // Close modal
+         showPenaltyModal.value = false
+      }, 3000)
+   }
+
+   const closeModal = () => {
+      showPenaltyModal.value = false
    }
 
 

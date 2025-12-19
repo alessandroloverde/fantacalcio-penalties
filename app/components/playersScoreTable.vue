@@ -44,7 +44,14 @@
             <div class="w-3/20" :class="{'penaltyTaker--score': (player.score?.penaltiesFailed ?? 0) > 0}">{{ player.score?.penaltiesFailed }}</div>
             <div class="w-1/20" :class="{'penaltyTaker--score': getTotalGoals(player.score) > 0}">{{ getTotalGoals(player.score) }}</div>
             <div class="w-1/20"></div>
-            <button class="w-3/20 btn btn--primary withIcon--soccerBall-duo btn--icon-left"></button>
+            <button 
+               class="w-3/20 btn btn--primary withIcon--soccerBall-duo btn--icon-left"
+               :disabled="isButtonDisabled(player)"
+               :class="{ 'btn--success': getPenaltyResult(player.playerID) === 'scored', 'btn--danger': getPenaltyResult(player.playerID) === 'saved' }"
+               @click="handleClick(player)"
+            >
+               {{ getButtonText(player) }}
+            </button>
          </li>
       </ul>
    </section>
@@ -56,11 +63,48 @@
       goalkeeper?: any
       goalkeeperScore?: any
       penaltyTakersWithScores: any[]
+      penaltyTaken?: Set<string>
+      penaltyResults?: Map<string, 'scored' | 'saved'>
+   }>()
+
+   const emit = defineEmits<{
+      'penalty-kick': [player: any]
    }>()
 
    const getTotalGoals = (score: any) => {
       if (!score) return 0
       return (score.goalsScored ?? 0) + (score.penaltiesScored ?? 0)
+   }
+
+   const isPenaltyTaken = (playerID: string) => {
+      return props.penaltyTaken?.has(playerID) ?? false
+   }
+
+   const hasScore = (player: any) => {
+      if (!player.score) return false
+      const playerScore = typeof player.score.playerScore === 'number' ? player.score.playerScore : null
+      return playerScore !== null && playerScore !== undefined
+   }
+
+   const isButtonDisabled = (player: any) => {
+      return isPenaltyTaken(player.playerID) || !hasScore(player)
+   }
+
+   const getPenaltyResult = (playerID: string) => {
+      return props.penaltyResults?.get(playerID)
+   }
+
+   const getButtonText = (player: any) => {
+      if (!hasScore(player)) return 'N/A'
+      if (!isPenaltyTaken(player.playerID)) return 'Tira'
+      const result = getPenaltyResult(player.playerID)
+      return result === 'scored' ? '⚽' : '✗'
+   }
+
+   const handleClick = (player: any) => {
+      if (!isPenaltyTaken(player.playerID) && hasScore(player)) {
+         emit('penalty-kick', player)
+      }
    }
 
 </script>
