@@ -6,11 +6,10 @@
 
       <nuxtLink to="/">Back to Home</nuxtLink>
       <h1>{{ teamData?.name }}</h1>
-      <p v-if="presidents.length === 1">
-         <span>Presidente: </span> {{ presidents[0] }}
-      </p>
-      <p v-else>
-         <span>Presidenti:</span> {{ presidents.join(' | ') }}
+      <p >
+         <span v-if="presidents.length === 1">Presidente: </span>
+         <span v-else>Presidenti ({{ presidents.length }}): </span>
+         {{ presidents.join(' | ') }}
       </p>
       <hr class="divider my-4" />
       <div v-if="loading">Loading...</div>
@@ -386,12 +385,47 @@
 
             // Get player IDs from team document (keys of the players map)
             const playerIds = Object.keys(teamResult.data.players || {})
-            const presidentIds = Object.keys(teamResult.data.president || {})
+            const presidentField = teamResult.data.president || {}
+            
+            // Extract president IDs from values (values contain the actual Firebase document IDs)
+            const presidentIds: string[] = []
+            const presidentValues = Object.values(presidentField)
+            
+            for (const value of presidentValues) {
+               if (typeof value === 'string') {
+                  // If it's a reference path like "participants/abc123" or "/participants/abc123", extract the ID
+                  if (value.includes('/')) {
+                     const parts = value.split('/')
+                     const id = parts[parts.length - 1] // Get last part as ID
+                     if (id && id !== 'participants') {
+                        presidentIds.push(id)
+                     }
+                  } else if (value.length > 0) {
+                     // Use the value directly as ID (if it's not a path)
+                     presidentIds.push(value)
+                  }
+               } else if (value && typeof value === 'object') {
+                  // If it's an object, try to get id property
+                  if ('id' in value) {
+                     presidentIds.push((value as any).id)
+                  } else if ('path' in value) {
+                     // Extract ID from path
+                     const path = (value as any).path
+                     const parts = path.split('/')
+                     presidentIds.push(parts[parts.length - 1])
+                  }
+               }
+            }
+            
+            // If no IDs found from values, try using keys (fallback)
+            if (presidentIds.length === 0) {
+               presidentIds.push(...Object.keys(presidentField))
+            }
 
             // Fetch players AND presidents in parallel using REST API
             const [playerDocs, presidentDocs] = await Promise.all([
                getDocsRest("players", playerIds),
-               getDocsRest("participants", presidentIds)
+               presidentIds.length > 0 ? getDocsRest("participants", presidentIds) : Promise.resolve([])
             ])
 
             // Process players - build array FIRST, then assign once
@@ -428,7 +462,14 @@
             goalkeeper.value = foundGoalkeeper
 
             // Process presidents
-            presidents.value = presidentDocs.map(doc => doc.data.name as string)
+            if (presidentDocs && presidentDocs.length > 0) {
+               presidents.value = presidentDocs.map(doc => {
+                  const name = doc.data?.name || doc.data?.data?.name
+                  return name as string
+               }).filter(name => name) // Filter out any undefined/null names
+            } else {
+               presidents.value = []
+            }
             
             loading.value = false
          }
