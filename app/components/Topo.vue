@@ -75,7 +75,7 @@ const teams = ref<Array<{
   teamId: string,
   teamData: any
 }>>([])
-const criceto = ref<Record<string, { penaltyTakers: any[], goalkeeper: any | null }>>({})
+const criceto = ref<Record<string, { penaltyTakers: any[], goalkeepers: any[], goalkeeper: any | null }>>({})
 
 onMounted(async () => {
    if (process.client) {
@@ -90,10 +90,17 @@ onMounted(async () => {
 
          // Process penalties
          criceto.value = Object.fromEntries(
-            penaltiesResult.map(doc => [doc.id, {
-               penaltyTakers: doc.data.penaltyTakers || [],
-               goalkeeper: doc.data.goalkeeper || null                
-            }])
+            penaltiesResult.map(doc => {
+               const goalkeepers = doc.data.goalkeepers || []
+               // Use goalkeepers array if available, otherwise fall back to single goalkeeper
+               const goalkeeper = goalkeepers.length > 0 ? goalkeepers[0] : (doc.data.goalkeeper || null)
+               
+               return [doc.id, {
+                  penaltyTakers: doc.data.penaltyTakers || [],
+                  goalkeepers: goalkeepers,
+                  goalkeeper: goalkeeper // First goalkeeper for display
+               }]
+            })
          )
 
          // Process teams

@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { getCollectionRest } from '../utils/firestoreRest'
 
 export const usePenaltiesStore = defineStore('penalties', () => {
-   const penalties = ref<Record<string, { penaltyTakers: any[], goalkeeper: any | null }>>({})
+   const penalties = ref<Record<string, { penaltyTakers: any[], goalkeepers: any[], goalkeeper: any | null }>>({})
    const loading = ref<boolean>(false)
    const error = ref<string | null>(null)
 
@@ -17,10 +17,17 @@ export const usePenaltiesStore = defineStore('penalties', () => {
          const penaltiesResult = await getCollectionRest("penalties")
 
          penalties.value = Object.fromEntries(
-            penaltiesResult.map(doc => [doc.id, {
-               penaltyTakers: doc.data.penaltyTakers || [],
-               goalkeeper: doc.data.goalkeeper || null
-            }])
+            penaltiesResult.map(doc => {
+               const goalkeepers = doc.data.goalkeepers || []
+               // Use goalkeepers array if available, otherwise fall back to single goalkeeper
+               const goalkeeper = goalkeepers.length > 0 ? goalkeepers[0] : (doc.data.goalkeeper || null)
+               
+               return [doc.id, {
+                  penaltyTakers: doc.data.penaltyTakers || [],
+                  goalkeepers: goalkeepers,
+                  goalkeeper: goalkeeper // First goalkeeper for backward compatibility
+               }]
+            })
          )
 
       } catch (err: any) {

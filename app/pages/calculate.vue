@@ -14,7 +14,7 @@
             <div class="divider-text col-span-2 my-2">◎</div>
             <PlayersScoreTable
                :teamName="teamAData?.teamData.name"
-               :goalkeeper="penaltiesStore.penalties[teamA]?.goalkeeper"
+               :goalkeeper="teamAGoalkeeper.goalkeeper"
                :goalkeeperScore="teamAGoalkeeperScore"
                :penaltyTakersWithScores="teamAPenaltyTakersWithScores"
                :penaltyTaken="penaltyTaken"
@@ -23,7 +23,7 @@
             />
             <PlayersScoreTable
                :teamName="teamBData?.teamData.name"
-               :goalkeeper="penaltiesStore.penalties[teamB]?.goalkeeper"
+               :goalkeeper="teamBGoalkeeper.goalkeeper"
                :goalkeeperScore="teamBGoalkeeperScore"
                :penaltyTakersWithScores="teamBPenaltyTakersWithScores"
                :penaltyTaken="penaltyTaken"
@@ -121,12 +121,32 @@
       return playersScoresMap.value.get(playerID)
    }
 
-   // Memoized goalkeeper score lookup for Team A
-   const teamAGoalkeeperScore = computed(() => {
-      const gkPlayerID = penaltiesStore.penalties[teamA.value]?.goalkeeper?.playerID
-      if (!gkPlayerID) return undefined
-      return getPlayerScore(gkPlayerID)
-   })
+   // Helper function to find the first goalkeeper with a valid score (single source of truth)
+   const getGoalkeeperWithScore = (teamId: string) => {
+      const goalkeepers = penaltiesStore.penalties[teamId]?.goalkeepers || []
+      
+      // Find first goalkeeper with a valid score
+      for (const gk of goalkeepers) {
+         const score = getPlayerScore(gk.playerID)
+         if (score && typeof score.playerScore === 'number' && score.playerScore > 0) {
+            return { goalkeeper: gk, score }
+         }
+      }
+      
+      // Fallback to first goalkeeper if none have valid scores
+      const firstGK = goalkeepers[0] || penaltiesStore.penalties[teamId]?.goalkeeper
+      if (!firstGK) return { goalkeeper: null, score: undefined }
+      return { goalkeeper: firstGK, score: getPlayerScore(firstGK.playerID) }
+   }
+
+   // Team A goalkeeper with score (single source of truth)
+   const teamAGoalkeeper = computed(() => getGoalkeeperWithScore(teamA.value))
+
+   // Team B goalkeeper with score (single source of truth)
+   const teamBGoalkeeper = computed(() => getGoalkeeperWithScore(teamB.value))
+
+   // Keep score properties for backward compatibility (extracted from above)
+   const teamAGoalkeeperScore = computed(() => teamAGoalkeeper.value.score)
 
    // OPTIMIZATION: Pre-compute scores for Team A penalty takers
    const teamAPenaltyTakersWithScores = computed(() => {
@@ -136,12 +156,8 @@
       }))
    })
 
-   // Memoized goalkeeper score lookup
-   const teamBGoalkeeperScore = computed(() => {
-      const gkPlayerID = penaltiesStore.penalties[teamB.value]?.goalkeeper?.playerID
-      if (!gkPlayerID) return undefined
-      return getPlayerScore(gkPlayerID)
-   })
+   // Keep score properties for backward compatibility (extracted from above)
+   const teamBGoalkeeperScore = computed(() => teamBGoalkeeper.value.score)
 
    // OPTIMIZATION: Pre-compute scores for penalty takers (only computed once per player)
    const teamBPenaltyTakersWithScores = computed(() => {
@@ -227,10 +243,9 @@
       
       // Get actual team IDs, not 'A' or 'B'
       const playerTeamId = playerTeam === 'A' ? teamA.value : teamB.value
-      const opponentTeamId = playerTeam === 'A' ? teamB.value : teamA.value
-      
-      const goalkeeper = penaltiesStore.penalties[opponentTeamId]?.goalkeeper
-      const goalkeeperScoreData = playerTeam === 'A' ? teamBGoalkeeperScore.value : teamAGoalkeeperScore.value
+      const opponentGoalkeeperData = playerTeam === 'A' ? teamBGoalkeeper.value : teamAGoalkeeper.value
+      const goalkeeper = opponentGoalkeeperData.goalkeeper
+      const goalkeeperScoreData = opponentGoalkeeperData.score
       
       // Check if we have the essential data
       if (!goalkeeper) {
@@ -348,9 +363,15 @@
    .match {
       display: flex;
       justify-content: space-between;
+      align-items: center;
 
       &--result {
-         &--separator { color: $blush }
+         background-color: $darkOlive;
+         border-radius: $radius-lg;
+         padding: 0.25em 0.5em;
+         color: white;
+
+         &--separator { color: $cream }
       }
    }
 </style>
