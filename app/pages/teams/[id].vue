@@ -13,7 +13,7 @@
       </p>
       <hr class="divider my-4" />
       <div v-if="loading">Loading...</div>
-      <button class="btn btn--secondary">Reset</button>
+      <button class="btn btn--secondary" @click="resetPenaltyTakers">Reset</button>
 
       <div class="flex flex-col lg:flex-row lg:items-start lg:gap-6">
          <div id="availablePlayers-list" class="w-full bg-red-300">
@@ -295,6 +295,45 @@
       }
 
 
+   }
+
+   async function resetPenaltyTakers() {
+      if (!confirm('Sei sicuro di voler resettare tutti i rigoristi e portieri?')) {
+         return
+      }
+
+      // Reset all penalty takers: move them from List-2 back to List-1
+      players.value.forEach(player => {
+         if (player.list === 'List-2') {
+            player.list = 'List-1'
+            player.position = null
+         }
+      })
+
+      // Reset all goalkeepers: move them back to List-1 and clear goalkeepers array
+      goalkeepers.value.forEach(gk => {
+         if (gk) {
+            gk.list = 'List-1'
+            gk.position = null
+         }
+      })
+      goalkeepers.value = []
+
+      // Clear from Firestore
+      const db = getFirestore($firebaseApp)
+      const penaltiesDoc = doc(db, "penalties", teamId)
+      
+      try {
+         await setDoc(penaltiesDoc, {
+            penaltyTakers: [],
+            goalkeepers: [],
+            goalkeeper: null
+         }, { merge: true })
+         
+         alert('Rigoristi e portieri resettati!')
+      } catch(error) {
+         alert('Errore durante il reset: ' + error)
+      }
    }
 
    const startDrag = (event: DragEvent, item: any) => {
