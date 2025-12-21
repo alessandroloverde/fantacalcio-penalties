@@ -35,7 +35,11 @@
             <div class="w-1/20"></div>
             <div class="w-3/20"></div>
          </div>
-         <li v-for="player in penaltyTakersWithScores" :key="player.playerID" class="penaltyTaker mb-1">
+         <li 
+            v-for="player in penaltyTakersWithScores.filter(player => player.score)" 
+            :key="player.playerID" 
+            class="penaltyTaker"
+         >
             <div class="w-2/20 penaltyTaker--role" :class="player.role">{{ player.role }}</div>
             <div class="w-6/20 penaltyTaker--name">{{ player.name }}</div>
             <div class="w-2/20 penaltyTaker--squadra">{{ player.squadra }}</div>
@@ -45,10 +49,37 @@
             <div class="w-1/20" :class="{'penaltyTaker--score': getTotalGoals(player.score) > 0}">{{ getTotalGoals(player.score) }}</div>
             <div class="w-1/20"></div>
             <button 
-               class="w-3/20 btn withIcon--soccerBall-duo btn--icon-left"
+               class="w-3/20 btn"
                :disabled="isButtonDisabled(player)"
                :class="{
-                  'btn--primary': !getPenaltyResult(player.playerID),
+                  'btn--secondary': !getPenaltyResult(player.playerID),
+                  'btn--success': getPenaltyResult(player.playerID) === 'scored',
+                  'btn--danger': getPenaltyResult(player.playerID) === 'saved'
+               }"
+               @click="handleClick(player)"
+            >
+               {{ getButtonText(player) }}
+            </button>
+         </li>
+
+         <li 
+            v-for="player in penaltyTakersWithScores.filter(player => !player.score)" 
+            :key="player.playerID" 
+            class="penaltyTaker disabled"
+         >
+            <div class="w-2/20 penaltyTaker--role" :class="player.role">{{ player.role }}</div>
+            <div class="w-6/20 penaltyTaker--name">{{ player.name }}</div>
+            <div class="w-2/20 penaltyTaker--squadra">{{ player.squadra }}</div>
+            <div class="w-1/20"></div>
+            <div class="w-1/20">{{ player.score?.playerScore }}</div>
+            <div class="w-3/20" :class="{'penaltyTaker--score': (player.score?.penaltiesFailed ?? 0) > 0}">{{ player.score?.penaltiesFailed }}</div>
+            <div class="w-1/20" :class="{'penaltyTaker--score': getTotalGoals(player.score) > 0}">{{ getTotalGoals(player.score) }}</div>
+            <div class="w-1/20"></div>
+            <button 
+               class="w-3/20 btn"
+               :disabled="isButtonDisabled(player)"
+               :class="{
+                  'btn--secondary': !getPenaltyResult(player.playerID),
                   'btn--success': getPenaltyResult(player.playerID) === 'scored',
                   'btn--danger': getPenaltyResult(player.playerID) === 'saved'
                }"
@@ -101,7 +132,9 @@
    const getButtonText = (player: any) => {
       if (!hasScore(player)) return 'N/A'
       if (!isPenaltyTaken(player.playerID)) return 'Tira'
+
       const result = getPenaltyResult(player.playerID)
+
       return result === 'scored' ? '⚽' : '✗'
    }
 
@@ -143,7 +176,6 @@
          justify-content: center;
          margin-right: auto;
       }
-      
       &--score {
          font-weight: 700;
          color: $cream;
@@ -165,6 +197,12 @@
             left: 50%;
             transform: translateX(-50%);
          }
+      }
+      &.disabled {
+         color: darkgrey;
+
+         
+         & > .penaltyTaker--role { background-color: lightgray }
       }
    }
    

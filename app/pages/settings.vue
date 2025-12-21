@@ -171,22 +171,11 @@
          <div v-for="(window, index) in timeWindows" :key="index" class="matchDay pill--beige my-4">
             <h4 class="matchDay--title w-1/4">{{ window.name }}</h4>
             <div class="matchDay--status w-1/2">
-               <p 
-                  class="pill--white color-success" 
-                  v-if="(window.playersScores?.length ?? 0)"
-               >
-                     Voti disponibili
-               </p>
-               <p 
-                  class="pill--white color-error" 
-                  v-else
-               >
-                  Voti non ancora caricati
-               </p>
+               <p v-if="(window.playersScores?.length ?? 0)" class="pill--white color-success" >Voti disponibili</p>
+               <p v-else class="pill--white color-error" >Voti non ancora caricati</p>
             </div>
                      
-   
-            <label class="btn btn--primary w-1/4 cursor-pointer">
+            <label class="btn btn--secondary w-1/4 cursor-pointer">
                <input 
                   type="file" 
                   accept=".csv,.xlsx"
