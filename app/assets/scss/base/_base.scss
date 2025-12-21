@@ -284,4 +284,18 @@ button {
   &--primary { @include btn-variant($blush) }
   &--secondary { @include btn-variant($darkOlive) }
   &--danger { @include btn-variant(FireBrick) }
+  &--success { @include btn-variant($color-success) }
+  
+  // Preserve success/danger colors even when disabled
+  &--success:disabled {
+    background-color: $color-success !important;
+    border-color: $color-success !important;
+    opacity: 0.8;
+  }
+  
+  &--danger:disabled {
+    background-color: FireBrick !important;
+    border-color: FireBrick !important;
+    opacity: 0.8;
+  }
 }

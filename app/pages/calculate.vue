@@ -13,7 +13,7 @@
             </header>
             <div class="divider-text col-span-2 my-2">◎</div>
             <PlayersScoreTable
-               :teamName="teamAData?.teamData.name"
+               :teamName="teamAData?.teamData.name || ''"
                :goalkeeper="teamAGoalkeeper.goalkeeper"
                :goalkeeperScore="teamAGoalkeeperScore"
                :penaltyTakersWithScores="teamAPenaltyTakersWithScores"

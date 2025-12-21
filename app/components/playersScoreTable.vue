@@ -45,9 +45,13 @@
             <div class="w-1/20" :class="{'penaltyTaker--score': getTotalGoals(player.score) > 0}">{{ getTotalGoals(player.score) }}</div>
             <div class="w-1/20"></div>
             <button 
-               class="w-3/20 btn btn--primary withIcon--soccerBall-duo btn--icon-left"
+               class="w-3/20 btn withIcon--soccerBall-duo btn--icon-left"
                :disabled="isButtonDisabled(player)"
-               :class="{ 'btn--success': getPenaltyResult(player.playerID) === 'scored', 'btn--danger': getPenaltyResult(player.playerID) === 'saved' }"
+               :class="{
+                  'btn--primary': !getPenaltyResult(player.playerID),
+                  'btn--success': getPenaltyResult(player.playerID) === 'scored',
+                  'btn--danger': getPenaltyResult(player.playerID) === 'saved'
+               }"
                @click="handleClick(player)"
             >
                {{ getButtonText(player) }}

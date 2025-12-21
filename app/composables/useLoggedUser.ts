@@ -1,11 +1,8 @@
 import { getAuth } from 'firebase/auth';
 import { getFirestore, doc, getDoc } from 'firebase/firestore'
 import { useNuxtApp } from '#app';
+import type { Participant } from '../stores/auth'
 
-export interface Participant {
-   id: string
-   name: string
-}
 
 export const useLoggedUser = () => {
    const participant = ref<Participant | null>(null)
