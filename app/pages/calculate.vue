@@ -5,23 +5,26 @@
          <h1 class="withIcon--calculate-duo withIcon--color-blush mb-8">Calcola Rigori</h1>
 
          <section class="card grid grid-cols-2 gap-x-20 gap-y-4 px-8 py-6">
+                        <div class="divider-text col-span-2 my-2">{{ currentTimeWindow?.name}}</div>
+
             <header class="match col-span-2">
                <h2 class="match--title col-span-2 withIcon--shirt-duo withIcon--color-blush">
-                  {{ teamAData?.teamData.name }} – {{ teamBData?.teamData.name }} ({{ currentTimeWindow?.name}})
+                  {{ teamAData?.teamData.name }} – {{ teamBData?.teamData.name }} 
                </h2>
-               <div class="penaltiesTrack">
-                  <div class="penaltiesTrack--teamA w-full">
+               <div class="penaltiesTrack mx-auto">
+                  <div class="penaltiesTrack--teamA mx-auto">
                      <div v-for="(result, index) in teamAPenaltyTrack" :key="index" class="penaltiesTrack--penalty">
+                        <legend>{{ index +1 }}</legend>
                         <span v-if="result === 'scored'">⚽️</span>
                         <span v-else-if="result === 'saved'">❌</span>
                         <span v-else>🕙</span>
                      </div>
                   </div>
-                  <div class="penaltiesTrack--teamB w-full">
+                  <div class="penaltiesTrack--teamB mx-auto">
                      <div v-for="(result, index) in teamBPenaltyTrack" :key="index" class="penaltiesTrack--penalty">
                         <span v-if="result === 'scored'">⚽️</span>
                         <span v-else-if="result === 'saved'">❌</span>
-                        <span v-else>⚪️</span>
+                        <span v-else>🕙</span>
                      </div>
                   </div>
                </div>
@@ -255,7 +258,7 @@
    const teamAPenaltyTrack = computed(() => {
       const track: Array<'scored' | 'saved' | null> = new Array(10).fill(null)
 
-      teamAPenaltyTakers.value.forEach((player, index) => {
+      teamAPenaltyTakersWithScores.value.filter(pl => pl.score).forEach((player, index) => {
          if (penaltyTaken.value.has(player.playerID)) {
             const result = penaltyResults.value.get(player.playerID)
 
@@ -271,7 +274,7 @@
    const teamBPenaltyTrack = computed(() => {
       const track: Array<'scored' | 'saved' | null> = new Array(10).fill(null)
 
-      teamBPenaltyTakers.value.forEach((player, index) => {
+      teamBPenaltyTakersWithScores.value.filter(pl => pl.score).forEach((player, index) => {
          if (penaltyTaken.value.has(player.playerID)) {
             const result = penaltyResults.value.get(player.playerID)
 
@@ -434,6 +437,7 @@
       flex: 1;
       flex-wrap: wrap;
       justify-content: flex-end;
+      flex-direction: column;
       //background-color: burlywood;
 
       &--penalty {
