@@ -9,6 +9,22 @@
                <h2 class="match--title col-span-2 withIcon--shirt-duo withIcon--color-blush">
                   {{ teamAData?.teamData.name }} – {{ teamBData?.teamData.name }} ({{ currentTimeWindow?.name}})
                </h2>
+               <div class="penaltiesTrack">
+                  <div class="penaltiesTrack--teamA w-full">
+                     <div v-for="(result, index) in teamAPenaltyTrack" :key="index" class="penaltiesTrack--penalty">
+                        <span v-if="result === 'scored'">⚽️</span>
+                        <span v-else-if="result === 'saved'">❌</span>
+                        <span v-else>🕙</span>
+                     </div>
+                  </div>
+                  <div class="penaltiesTrack--teamB w-full">
+                     <div v-for="(result, index) in teamBPenaltyTrack" :key="index" class="penaltiesTrack--penalty">
+                        <span v-if="result === 'scored'">⚽️</span>
+                        <span v-else-if="result === 'saved'">❌</span>
+                        <span v-else>⚪️</span>
+                     </div>
+                  </div>
+               </div>
                <h2 class="match--result">{{ teamAScore }} <span class="match--result--separator">–</span> {{ teamBScore }}</h2>
             </header>
             <div class="divider-text col-span-2 my-2">◎</div>
@@ -66,6 +82,8 @@
    // Reactive match scores
    const teamAScore = ref(0)
    const teamBScore = ref(0)
+   const teamAPenaltiesTaken = ref<number>(0)
+   const teamBPenaltiesTaken = ref<number>(0)
 
    // Modal state
    const showPenaltyModal = ref(false)
@@ -208,8 +226,8 @@
          }
       }
       
-      // Rule 1: Check if penalty would be scored by score comparison (player score > goalkeeper score)
-      const wouldScoreByScore = playerScore > clampedGKScore
+      // Rule 1: Check if penalty would be scored by score comparison (player score >= goalkeeper score)
+      const wouldScoreByScore = playerScore >= clampedGKScore
       
       if (wouldScoreByScore) {
          // If penalty would score by score comparison AND goalkeeper has savedPenalties > 0
@@ -233,6 +251,38 @@
          newGoalkeeperSaves: goalkeeperSaves
       }
    }
+
+   const teamAPenaltyTrack = computed(() => {
+      const track: Array<'scored' | 'saved' | null> = new Array(10).fill(null)
+
+      teamAPenaltyTakers.value.forEach((player, index) => {
+         if (penaltyTaken.value.has(player.playerID)) {
+            const result = penaltyResults.value.get(player.playerID)
+
+            if (result) {
+               track[index] = result
+            }
+         } 
+      })
+
+      return track
+   })
+
+   const teamBPenaltyTrack = computed(() => {
+      const track: Array<'scored' | 'saved' | null> = new Array(10).fill(null)
+
+      teamBPenaltyTakers.value.forEach((player, index) => {
+         if (penaltyTaken.value.has(player.playerID)) {
+            const result = penaltyResults.value.get(player.playerID)
+
+            if (result) {
+               track[index] = result
+            }
+         }
+      })
+
+      return track
+   })
 
    // Handle penalty kick button click
    const handlePenaltyKick = (player: any, playerTeam: 'A' | 'B') => {
@@ -304,8 +354,10 @@
             // Goal scored - increment team score
             if (playerTeam === 'A') {
                teamAScore.value++
+               teamAPenaltiesTaken.value++
             } else {
                teamBScore.value++
+               teamBPenaltiesTaken.value++
             }
          } else {
             // Penalty was saved - update goalkeeper's savedPenalties if it was decremented
@@ -364,14 +416,31 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
 
       &--result {
          background-color: $darkOlive;
          border-radius: $radius-lg;
          padding: 0.25em 0.5em;
          color: white;
+         white-space: nowrap;
 
          &--separator { color: $cream }
+      }
+   }
+
+   .penaltiesTrack {
+      display: flex;
+      flex: 1;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      //background-color: burlywood;
+
+      &--penalty {
+         width: 1rem;
+         height: 1rem;
+         display: inline-block;
+         margin: auto 0.25em;
       }
    }
 </style>
