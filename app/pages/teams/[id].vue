@@ -1,7 +1,7 @@
 <template>
    <AppNav />
 
-   <div v-if="isValidTeamsRoute" class="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+   <div class="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <LoggedUser></LoggedUser>
 
       <nuxtLink to="/">Back to Home</nuxtLink>
@@ -144,28 +144,6 @@
    let loading = ref<boolean>(true)
    const teamId = route.params.id as string
    const teamData = ref<any>(null)
-   
-   // Only render this component if we're actually on a /teams/:id route
-   const isValidTeamsRoute = computed(() => {
-      // Only render if path starts with /teams/ and is not a blocked route
-      if (!route.path.startsWith('/teams/')) {
-         return false
-      }
-      
-      // Block specific routes
-      if (route.path === '/teams/calendar' || route.path === '/teams/settings') {
-         return false
-      }
-      
-      // Block known non-team route names
-      const blockedRoutes = ['calendar', 'settings', 'login', 'index']
-      if (blockedRoutes.includes(teamId)) {
-         return false
-      }
-      
-      return true
-   })
-   
 
    const goalkeepers = ref<Array<{
       playerID: string,
@@ -478,16 +456,8 @@
 
    onMounted(async () => {
       if (process.client) {
-         // Guard against invalid route matches - only process if we're actually on a /teams/:id route
-         if (!route.path.startsWith('/teams/') || route.path === '/teams/calendar' || route.path === '/teams/settings') {
-            loading.value = false
-            return
-         }
-         
-         // Guard against invalid route matches (e.g., /calendar being matched as /teams/calendar)
-         // Block known non-team routes that might incorrectly match this dynamic route
-         const blockedRoutes = ['calendar', 'settings', 'login', 'index']
-         if (blockedRoutes.includes(teamId)) {
+         // Defensive check: only process if we're actually on a /teams/:id route
+         if (!route.path.startsWith('/teams/')) {
             loading.value = false
             return
          }
