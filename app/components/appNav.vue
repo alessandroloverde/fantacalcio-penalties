@@ -12,13 +12,13 @@
             >Home</NuxtLink>
 
             <NuxtLink 
-            to="settings"
+            to="/settings"
             class="appNav--link withIcon--settings-duo"
             :class="{active: route.path === '/settings' }"
             >Settings</NuxtLink>
 
             <NuxtLink 
-            to="calendar"
+            to="/calendar"
             class="appNav--link withIcon--calendar-duo"
             :class="{active: route.path === '/calendar' }"
             >Calendar</NuxtLink>
