@@ -38,18 +38,27 @@
                :penaltyTakersWithScores="teamAPenaltyTakersWithScores"
                :penaltyTaken="penaltyTaken"
                :penaltyResults="penaltyResults"
+               :teamScore="teamAScore"
+               :opponentScore="teamBScore"
+               :teamPenaltiesTaken="teamAPenaltiesTakenCount"
+               :opponentPenaltiesTaken="teamBPenaltiesTakenCount"
+               :secondBatchUnlocked="secondBatchUnlocked"
                @penalty-kick="(player) => handlePenaltyKick(player, 'A')"
             />
             <PlayersScoreTable
-               :teamName="teamBData?.teamData.name"
+               :teamName="teamBData?.teamData.name || ''"
                :goalkeeper="teamBGoalkeeper.goalkeeper"
                :goalkeeperScore="teamBGoalkeeperScore"
                :penaltyTakersWithScores="teamBPenaltyTakersWithScores"
                :penaltyTaken="penaltyTaken"
                :penaltyResults="penaltyResults"
+               :teamScore="teamBScore"
+               :opponentScore="teamAScore"
+               :teamPenaltiesTaken="teamBPenaltiesTakenCount"
+               :opponentPenaltiesTaken="teamAPenaltiesTakenCount"
+               :secondBatchUnlocked="secondBatchUnlocked"
                @penalty-kick="(player) => handlePenaltyKick(player, 'B')"
             />
-         </section>
          
          <!-- Penalty Modal -->
          <PenaltyModal
@@ -62,7 +71,7 @@
             :result="currentPenalty?.result"
             @close="closeModal"
          />
-        
+        </section>
       </div>
 </template>
 
@@ -85,8 +94,11 @@
    // Reactive match scores
    const teamAScore = ref(0)
    const teamBScore = ref(0)
-   const teamAPenaltiesTaken = ref<number>(0)
-   const teamBPenaltiesTaken = ref<number>(0)
+   const teamAPenaltiesScored = ref<number>(0)
+   const teamBPenaltiesScored = ref<number>(0)
+   
+   // Track if second batch (players after 5th position) is unlocked
+   const secondBatchUnlocked = ref(false)
 
    // Modal state
    const showPenaltyModal = ref(false)
@@ -287,6 +299,28 @@
       return track
    })
 
+   const teamAPenaltiesTakenCount = computed(() => {
+      return teamAPenaltyTakersWithScores.value.filter(player => 
+         penaltyTaken.value.has(player.playerID)
+      ).length
+   })
+
+   const teamBPenaltiesTakenCount = computed(() => {
+      return teamBPenaltyTakersWithScores.value.filter(player => 
+         penaltyTaken.value.has(player.playerID)
+      ).length
+   })
+
+   // Watch for unlock condition and set flag once
+   watch([teamAPenaltiesTakenCount, teamBPenaltiesTakenCount, teamAScore, teamBScore], () => {
+      const bothTeamsHaveTakenFive = teamAPenaltiesTakenCount.value >= 5 && teamBPenaltiesTakenCount.value >= 5
+      const scoresAreEven = teamAScore.value === teamBScore.value
+      
+      if (bothTeamsHaveTakenFive && scoresAreEven && !secondBatchUnlocked.value) {
+         secondBatchUnlocked.value = true
+      }
+   }, { immediate: true })
+
    // Handle penalty kick button click
    const handlePenaltyKick = (player: any, playerTeam: 'A' | 'B') => {
       if (penaltyTaken.value.has(player.playerID)) {
@@ -357,10 +391,10 @@
             // Goal scored - increment team score
             if (playerTeam === 'A') {
                teamAScore.value++
-               teamAPenaltiesTaken.value++
+               teamAPenaltiesScored.value++
             } else {
                teamBScore.value++
-               teamBPenaltiesTaken.value++
+               teamBPenaltiesScored.value++
             }
          } else {
             // Penalty was saved - update goalkeeper's savedPenalties if it was decremented
@@ -434,17 +468,20 @@
 
    .penaltiesTrack {
       display: flex;
-      flex: 1;
       flex-wrap: wrap;
       justify-content: flex-end;
       flex-direction: column;
-      //background-color: burlywood;
+      background-color: rgb(71, 70, 70);
+      border-radius: 12px;
+      padding: 1em 2em;
+      border: 2px solid $cream;
 
       &--penalty {
          width: 1rem;
          height: 1rem;
          display: inline-block;
          margin: auto 0.25em;
+         color: $cream;
       }
    }
 </style>

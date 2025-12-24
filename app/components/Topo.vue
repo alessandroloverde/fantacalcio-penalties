@@ -116,9 +116,13 @@ onMounted(async () => {
       // Retrieve Settings
       try {         
          const settingsResult = await getDocRest('gameSettings', 'wUDv5Wr31ETbShASdx7u')
-         settings.value = settingsResult?.data || 'No game settings found'
+         if (settingsResult) {
+            settings.value = settingsResult?.data || 'No game settings found'
+         }
       } catch (error: any) {
-         err.value = error.message || 'Unknown error'
+         if (error.message && !error.message.includes('404')) {
+            err.value = error.message || 'Unknown error'
+         }
       } finally {
          loading.value = false
       }

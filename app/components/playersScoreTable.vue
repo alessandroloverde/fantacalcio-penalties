@@ -36,9 +36,10 @@
             <div class="w-3/20"></div>
          </div>
          <li 
-            v-for="player in penaltyTakersWithScores.filter(player => player.score)" 
+            v-for="player, index in penaltyTakersWithScores.filter(player => player.score)" 
             :key="player.playerID" 
             class="penaltyTaker"
+            :class="{'disabled' : shouldDisableAfterFifth(index)}"
          >
             <div class="w-2/20 penaltyTaker--role" :class="player.role">{{ player.role }}</div>
             <div class="w-6/20 penaltyTaker--name">{{ player.name }}</div>
@@ -50,16 +51,14 @@
             <div class="w-1/20"></div>
             <button 
                class="w-3/20 btn"
-               :disabled="isButtonDisabled(player)"
+               :disabled="isButtonDisabled(player) || shouldDisableAfterFifth(index)"
                :class="{
                   'btn--secondary': !getPenaltyResult(player.playerID),
                   'btn--success': getPenaltyResult(player.playerID) === 'scored',
                   'btn--danger': getPenaltyResult(player.playerID) === 'saved'
                }"
                @click="handleClick(player)"
-            >
-               {{ getButtonText(player) }}
-            </button>
+            >{{ getButtonText(player) }}</button>
          </li>
 
          <li 
@@ -84,9 +83,7 @@
                   'btn--danger': getPenaltyResult(player.playerID) === 'saved'
                }"
                @click="handleClick(player)"
-            >
-               {{ getButtonText(player) }}
-            </button>
+            >{{ getButtonText(player) }}</button>
          </li>
       </ul>
    </section>
@@ -100,6 +97,11 @@
       penaltyTakersWithScores: any[]
       penaltyTaken?: Set<string>
       penaltyResults?: Map<string, 'scored' | 'saved'>
+      teamScore?: number
+      opponentScore?: number
+      teamPenaltiesTaken?: number
+      opponentPenaltiesTaken?: number
+      secondBatchUnlocked?: boolean
    }>()
 
    const emit = defineEmits<{
@@ -123,6 +125,27 @@
 
    const isButtonDisabled = (player: any) => {
       return isPenaltyTaken(player.playerID) || !hasScore(player)
+   }
+
+   const shouldDisableAfterFifth = (index: number) => {
+      // Players after 5th position (index > 4) are disabled if:
+      // - Second batch hasn't been unlocked yet
+      if (index <= 4) return false
+      
+      // Once unlocked, stay unlocked
+      if (props.secondBatchUnlocked) return false
+      
+      const teamTaken = props.teamPenaltiesTaken ?? 0
+      const opponentTaken = props.opponentPenaltiesTaken ?? 0
+      const teamScore = props.teamScore ?? 0
+      const opponentScore = props.opponentScore ?? 0
+      
+      // Unlock when both teams have taken 5 penalties AND scores are even
+      const bothTeamsHaveTakenFive = teamTaken >= 5 && opponentTaken >= 5
+      const scoresAreEven = teamScore === opponentScore
+      
+      // Disable if conditions are not met
+      return !(bothTeamsHaveTakenFive && scoresAreEven)
    }
 
    const getPenaltyResult = (playerID: string) => {
@@ -200,7 +223,7 @@
       }
       &.disabled {
          color: darkgrey;
-
+         pointer-events: none;
          
          & > .penaltyTaker--role { background-color: lightgray }
       }
