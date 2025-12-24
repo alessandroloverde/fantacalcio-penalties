@@ -13,7 +13,12 @@
                </h2>
                <div class="penaltiesTrack mx-auto">
                   <div class="penaltiesTrack--teamA mx-auto">
-                     <div v-for="(result, index) in teamAPenaltyTrack" :key="index" class="penaltiesTrack--penalty">
+                     <div 
+                        v-for="(result, index) in teamAPenaltyTrack" 
+                        :key="index" 
+                        class="penaltiesTrack--penalty"
+                        :class="{'disabled' : !secondBatchUnlocked && index > 4}"
+                     >
                         <legend>{{ index +1 }}</legend>
                         <span v-if="result === 'scored'">⚽️</span>
                         <span v-else-if="result === 'saved'">❌</span>
@@ -21,7 +26,12 @@
                      </div>
                   </div>
                   <div class="penaltiesTrack--teamB mx-auto">
-                     <div v-for="(result, index) in teamBPenaltyTrack" :key="index" class="penaltiesTrack--penalty">
+                     <div 
+                        v-for="(result, index) in teamBPenaltyTrack" 
+                        :key="index" 
+                        class="penaltiesTrack--penalty"
+                        :class="{'disabled' : !secondBatchUnlocked && index > 4}"
+                     >
                         <span v-if="result === 'scored'">⚽️</span>
                         <span v-else-if="result === 'saved'">❌</span>
                         <span v-else>🕙</span>
@@ -482,6 +492,8 @@
          display: inline-block;
          margin: auto 0.25em;
          color: $cream;
+
+         &.disabled { opacity: 0.5; }
       }
    }
 </style>
