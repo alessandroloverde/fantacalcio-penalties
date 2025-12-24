@@ -455,133 +455,146 @@
 
    onMounted(async () => {
       if (process.client) {
+         // Guard against invalid route matches (e.g., /calendar being matched as /teams/calendar)
+         // Block known non-team routes that might incorrectly match this dynamic route
+         const blockedRoutes = ['calendar', 'settings', 'login', 'index']
+         if (blockedRoutes.includes(teamId)) {
+            loading.value = false
+            return
+         }
+         
          // Use REST API instead of SDK (no WebSocket overhead)
          const [penaltiesResult, teamResult] = await Promise.all([
             getDocRest("penalties", teamId),
             getDocRest("teams", teamId)
          ])
          
+         // If team document doesn't exist, this is not a valid team route
+         if (!teamResult) {
+            loading.value = false
+            return
+         }
+         
          const savedPenaltyTakers = penaltiesResult?.data?.penaltyTakers || []
          const savedGoalkeeper = penaltiesResult?.data?.goalkeeper || null
          const savedGoalkeepers = penaltiesResult?.data?.goalkeepers || []
 
-         if(teamResult) {
-            teamData.value = teamResult.data
+         // teamResult is guaranteed to exist here due to the check above
+         teamData.value = teamResult.data
 
-            // Get player IDs from team document (keys of the players map)
-            const playerIds = Object.keys(teamResult.data.players || {})
-            const presidentField = teamResult.data.president || {}
-            
-            // Extract president IDs from values (values contain the actual Firebase document IDs)
-            const presidentIds: string[] = []
-            const presidentValues = Object.values(presidentField)
-            
-            for (const value of presidentValues) {
-               if (typeof value === 'string') {
-                  // If it's a reference path like "participants/abc123" or "/participants/abc123", extract the ID
-                  if (value.includes('/')) {
-                     const parts = value.split('/')
-                     const id = parts[parts.length - 1] // Get last part as ID
-                     if (id && id !== 'participants') {
-                        presidentIds.push(id)
-                     }
-                  } else if (value.length > 0) {
-                     // Use the value directly as ID (if it's not a path)
-                     presidentIds.push(value)
+         // Get player IDs from team document (keys of the players map)
+         const playerIds = Object.keys(teamResult.data.players || {})
+         const presidentField = teamResult.data.president || {}
+         
+         // Extract president IDs from values (values contain the actual Firebase document IDs)
+         const presidentIds: string[] = []
+         const presidentValues = Object.values(presidentField)
+         
+         for (const value of presidentValues) {
+            if (typeof value === 'string') {
+               // If it's a reference path like "participants/abc123" or "/participants/abc123", extract the ID
+               if (value.includes('/')) {
+                  const parts = value.split('/')
+                  const id = parts[parts.length - 1] // Get last part as ID
+                  if (id && id !== 'participants') {
+                     presidentIds.push(id)
                   }
-               } else if (value && typeof value === 'object') {
-                  // If it's an object, try to get id property
-                  if ('id' in value) {
-                     presidentIds.push((value as any).id)
-                  } else if ('path' in value) {
-                     // Extract ID from path
-                     const path = (value as any).path
-                     const parts = path.split('/')
-                     presidentIds.push(parts[parts.length - 1])
-                  }
+               } else if (value.length > 0) {
+                  // Use the value directly as ID (if it's not a path)
+                  presidentIds.push(value)
+               }
+            } else if (value && typeof value === 'object') {
+               // If it's an object, try to get id property
+               if ('id' in value) {
+                  presidentIds.push((value as any).id)
+               } else if ('path' in value) {
+                  // Extract ID from path
+                  const path = (value as any).path
+                  const parts = path.split('/')
+                  presidentIds.push(parts[parts.length - 1])
                }
             }
+         }
+         
+         // If no IDs found from values, try using keys (fallback)
+         if (presidentIds.length === 0) {
+            presidentIds.push(...Object.keys(presidentField))
+         }
+
+         // Fetch players AND presidents in parallel using REST API
+         const [playerDocs, presidentDocs] = await Promise.all([
+            getDocsRest("players", playerIds),
+            presidentIds.length > 0 ? getDocsRest("participants", presidentIds) : Promise.resolve([])
+         ])
+
+         // Process players - build array FIRST, then assign once
+         const processedPlayers: typeof players.value = []
+
+         for (const playerDoc of playerDocs) {
+            const singlePlayerData = playerDoc.data as {playerID: string, name: string, role: string, squadra: string, team: any, list: string, position: number | null}
+
+            // Check if this player is in saved penalty takers
+            const savedPenaltyTaker = savedPenaltyTakers.find((pt: any) => pt.playerID === singlePlayerData.playerID)
             
-            // If no IDs found from values, try using keys (fallback)
-            if (presidentIds.length === 0) {
-               presidentIds.push(...Object.keys(presidentField))
+            if (savedPenaltyTaker) {
+               singlePlayerData.list = "List-2"
+               singlePlayerData.position = savedPenaltyTaker.position
+            } else {
+               singlePlayerData.list = "List-1"
+               singlePlayerData.position = null
             }
 
-            // Fetch players AND presidents in parallel using REST API
-            const [playerDocs, presidentDocs] = await Promise.all([
-               getDocsRest("players", playerIds),
-               presidentIds.length > 0 ? getDocsRest("participants", presidentIds) : Promise.resolve([])
-            ])
+            processedPlayers.push(singlePlayerData)
+         }
 
-            // Process players - build array FIRST, then assign once
-            const processedPlayers: typeof players.value = []
-
-            for (const playerDoc of playerDocs) {
-               const singlePlayerData = playerDoc.data as {playerID: string, name: string, role: string, squadra: string, team: any, list: string, position: number | null}
-
-               // Check if this player is in saved penalty takers
-               const savedPenaltyTaker = savedPenaltyTakers.find((pt: any) => pt.playerID === singlePlayerData.playerID)
-               
-               if (savedPenaltyTaker) {
-                  singlePlayerData.list = "List-2"
-                  singlePlayerData.position = savedPenaltyTaker.position
-               } else {
-                  singlePlayerData.list = "List-1"
-                  singlePlayerData.position = null
-               }
-
-               processedPlayers.push(singlePlayerData)
-            }
-
-            // Single reactive assignment
-            players.value = sortPlayersByRole(processedPlayers)
-            
-            // Load goalkeepers - find all saved goalkeepers and set them at their positions
-            goalkeepers.value = []
-            if (savedGoalkeepers.length > 0) {
-               // Use saved goalkeepers array
-               for (const savedGK of savedGoalkeepers) {
-                  const playerIndex = processedPlayers.findIndex(p => p.playerID === savedGK.playerID)
-                  if (playerIndex !== -1) {
-                     const player = processedPlayers[playerIndex]
-                     if (player) {
-                        player.list = 'Goalkeeper'
-                        player.position = savedGK.position || 1
-                        
-                        // Ensure array is large enough
-                        const position = savedGK.position || 1
-                        while (goalkeepers.value.length < position) {
-                           goalkeepers.value.push(null)
-                        }
-                        goalkeepers.value[position - 1] = player
-                     }
-                  }
-               }
-            } else if (savedGoalkeeper) {
-               // Fallback to single goalkeeper for backward compatibility
-               const playerIndex = processedPlayers.findIndex(p => p.playerID === savedGoalkeeper.playerID)
+         // Single reactive assignment
+         players.value = sortPlayersByRole(processedPlayers)
+         
+         // Load goalkeepers - find all saved goalkeepers and set them at their positions
+         goalkeepers.value = []
+         if (savedGoalkeepers.length > 0) {
+            // Use saved goalkeepers array
+            for (const savedGK of savedGoalkeepers) {
+               const playerIndex = processedPlayers.findIndex(p => p.playerID === savedGK.playerID)
                if (playerIndex !== -1) {
                   const player = processedPlayers[playerIndex]
                   if (player) {
                      player.list = 'Goalkeeper'
-                     player.position = 1
-                     goalkeepers.value[0] = player
+                     player.position = savedGK.position || 1
+                     
+                     // Ensure array is large enough
+                     const position = savedGK.position || 1
+                     while (goalkeepers.value.length < position) {
+                        goalkeepers.value.push(null)
+                     }
+                     goalkeepers.value[position - 1] = player
                   }
                }
             }
-
-            // Process presidents
-            if (presidentDocs && presidentDocs.length > 0) {
-               presidents.value = presidentDocs.map(doc => {
-                  const name = doc.data?.name || doc.data?.data?.name
-                  return name as string
-               }).filter(name => name) // Filter out any undefined/null names
-            } else {
-               presidents.value = []
+         } else if (savedGoalkeeper) {
+            // Fallback to single goalkeeper for backward compatibility
+            const playerIndex = processedPlayers.findIndex(p => p.playerID === savedGoalkeeper.playerID)
+            if (playerIndex !== -1) {
+               const player = processedPlayers[playerIndex]
+               if (player) {
+                  player.list = 'Goalkeeper'
+                  player.position = 1
+                  goalkeepers.value[0] = player
+               }
             }
-            
-            loading.value = false
          }
+
+         // Process presidents
+         if (presidentDocs && presidentDocs.length > 0) {
+            presidents.value = presidentDocs.map(doc => {
+               const name = doc.data?.name || doc.data?.data?.name
+               return name as string
+            }).filter(name => name) // Filter out any undefined/null names
+         } else {
+            presidents.value = []
+         }
+         
+         loading.value = false
       }
    })
 

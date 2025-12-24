@@ -70,6 +70,8 @@ export async function getDocRest(collection: string, docId: string): Promise<{ i
       data: parseFirestoreDocument(doc)
     }
   } catch (error) {
+    // Network errors or JSON parsing errors
+    // Note: 404s are handled above and return null before reaching this catch
     console.error(`Error fetching ${collection}/${docId}:`, error)
     return null
   }
