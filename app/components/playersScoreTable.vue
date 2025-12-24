@@ -35,32 +35,34 @@
             <div class="w-1/20"></div>
             <div class="w-3/20"></div>
          </div>
-         <li 
-            v-for="player, index in penaltyTakersWithScores.filter(player => player.score)" 
-            :key="player.playerID" 
-            class="penaltyTaker"
-            :class="{'disabled' : shouldDisableAfterFifth(index)}"
-         >
-            <div class="w-2/20 penaltyTaker--role" :class="player.role">{{ player.role }}</div>
-            <div class="w-6/20 penaltyTaker--name">{{ player.name }}</div>
-            <div class="w-2/20 penaltyTaker--squadra">{{ player.squadra }}</div>
-            <div class="w-1/20"></div>
-            <div class="w-1/20">{{ player.score?.playerScore }}</div>
-            <div class="w-3/20" :class="{'penaltyTaker--score': (player.score?.penaltiesFailed ?? 0) > 0}">{{ player.score?.penaltiesFailed }}</div>
-            <div class="w-1/20" :class="{'penaltyTaker--score': getTotalGoals(player.score) > 0}">{{ getTotalGoals(player.score) }}</div>
-            <div class="w-1/20"></div>
-            <button 
-               class="w-3/20 btn"
-               :disabled="isButtonDisabled(player) || shouldDisableAfterFifth(index)"
-               :class="{
-                  'btn--secondary': !getPenaltyResult(player.playerID),
-                  'btn--success': getPenaltyResult(player.playerID) === 'scored',
-                  'btn--danger': getPenaltyResult(player.playerID) === 'saved'
-               }"
-               @click="handleClick(player)"
-            >{{ getButtonText(player) }}</button>
-         </li>
-
+         <template 
+            v-for="(player, index) in penaltyTakersWithScores.filter(player => player.score)" 
+            :key="player.playerID">
+            <li 
+               class="penaltyTaker"
+               :class="{'disabled' : shouldDisableAfterFifth(index)}"
+            >
+               <div class="w-2/20 penaltyTaker--role" :class="player.role">{{ player.role }}</div>
+               <div class="w-6/20 penaltyTaker--name">{{ player.name }}</div>
+               <div class="w-2/20 penaltyTaker--squadra">{{ player.squadra }}</div>
+               <div class="w-1/20"></div>
+               <div class="w-1/20">{{ player.score?.playerScore }}</div>
+               <div class="w-3/20" :class="{'penaltyTaker--score': (player.score?.penaltiesFailed ?? 0) > 0}">{{ player.score?.penaltiesFailed }}</div>
+               <div class="w-1/20" :class="{'penaltyTaker--score': getTotalGoals(player.score) > 0}">{{ getTotalGoals(player.score) }}</div>
+               <div class="w-1/20"></div>
+               <button 
+                  class="w-3/20 btn"
+                  :disabled="isButtonDisabled(player) || shouldDisableAfterFifth(index)"
+                  :class="{
+                     'btn--secondary': !getPenaltyResult(player.playerID),
+                     'btn--success': getPenaltyResult(player.playerID) === 'scored',
+                     'btn--danger': getPenaltyResult(player.playerID) === 'saved'
+                  }"
+                  @click="handleClick(player)"
+               >{{ getButtonText(player) }}</button>
+            </li>
+            <div v-if="index === 4 && !secondBatchUnlocked" class="divider-text">•</div>
+         </template>
          <li 
             v-for="player in penaltyTakersWithScores.filter(player => !player.score)" 
             :key="player.playerID" 

@@ -171,6 +171,7 @@
       // Find first goalkeeper with a valid score
       for (const gk of goalkeepers) {
          const score = getPlayerScore(gk.playerID)
+         
          if (score && typeof score.playerScore === 'number' && score.playerScore > 0) {
             return { goalkeeper: gk, score }
          }
