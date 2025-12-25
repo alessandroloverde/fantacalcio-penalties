@@ -166,16 +166,16 @@
          </div>
       </div>
 
-       <div class="card gap-x-8 gap-y-0 mb-8 px-8 py-6">
-         <h2 class="withIcon--calculate-duo withIcon--color-blush">Voti</h2>
+       <div class="card grid grid-cols-2 gap-x-8 gap-y-0 mb-8 px-8 py-6">
+         <h2 class="withIcon--calculate-duo withIcon--color-blush col-span-2">Voti</h2>
          <div v-for="(window, index) in timeWindows" :key="index" class="matchDay pill--beige my-4">
             <h4 class="matchDay--title w-1/4">{{ window.name }}</h4>
             <div class="matchDay--status w-1/2">
-               <p v-if="(window.playersScores?.length ?? 0)" class="pill--white color-success" >Voti disponibili</p>
-               <p v-else class="pill--white color-error" >Voti non ancora caricati</p>
+               <p v-if="(window.playersScores?.length ?? 0)" class="withIcon--billCheck-duo withIcon--color-olive text-3xl!" ></p>
+               <p v-else class="withIcon--billCross-duo withIcon--color-blush text-3xl!"></p>
             </div>
                      
-            <label class="btn btn--secondary w-1/4 cursor-pointer">
+            <label class="btn btn--secondary withIcon--cloudUpload btn--icon-left cursor-pointer">
                <input 
                   type="file" 
                   accept=".csv,.xlsx"
