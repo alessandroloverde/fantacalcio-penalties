@@ -52,7 +52,7 @@
                <div class="w-1/20"></div>
                <button 
                   class="w-3/20 btn"
-                  :disabled="isButtonDisabled(player) || shouldDisableAfterFifth(index)"
+                  :disabled="isButtonDisabled(player) || shouldDisableAfterFifth(index) || !topoDisabled(index)"
                   :class="{
                      'btn--secondary': !getPenaltyResult(player.playerID),
                      'btn--success': getPenaltyResult(player.playerID) === 'scored',
@@ -92,6 +92,8 @@
 </template>
 
 <script setup lang="ts">
+import PenaltyModal from './PenaltyModal.vue';
+
    const props = defineProps<{
       teamName: string,
       goalkeeper?: any
@@ -127,6 +129,13 @@
 
    const isButtonDisabled = (player: any) => {
       return isPenaltyTaken(player.playerID) || !hasScore(player)
+   }
+
+   const topoDisabled = (index: number) => {
+      const teamTaken = props.teamPenaltiesTaken ?? 0
+      const opponentTaken = props.opponentPenaltiesTaken ?? 0
+      
+      return teamTaken >= index && opponentTaken >= index
    }
 
    const shouldDisableAfterFifth = (index: number) => {
