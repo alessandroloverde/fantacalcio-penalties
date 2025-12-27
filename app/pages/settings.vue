@@ -303,6 +303,15 @@
          endDateTime: window.endDateTime,
          matches: [...window.matches]
       }
+
+      // Scroll to the form
+      nextTick(() => {
+         const formElement = document.getElementById('timeWindow')
+
+         if (formElement) {
+            formElement.scrollIntoView({ behavior: 'instant', block: 'start' })
+         }
+      })
    }
 
    const cancelEdit = () => {
