@@ -18,7 +18,7 @@
          <div class="w-2/20 penaltyTaker--squadra">{{ goalkeeper?.squadra }}</div>
          <div class="w-1/20"></div>
          <div class="w-1/20">{{ goalkeeperScore?.playerScore }}</div>
-         <div class="w-3/20">{{ goalkeeperScore?.penaltiesSaved }}</div>
+         <div class="w-3/20" :class="{'penaltyTaker--score': (goalkeeperScore?.penaltiesSaved ?? 0) > 0}">{{ goalkeeperScore?.penaltiesSaved }}</div>
          <div class="w-2/20"></div>
          <div class="w-3/20"></div>
       </div>

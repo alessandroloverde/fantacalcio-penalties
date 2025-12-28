@@ -691,21 +691,25 @@ $dropZoneBorder: 1px dashed grey;
 .player.role {
    &--P { 
       background: linear-gradient(to right, $cream, color.change($navyBlue, $alpha: 0.4));
+      color: color.adjust($navyBlue, $lightness: -25%);
 
       &::before { background-color: color.change($navyBlue, $alpha: 0.6) }
    }
    &--D { 
       background: linear-gradient(to right, $cream, color.change($blush, $alpha: 0.4));
+      color: color.adjust($blush, $lightness: -25%);
       
       &::before { background-color: color.change($blush, $alpha: 0.6) }
    }
    &--C { 
       background: linear-gradient(to right, $cream, color.change($darkOlive, $alpha: 0.4));
+      color: color.adjust($darkOlive, $lightness: -25%);
       
       &::before { background-color: color.change($darkOlive, $alpha: 0.6) }
    }
    &--A { 
       background: linear-gradient(to right, $cream, color.change($brownSugar, $alpha: 0.4));
+      color: color.adjust($brownSugar, $lightness: -25%);
       
       &::before { background-color: color.change($brownSugar, $alpha: 0.6) }
    }
@@ -713,7 +717,7 @@ $dropZoneBorder: 1px dashed grey;
 
 .player {
    height: 40px;
-   color:$eerieBlack;
+   font-weight: 500;
    background-color: $cream;
    border-radius: 1.2em;
    margin-bottom: 1rem;
