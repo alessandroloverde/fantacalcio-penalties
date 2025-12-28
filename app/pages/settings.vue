@@ -191,6 +191,7 @@
 
 <script setup lang="ts">
    import { useTeamsStore } from '../stores/teams'
+   import { nextTick } from 'vue'
    import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore'
    import { useNuxtApp } from '#app'
    import Papa from 'papaparse'

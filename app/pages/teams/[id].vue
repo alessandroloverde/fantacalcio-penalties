@@ -1,23 +1,31 @@
 <template>
    <AppNav />
 
-   <div class="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <LoggedUser></LoggedUser>
-
-      <nuxtLink to="/">Back to Home</nuxtLink>
-      <h1>{{ teamData?.name }}</h1>
-      <p >
-         <span v-if="presidents.length === 1">Presidente: </span>
-         <span v-else>Presidenti ({{ presidents.length }}): </span>
-         {{ presidents.join(' | ') }}
-      </p>
-      <hr class="divider my-4" />
+   <div class="container boxed h-full max-w-7xl mx-auto my-12 px-4 sm:px-6 lg:px-8 py-8">
+      <!-- <LoggedUser></LoggedUser> -->
+      <h1 class="withIcon--gamepad withIcon--color-blush flex items-center mb-8">
+         {{ teamData?.name }}
+         <span class="presidents" v-if="presidents.length === 1"><span class="presidents--label">Presidente:</span> {{ presidents[0] }} </span>
+         <span class="presidents" v-else><span class="presidents--label">Presidenti:</span> {{ presidents.join(' | ') }}</span>
+      </h1>
       <div v-if="loading">Loading...</div>
-      <button class="btn btn--secondary" @click="resetPenaltyTakers">Reset</button>
+      <section class="card flex justify-between mb-8 p-4">
+         <button class="btn btn--secondary withIcon--refresh btn--icon-left cursor-pointer" @click="resetPenaltyTakers">Reset Players</button>
+         <label class="btn btn--secondary withIcon--cloudUpload btn--icon-left cursor-pointer">
+            <input 
+               type="file"
+               accept=".csv"
+               ref="fileInput"
+               class="hidden"
+               @change="handleFileUpload"
+            />Carica giocatori
+         </label>
+         <button class="btn btn--primary withIcon--diskette btn--icon-left cursor-pointer" @click="savePenaltyTakers">Save to DB</button>
+      </section>
 
       <div class="flex flex-col lg:flex-row lg:items-start lg:gap-6">
-         <div id="availablePlayers-list" class="w-full bg-red-300">
-            <h2>Rosa</h2>
+         <div id="availablePlayers-list" class="w-full">
+            <h3 class="mb-2">Rosa</h3>
             <ol 
                id="players-list" 
                class="w-full drop-zone"
@@ -40,7 +48,7 @@
          </div>
 
          <div id="penaltyTakers-list" class="w-full">
-            <h2>Portiere</h2>
+            <h3 class="mb-2">Portiere</h3>
             <ol class="drop-zones-list mb-6">
                <li 
                   v-for="position in getGoalkeeperSlotsCount()" 
@@ -65,7 +73,7 @@
                </li>
             </ol>
 
-            <h2>Rigoristi</h2>
+            <h3 class="mb-2 my-6">Rigoristi</h3>
             <ol class="drop-zones-list">
                <li 
                   v-for="position in 10" 
@@ -90,40 +98,8 @@
                   <div v-else class="empty-slot">Drop here</div>
                </li>
             </ol>
-            <button class="
-                     mt-4 w-full 
-                     rounded-lg 
-                     bg-blue-600 
-                     hover:bg-blue-500 
-                     px-5 py-3 
-                     font-semibold uppercase 
-                     tracking-wide 
-                     text-white 
-                     shadow-sm 
-                     transition 
-                     disabled:cursor-not-allowed 
-                     disabled:bg-slate-500"
-                     @click="savePenaltyTakers"
-            >Save to DB</button>
          </div>
       </div>
-<!--       <input
-         v-if="loggedUser && presidents.includes(loggedUser.name)"
-         class="upload-input"
-         type="file"
-         accept=".csv"
-         ref="fileInput"
-         @change="handleFileUpload"
-      >Carica giocatori
-      </input> -->
-      <input
-         class="upload-input"
-         type="file"
-         accept=".csv"
-         ref="fileInput"
-         @change="handleFileUpload"
-      >Carica giocatori
-      </input>
    </div>
 </template>
 
@@ -555,14 +531,17 @@
             // Use saved goalkeepers array
             for (const savedGK of savedGoalkeepers) {
                const playerIndex = processedPlayers.findIndex(p => p.playerID === savedGK.playerID)
+
                if (playerIndex !== -1) {
                   const player = processedPlayers[playerIndex]
+
                   if (player) {
                      player.list = 'Goalkeeper'
                      player.position = savedGK.position || 1
                      
                      // Ensure array is large enough
                      const position = savedGK.position || 1
+
                      while (goalkeepers.value.length < position) {
                         goalkeepers.value.push(null)
                      }
@@ -573,8 +552,10 @@
          } else if (savedGoalkeeper) {
             // Fallback to single goalkeeper for backward compatibility
             const playerIndex = processedPlayers.findIndex(p => p.playerID === savedGoalkeeper.playerID)
+
             if (playerIndex !== -1) {
                const player = processedPlayers[playerIndex]
+
                if (player) {
                   player.list = 'Goalkeeper'
                   player.position = 1
@@ -633,14 +614,24 @@ h4 { color: $color-text-dark }
    }
 }
 
+.presidents {
+   @include typography('h4');
 
+   margin-left: auto;
+   color: $blush;
+
+   &--label { color: $navyBlue }
+}
+
+$dropZoneBorder: 1px dashed grey;
 .drop-zone {
    min-height: 100px;
-   border: 2px dashed $navyBlue;
+   border: $dropZoneBorder;
    border-radius: $radius-lg;
    background-color: color.scale($cream, $lightness: 5%);
    color: $color-text-dark;
    transition: border-color $transition-fast ease, background-color $transition-fast ease;
+   padding: $spacing-md;
 }
 
 .drop-zones-list {
@@ -654,7 +645,7 @@ h4 { color: $color-text-dark }
 
 .drop-slot {
    min-height: 60px;
-   border: 2px dashed $navyBlue;
+   border: $dropZoneBorder;
    border-radius: $radius-md;
    background-color: color.scale($cream, $lightness: 3%);
    padding: 0.5rem;
@@ -672,8 +663,8 @@ h4 { color: $color-text-dark }
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 2em;
-      height: 2em;
+      width: 2.5em;
+      height: 2.5em;
       background-color: $navyBlue;
       color: white;
       border-radius: 50%;
@@ -696,55 +687,68 @@ h4 { color: $color-text-dark }
    }
 }
 
-/*    #players-list {
-   color:black;
-   list-style-type: none; */
 
-   .player.role {
-      &--P { background: linear-gradient(to right, $cream, color.change($navyBlue, $alpha: 0.4)) }
-      &--D { background: linear-gradient(to right, $cream, color.change($blush, $alpha: 0.4)) }
-      &--C { background: linear-gradient(to right, $cream, color.change($darkOlive, $alpha: 0.4)) }
-      &--A { background: linear-gradient(to right, $cream, color.change($brownSugar, $alpha: 0.4)) }
+.player.role {
+   &--P { 
+      background: linear-gradient(to right, $cream, color.change($navyBlue, $alpha: 0.4));
+
+      &::before { background-color: color.change($navyBlue, $alpha: 0.6) }
    }
+   &--D { 
+      background: linear-gradient(to right, $cream, color.change($blush, $alpha: 0.4));
+      
+      &::before { background-color: color.change($blush, $alpha: 0.6) }
+   }
+   &--C { 
+      background: linear-gradient(to right, $cream, color.change($darkOlive, $alpha: 0.4));
+      
+      &::before { background-color: color.change($darkOlive, $alpha: 0.6) }
+   }
+   &--A { 
+      background: linear-gradient(to right, $cream, color.change($brownSugar, $alpha: 0.4));
+      
+      &::before { background-color: color.change($brownSugar, $alpha: 0.6) }
+   }
+}
 
-   .player {
-      height: 40px;
-      color:$eerieBlack;
-      background-color: $cream;
-      border-radius: 1.2em;
-      margin-bottom: 1rem;
-      counter-increment: step-counter;
+.player {
+   height: 40px;
+   color:$eerieBlack;
+   background-color: $cream;
+   border-radius: 1.2em;
+   margin-bottom: 1rem;
+   counter-increment: step-counter;
+   display: flex;
+   align-items: center;
+   box-shadow: 0 1px 1px rgba(5,5,5, 0.5);
+   cursor:move;
+
+   & span { margin-right: 1em }
+   &--name { width: 50%; }
+   &--role { width: 15%; }
+   &--team { width: 35%; }
+
+   &::before {
+      content: counter(step-counter);
+      display: inline-block;
+      background-color: $blush;
+      color: white;
+      border-radius: 100%;
       display: flex;
       align-items: center;
-      box-shadow: 0 1px 1px rgba(5,5,5, 0.5);
-      cursor:move;
-
-      & span { margin-right: 1em }
-      &--name { width: 50%; }
-      &--role { width: 15%; }
-      &--team { width: 35%; }
-
-      &::before {
-         content: counter(step-counter);
-         display: inline-block;
-         background-color: $blush;
-         color: white;
-         border-radius: 100%;
-         display: flex;
-         align-items: center;
-         justify-content: center;
-         width: 1.5em;
-         height: 1.5em;
-         font-size: 1.25rem;
-         font-weight: $font-weight-medium;
-         margin-right: 0.5em;
-         padding: 1em;
-      }
-   }
-   #penaltyTakers-list .player {
+      justify-content: center;
+      width: 1.5em;
+      height: 1.5em;
+      font-size: 1.25rem;
+      font-weight: $font-weight-medium;
+      margin-right: 0.5em;
       padding: 1em;
-       
-      &::before { content: none }
    }
+}
+#penaltyTakers-list .player {
+   padding: 1em;
+      
+   &::before { content: none }
+}
    
 </style>
