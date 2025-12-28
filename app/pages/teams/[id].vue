@@ -728,9 +728,9 @@ $dropZoneBorder: 1px dashed grey;
    cursor:move;
 
    & span { margin-right: 1em }
-   &--name { width: 50%; }
-   &--role { width: 15%; }
-   &--team { width: 35%; }
+   &--name { width: 75%; }
+   &--role { width: 12.5%; }
+   &--team { width: 12.5%; }
 
    &::before {
       content: counter(step-counter);
