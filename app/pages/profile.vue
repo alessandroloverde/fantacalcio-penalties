@@ -30,7 +30,10 @@
           </div>
         </div>
       </section>
-      <button class="btn btn--danger withIcon--delete-duo btn--icon-left my-4 ml-8">Logout</button>
+      <button 
+        class="btn btn--danger withIcon--logout btn--icon-left my-4 ml-8" 
+        @click="handleLogout"
+      >Logout</button>
     </div>
     <div v-else>
       <p>Please log in to view your profile.</p>
@@ -42,9 +45,15 @@
   import { useAuthStore } from '../stores/auth'
 
   const authStore = useAuthStore()
+  const router = useRouter()
   const loggedUser = computed(() => authStore.participant)
   const loading = computed(() => authStore.loading)
   const error = computed(() => authStore.error)
+
+  const handleLogout = async () => {
+    await authStore.logout()
+    router.push('/login')
+  }
 
   onMounted(() => {
     authStore.fetchParticipant(loggedUser.value?.id ?? '')

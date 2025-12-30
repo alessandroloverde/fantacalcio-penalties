@@ -1,4 +1,4 @@
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
 import { getFirestore, doc, getDoc } from 'firebase/firestore'
 import { useNuxtApp } from '#app';
 import { defineStore } from 'pinia';
@@ -85,6 +85,25 @@ export const useAuthStore = defineStore('auth', () => {
       }
    }
 
+   const logout = async () => {
+      if(!process.client) return
+
+      const { $firebaseApp} = useNuxtApp()
+
+      if (!$firebaseApp) {
+         return
+      }
+
+      try {
+         const auth = getAuth($firebaseApp)
+         await signOut(auth)
+         // The onAuthStateChanged listener will automatically clear participant data
+      } catch (err: any) {
+         console.error('Logout error:', err)
+         error.value = err.message
+      }
+   }
+
    if (process.client) {
       const { $firebaseApp} = useNuxtApp()
 
@@ -107,6 +126,7 @@ export const useAuthStore = defineStore('auth', () => {
       participant: readonly(participant),
       loading: readonly(loading),
       error: readonly(error),
-      fetchParticipant
+      fetchParticipant,
+      logout
    }
 })
