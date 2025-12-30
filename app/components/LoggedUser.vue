@@ -1,6 +1,13 @@
 <template>
-  <div class="logged-user">
-    <span>Logged in as: </span>{{ loggedUser ? loggedUser?.name : "not logged in" }}
+  <div v-if="!loggedUser" class="notLogged-user">
+    <NuxtLink to="/login">
+      <button class="withIcon--userCircle"></button>
+    </NuxtLink>
+  </div>
+  <div v-else class="logged-user">
+    <NuxtLink to="/profile" class="logged-user--link">
+      <button class="withIcon--userCircle-duo"></button>
+    </NuxtLink>
   </div>
 </template>
 
@@ -9,20 +16,33 @@ import { useAuthStore } from '../stores/auth'
 
 const authStore = useAuthStore()
 const loggedUser = computed(() => authStore.participant)
+
+onMounted(()=> {
+  authStore.fetchParticipant(loggedUser.value?.id ?? '')
+})
 </script>
 
 <style scoped lang="scss">
 @use '@/assets/scss//main' as *;
 
-
+.notLogged-user,
 .logged-user {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #000;
-  background-color: $blush;
-  padding: 10px;
-  border-radius: 5px;
-  display: inline-block;
+  display: flex;
+  justify-content: flex-end;
+
+  & button[class*="withIcon"] {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    color: $cream;
+    font-size: $font-size-4xl;
+  }
+}
+.notLogged-user button {
+  //color: lime !important;
+}
+.logged-user button {
+  //color: salmon !important
 }
 </style>
 

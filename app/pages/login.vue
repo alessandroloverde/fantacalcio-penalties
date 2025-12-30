@@ -3,10 +3,10 @@
       <h1 class="main-title">Fantacalcio <span>25/26</span></h1>
       <div class="m-auto p-8 boxed" id="loginForm">
          <header>
-            <h1 class="withIcon--login">Login</h1>
+            <h1 class="withIcon--login withIcon--color-blush">Login</h1>
          </header>
          
-         <hr class="divider my-4">
+         <div class="divider-text my-4">@</div>
 
          <main>
             <form 
@@ -14,7 +14,7 @@
                @submit.prevent="handleLogin"
             >
                <div class="flex flex-col gap-2">
-                  <label for="loginEmail" class="withIcon--email tracking-wide">email: </label>
+                  <label for="loginEmail" class="withIcon--email withIcon--color-blush tracking-wide">email: </label>
                   <input 
                      type="email" 
                      id="loginEmail"
@@ -27,7 +27,7 @@
                   >
                </div>
                <div class="flex flex-col gap-2">
-                  <label for="loginPassword" class="withIcon--password tracking-wide">password: </label>
+                  <label for="loginPassword" class="withIcon--password withIcon--color-blush tracking-wide">password: </label>
                   <div class="password-input-wrapper">
                      <input 
                         :type="showPassword ? 'text' : 'password'"
@@ -49,7 +49,7 @@
                </div>
                
                <div class="forgot-password">
-                  <a href="#" @click.prevent="handleForgotPassword" class="withIcon--cloudQuestion">Password dimenticata?</a>
+                  <a href="#" @click.prevent="handleForgotPassword" class="withIcon--cloudQuestion withIcon--color-blush">Password dimenticata?</a>
                </div>
 
                <div v-if="loading" class="rounded-lg bg-slate-600 px-4 py-3 text-center font-medium text-slate-200">Loading…</div>

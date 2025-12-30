@@ -1,4 +1,4 @@
-import { getAuth } from 'firebase/auth';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, doc, getDoc } from 'firebase/firestore'
 import { useNuxtApp } from '#app';
 import { defineStore } from 'pinia';
@@ -7,6 +7,8 @@ import { defineStore } from 'pinia';
 export interface Participant {
    id: string
    name: string
+   teamId?: string
+   teamName?: string
 }
 
 export const useAuthStore = defineStore('auth', () => {
@@ -14,7 +16,7 @@ export const useAuthStore = defineStore('auth', () => {
    const loading = ref<boolean>(true)
    const error = ref<string | null>(null)
 
-   const fetchParticipant = async () => {
+   const fetchParticipant = async (userId: string) => {
       if(!process.client) return
 
       const { $firebaseApp} = useNuxtApp()
@@ -43,18 +45,61 @@ export const useAuthStore = defineStore('auth', () => {
 
          if (participantSnap.exists()) {
             const participantData = participantSnap.data()
+            const teamRef = participantData.team
+            let teamId: string | undefined
+            let teamName: string | undefined
+
+            if (teamRef) {
+               teamId = teamRef.id
+               
+               try {
+                  if (!teamId) return
+
+                  const teamDocRef = doc(db, "teams", teamId)
+                  const teamDocSnap = await getDoc(teamDocRef)
+
+                  if (teamDocSnap.exists()) {
+                     teamName = teamDocSnap.data()?.name
+                  }
+
+               } catch (teamErr: any) {
+                  console.warn('Could not fetch team details:', teamErr)
+               }
+            }
 
             participant.value = {
-               id: currentUser.uid,
-               name: participantData.name || "participant unknown"
+               id: userId,
+               name: participantData.name || "participant unknown",
+               teamId: teamId,
+               teamName: teamName
             }
          } else {
             error.value = 'Participant not found'
+            participant.value = null
          }
       } catch (err: any) {
          error.value = err.message
+         participant.value = null
       } finally {
          loading.value = false
+      }
+   }
+
+   if (process.client) {
+      const { $firebaseApp} = useNuxtApp()
+
+      if ($firebaseApp) {
+         const auth = getAuth($firebaseApp)
+
+         onAuthStateChanged(auth, (user) => {
+            if (user) {
+               fetchParticipant(user.uid)
+            } else {
+               participant.value = null
+               loading.value = false
+               error.value = null
+            }
+         })
       }
    }
 

@@ -1,10 +1,10 @@
 <template>
    <header class="w-full">
       <div class="container flex max-w-7xl mx-auto p-0 sm:px-6 lg:px-8">
-         <div class="logo w-1/3">
+         <div class="logo w-4/10 flex">
             <h1 class="main-title">Fantacalcio <span>25/26</span></h1>
          </div>
-         <nav class="appNav w-2/3 m-auto">
+         <nav class="appNav w-5/10 m-auto">
             <NuxtLink 
             to="/"
             class="appNav--link withIcon--home-duo"
@@ -23,6 +23,7 @@
             :class="{active: route.path === '/calendar' }"
             >Calendar</NuxtLink>
          </nav>
+         <LoggedUser class="w-1/10" />
       </div>
    </header>
 </template>
@@ -43,6 +44,7 @@
       text-transform: uppercase;
       text-align: center;
       margin: 2vh auto;
+      line-height: 1.5;
 
       span { color: $blush }
    }
