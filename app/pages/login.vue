@@ -71,9 +71,10 @@
 
 <script setup lang="ts">
    import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth'
-   import { getFirestore, doc, getDoc } from 'firebase/firestore'
+   import { useAuthStore } from '../stores/auth'
 
    const { $firebaseApp } = useNuxtApp()
+   const authStore = useAuthStore()
 
    const email = ref<string>('')
    const password = ref<string>('')
@@ -94,35 +95,40 @@
          const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value)
          const user = userCredential.user
 
-         // Get participant document using user's UID as document ID
-         const db = getFirestore($firebaseApp)
-         const participantRef = doc(db, "participants", user.uid)
-         const participantSnap = await getDoc(participantRef)
-         
-         if (participantSnap.exists()) {
-            const participantData = participantSnap.data()
+         // Manually fetch participant data after login
+         await authStore.fetchParticipant(user.uid)
+
+         // Wait for participant data to be loaded
+         await new Promise<void>((resolve) => {
+            const maxAttempts = 50 // 50 * 50ms = 2.5 seconds max wait
+            let attempts = 0
             
-            // Extract team reference from participant document
-            const teamRef = participantData.team
-            
-            if (teamRef) {
-               // Get team ID from the reference
-               const teamId = teamRef.id
-               
-               // Redirect to user's team page
-               router.push(`/teams/${teamId}`)
-            } else {
-               error.value = "Nessun team associato a questo utente."
+            const checkParticipant = () => {
+               if (authStore.participant) {
+                  resolve()
+               } else if (authStore.error || attempts >= maxAttempts) {
+                  resolve() // Resolve even on error to avoid infinite wait
+               } else {
+                  attempts++
+                  setTimeout(checkParticipant, 50)
+               }
             }
+            checkParticipant()
+         })
+
+         const loggedUser = authStore.participant
+
+         if (loggedUser && loggedUser.teamId) {
+            router.push(`/teams/${loggedUser.teamId}`)
          } else {
-            error.value = "Documento partecipante non trovato per questo utente."
+            error.value = loggedUser ? "Nessun team associato a questo utente." : (authStore.error || "Errore nel caricamento dei dati utente.")
+            loading.value = false
          }
          
       } catch(err: any) {
          error.value = `Email e/o password errate – ${err.message}`
    
          console.log("Errore: ", error.value)
-      } finally {
          loading.value = false
       }
    }
