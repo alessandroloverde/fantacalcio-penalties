@@ -9,6 +9,7 @@ export interface Participant {
    name: string
    teamId?: string
    teamName?: string
+   isAdmin?: boolean
 }
 
 export const useAuthStore = defineStore('auth', () => {
@@ -48,6 +49,7 @@ export const useAuthStore = defineStore('auth', () => {
             const teamRef = participantData.team
             let teamId: string | undefined
             let teamName: string | undefined
+            let isAdmin: boolean | undefined
 
             if (teamRef) {
                teamId = teamRef.id
@@ -71,7 +73,8 @@ export const useAuthStore = defineStore('auth', () => {
                id: userId,
                name: participantData.name || "participant unknown",
                teamId: teamId,
-               teamName: teamName
+               teamName: teamName,
+               isAdmin: participantData.isAdmin
             }
          } else {
             error.value = 'Participant not found'

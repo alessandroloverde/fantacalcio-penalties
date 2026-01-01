@@ -429,10 +429,10 @@
       goalkeepers.value[currentIndex] = selectedPlayer
    }
 
+   // Middleware
    definePageMeta({
       middleware: 'team-auth'
    })
-
 
    onMounted(async () => {
       if (process.client) {

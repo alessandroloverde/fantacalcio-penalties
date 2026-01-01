@@ -2,14 +2,16 @@
    <AppNav />
 
    <div class="container boxed h-full max-w-7xl mx-auto my-12 px-4 sm:px-6 lg:px-8 py-8">
-      <!-- <LoggedUser></LoggedUser> -->
       <h1 class="withIcon--settings-duo withIcon--color-blush mb-8">Settings</h1>
       
       <div class="card grid grid-cols-4 gap-x-8 gap-y-0 mb-8 px-8 py-6">
-         <h2 class="withIcon--clock-duo withIcon--color-blush col-span-4">Time Windows</h2>
+         <h2 class="flex items-center withIcon--clock-duo withIcon--color-blush col-span-4">
+            Time Windows
+            <span v-if="!loggedUser?.isAdmin" class="adminBadge pill ml-auto">admin-only</span>
+         </h2>
 
+         <template v-if="loggedUser?.isAdmin">
          <div class="divider-text col-span-4 my-4">◎</div>
-
          <h3 class="col-span-4">New Time Window</h3>         
          <form id="timeWindow" @submit.prevent="saveTimeWindow" class="col-span-4 grid grid-cols-subgrid gap-y-4">
             <!-- *** Name Input *** -->
@@ -114,7 +116,7 @@
                class="btn btn--danger"
             >Cancel</button>
          </form>
-
+         
          <div class="divider-text col-span-4 my-8">◎</div>
 
          <!-- *** Display Time Windows *** -->
@@ -164,6 +166,7 @@
          <div v-else class="text-center py-8 text-gray-500">
             <p>No time windows created yet. Add your first time window above.</p>
          </div>
+         </template>
       </div>
 
        <div class="card grid grid-cols-2 gap-x-8 gap-y-0 mb-8 px-8 py-6">
@@ -195,6 +198,7 @@
    import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore'
    import { useNuxtApp } from '#app'
    import Papa from 'papaparse'
+   import LoggedUser from '../components/LoggedUser.vue'
 
    export interface Match {
       teamA: string
@@ -213,6 +217,8 @@
 
    const { $firebaseApp } = useNuxtApp()
    const teamStore = useTeamsStore()
+   const authStore = useAuthStore()
+   const loggedUser = computed(() => authStore.participant)
    const timeWindows = ref<TimeWindow[]>([])
    const editingIndex = ref<number | null>(null)
 

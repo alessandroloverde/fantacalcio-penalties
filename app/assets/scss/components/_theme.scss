@@ -104,3 +104,9 @@ p {
   &--name {}
   &--squadra {}
 }
+
+.adminBadge {
+  font-size: $font-size-med;
+  font-weight: 500;
+  color: $blush;
+}
