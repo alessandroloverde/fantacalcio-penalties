@@ -1,75 +1,28 @@
-# Nuxt Minimal Starter
+# Fantacalcio Penalties
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Nuxt 4 app to manage and calculate fantasy‑football penalty shootouts (“rigori”) using player scores, teams, and sessions.
 
-## Setup
+## What’s inside
+- `nuxt-app/` — main Nuxt app (Pinia stores, Firebase auth + Firestore)
+- `Squadre/` — sample team and score CSV/XLSX data
+- `design/` + `Icons/` — UI references and icon assets
 
-Make sure to install dependencies:
+## Features (from the UI)
+- Calculate penalty shootouts between two teams
+- Track takers, goalkeepers, and results
+- Sessions / time windows and scores
+- Login/profile/settings pages
 
-```bash
-# npm
-npm install
+## Tech Stack
+- Nuxt 4 + Vue 3
+- Pinia
+- Firebase Auth + Firestore
+- Tailwind + SCSS
 
-# pnpm
+## Quickstart
+cd nuxt-app
 pnpm install
+pnpm devApp runs at `http://localhost:3000`.
 
-# yarn
-yarn install
-
-# bun
-bun install
-```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+## Firebase config
+The app reads Firebase keys from Nuxt runtime config. You can override them with env vars:
