@@ -3,11 +3,13 @@
     <NuxtLink to="/login">
       <button class="withIcon--userCircle"></button>
     </NuxtLink>
+    <p class="logged-user--name">not logged-in</p>
   </div>
   <div v-else class="logged-user">
     <NuxtLink to="/profile" class="logged-user--link">
       <button class="withIcon--userCircle-duo"></button>
     </NuxtLink>
+    <p class="logged-user--name">{{ loggedUser.name }}</p>
   </div>
 </template>
 
@@ -36,6 +38,12 @@ onMounted(()=> {
     align-items: center;
     color: $cream;
     font-size: $font-size-4xl;
+  }
+  &--name {
+    display: flex;
+    align-items: center;
+    color: $lightSlategrass;
+    line-height: 1;
   }
 }
 .notLogged-user button {
