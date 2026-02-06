@@ -53,7 +53,7 @@ function parseFirestoreDocument(doc: FirestoreDocument): Record<string, any> {
 // Extract document ID from full path
 function getDocumentId(fullPath: string): string {
   const parts = fullPath.split('/')
-  return parts[parts.length - 1]
+  return parts[parts.length - 1] ?? ''
 }
 
 // Get a single document
