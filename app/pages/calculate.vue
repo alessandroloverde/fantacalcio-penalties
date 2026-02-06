@@ -81,6 +81,24 @@
             :result="currentPenalty?.result"
             @close="closeModal"
          />
+
+         <!-- Winner modal when shootout is over -->
+         <Teleport to="body">
+            <div
+               v-if="shootoutWinner && showWinnerModal"
+               class="winner-modal-overlay"
+               @click="closeWinnerModal"
+            >
+               <div class="winner-modal" @click.stop>
+                  <div class="winner-modal--trophy">🏆</div>
+                  <p class="winner-modal--label">Vincitore ai rigori</p>
+                  <p class="winner-modal--name">{{ shootoutWinnerName }}</p>
+                  <button type="button" class="winner-modal--close btn btn--secondary" @click="closeWinnerModal">
+                     Chiudi
+                  </button>
+               </div>
+            </div>
+         </Teleport>
         </section>
       </div>
 </template>
@@ -112,6 +130,7 @@
 
    // Modal state
    const showPenaltyModal = ref(false)
+   const showWinnerModal = ref(false)
    const currentPenalty = ref<{
       player: any
       goalkeeper: any
@@ -322,6 +341,33 @@
       ).length
    })
 
+   // Shootout is over when both teams have taken the same number of penalties (end of a round)
+   // and the scores are not equal (someone has won)
+   const shootoutWinner = computed(() => {
+      const takenA = teamAPenaltiesTakenCount.value
+      const takenB = teamBPenaltiesTakenCount.value
+      if (takenA < 5 || takenB < 5) return null
+      if (takenA !== takenB) return null // mid-round, wait for other team
+      if (teamAScore.value === teamBScore.value) return null
+      return teamAScore.value > teamBScore.value ? 'A' : 'B'
+   })
+
+   const shootoutWinnerName = computed(() => {
+      if (!shootoutWinner.value) return ''
+      return shootoutWinner.value === 'A'
+         ? (teamAData.value?.teamData.name ?? 'Squadra A')
+         : (teamBData.value?.teamData.name ?? 'Squadra B')
+   })
+
+   // Show winner modal when shootout ends
+   watch(shootoutWinner, (winner) => {
+      if (winner) showWinnerModal.value = true
+   })
+
+   const closeWinnerModal = () => {
+      showWinnerModal.value = false
+   }
+
    // Watch for unlock condition and set flag once
    watch([teamAPenaltiesTakenCount, teamBPenaltiesTakenCount, teamAScore, teamBScore], () => {
       const bothTeamsHaveTakenFive = teamAPenaltiesTakenCount.value >= 5 && teamBPenaltiesTakenCount.value >= 5
@@ -495,6 +541,85 @@
          color: $cream;
 
          &.disabled { opacity: 0.5; }
+      }
+   }
+
+   .winner-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      animation: fadeIn 0.3s ease;
+   }
+
+   .winner-modal {
+      background: $cream;
+      border-radius: $radius-lg;
+      padding: 2rem 3rem;
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+      animation: slideUp 0.4s ease;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+      &--trophy {
+         font-size: 3rem;
+         margin-bottom: 0.5rem;
+         animation: trophyPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+      }
+      &--label {
+         color: $eerieBlack;
+         font-size: 1rem;
+         margin-bottom: 0.25rem;
+      }
+      &--name {
+         font-size: 1.5rem;
+         font-weight: $font-weight-bold;
+         color: $darkOlive;
+         margin-bottom: 1.5rem;
+         animation: nameReveal 0.5s ease 0.5s both;
+      }
+      &--close { margin-top: 0.5rem; }
+   }
+
+   @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+   }
+
+   @keyframes slideUp {
+      from { transform: translateY(40px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+   }
+
+   @keyframes trophyPop {
+      from {
+         transform: scale(0);
+         opacity: 0;
+      }
+      70% {
+         transform: scale(1.15);
+      }
+      to {
+         transform: scale(1);
+         opacity: 1;
+      }
+   }
+
+   @keyframes nameReveal {
+      from {
+         opacity: 0;
+         transform: translateY(8px) scale(0.96);
+      }
+      to {
+         opacity: 1;
+         transform: translateY(0) scale(1);
       }
    }
 </style>
