@@ -82,17 +82,22 @@
             @close="closeModal"
          />
 
-         <!-- Winner modal when shootout is over -->
+         <!-- Winner modal when shootout is over (winner or points-rule) -->
          <Teleport to="body">
             <div
-               v-if="shootoutWinner && showWinnerModal"
+               v-if="showWinnerModal && (shootoutWinner || shootoutOverPointsRule)"
                class="winner-modal-overlay"
                @click="closeWinnerModal"
             >
                <div class="winner-modal" @click.stop>
-                  <div class="winner-modal--trophy">🏆</div>
-                  <p class="winner-modal--label">Vincitore ai rigori</p>
-                  <p class="winner-modal--name">{{ shootoutWinnerName }}</p>
+                  <div class="winner-modal--trophy">{{ shootoutOverPointsRule ? '🤝' : '🏆' }}</div>
+                  <template v-if="shootoutOverPointsRule">
+                     <p class="winner-modal--label winner-modal--points-rule">{{ pointsRuleResultText }}</p>
+                  </template>
+                  <template v-else-if="shootoutWinner">
+                     <p class="winner-modal--label">Vincitore ai rigori</p>
+                     <p class="winner-modal--name">{{ shootoutWinnerName }}</p>
+                  </template>
                   <button type="button" class="winner-modal--close btn btn--secondary" @click="closeWinnerModal">
                      Chiudi
                   </button>
@@ -213,10 +218,12 @@
 
    // OPTIMIZATION: Pre-compute scores for Team A penalty takers
    const teamAPenaltyTakersWithScores = computed(() => {
-      return teamAPenaltyTakers.value.map(player => ({
-         ...player,
-         score: getPlayerScore(player.playerID),
-      }))
+      return teamAPenaltyTakers.value
+         .map(player => ({
+            ...player,
+            score: getPlayerScore(player.playerID),
+         }))
+         .filter(p => p.score != null)
    })
 
    // Keep score properties for backward compatibility (extracted from above)
@@ -224,10 +231,12 @@
 
    // OPTIMIZATION: Pre-compute scores for penalty takers (only computed once per player)
    const teamBPenaltyTakersWithScores = computed(() => {
-      return teamBPenaltyTakers.value.map(player => ({
-         ...player,
-         score: getPlayerScore(player.playerID),
-      }))
+      return teamBPenaltyTakers.value
+         .map(player => ({
+            ...player,
+            score: getPlayerScore(player.playerID),
+         }))
+         .filter(p => p.score != null)
    })
 
    const getTotalGoals = (score: any) => {
@@ -359,10 +368,55 @@
          : (teamBData.value?.teamData.name ?? 'Squadra B')
    })
 
-   // Show winner modal when shootout ends
-   watch(shootoutWinner, (winner) => {
-      if (winner) showWinnerModal.value = true
+   // ─── When the draw banner ("X-Y si conta la somma dei punti") appears ───
+   // 1) DRAW (all N/A): Session and penalties are loaded, both teams have penalty takers,
+   //    but none of them have a score in this session (all show N/A). → "0-0 si conta la somma dei punti"
+   // 2) AFTER A ROUND (5 each, or 6 each, etc.): Both teams have taken the same number of penalties (≥5)
+   //    and BOTH teams have no valid shooter for the next kick (6th, 7th, …). → "[result] si conta la somma dei punti"
+
+   const teamAHasAnyShooterWithScore = computed(() =>
+      teamAPenaltyTakersWithScores.value.some((p: any) => !!p.score)
+   )
+   const teamBHasAnyShooterWithScore = computed(() =>
+      teamBPenaltyTakersWithScores.value.some((p: any) => !!p.score)
+   )
+   const bothTeamsHaveNoShooterWithScore = computed(() => {
+      if (loading.value) return false
+      if (!currentTimeWindow.value) return false
+      const takersA = teamAPenaltyTakersWithScores.value
+      const takersB = teamBPenaltyTakersWithScores.value
+      if (takersA.length === 0 || takersB.length === 0) return false
+      return !teamAHasAnyShooterWithScore.value && !teamBHasAnyShooterWithScore.value
    })
+
+   // Valid taker at position index (0-based: 5 = 6th kick, 6 = 7th, etc.)
+   const teamAHasValidTakerAt = (index: number) => {
+      const takers = teamAPenaltyTakersWithScores.value
+      return takers.length > index && !!takers[index]?.score
+   }
+   const teamBHasValidTakerAt = (index: number) => {
+      const takers = teamBPenaltyTakersWithScores.value
+      return takers.length > index && !!takers[index]?.score
+   }
+   const shootoutOverPointsRule = computed(() => {
+      // Case 1: both teams have no shooters with score (all N/A) → show banner (0-0 si conta...)
+      if (bothTeamsHaveNoShooterWithScore.value) return true
+      // Case 2: after a round (same number taken, ≥5), BOTH teams have no valid shooter for the next kick
+      const takenA = teamAPenaltiesTakenCount.value
+      const takenB = teamBPenaltiesTakenCount.value
+      if (takenA < 5 || takenB < 5) return false
+      if (takenA !== takenB) return false
+      const nextIndex = takenA
+      return !teamAHasValidTakerAt(nextIndex) && !teamBHasValidTakerAt(nextIndex)
+   })
+   const pointsRuleResultText = computed(() => {
+      return `${teamAScore.value}-${teamBScore.value} si conta la somma dei punti`
+   })
+
+   // Show winner modal when shootout ends (winner or points-rule)
+   watch([shootoutWinner, shootoutOverPointsRule], ([winner, pointsRule]) => {
+      if (winner || pointsRule) showWinnerModal.value = true
+   }, { immediate: true })
 
    const closeWinnerModal = () => {
       showWinnerModal.value = false
@@ -580,6 +634,13 @@
       }
       &--name {
          font-size: 1.5rem;
+         font-weight: $font-weight-bold;
+         color: $darkOlive;
+         margin-bottom: 1.5rem;
+         animation: nameReveal 0.5s ease 0.5s both;
+      }
+      &--points-rule {
+         font-size: 1.25rem;
          font-weight: $font-weight-bold;
          color: $darkOlive;
          margin-bottom: 1.5rem;
