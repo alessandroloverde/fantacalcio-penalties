@@ -36,7 +36,8 @@
                <li v-for="player in players.filter(item => item.list == 'List-1')" 
                   :key="player.playerID"
                   draggable="true"
-                  @dragstart="startDrag($event, player)" 
+                  @dragstart="startDrag($event, player)"
+                  @dragend="onDragEnd"
                   class="player" 
                   :class="'role--' + player.role"
                >
@@ -62,7 +63,8 @@
                   <div 
                      v-if="getGoalkeeperAtPosition(position)"
                      draggable="true"
-                     @dragstart="startDrag($event, getGoalkeeperAtPosition(position))" 
+                     @dragstart="startDrag($event, getGoalkeeperAtPosition(position))"
+                     @dragend="onDragEnd"
                      class="player role--P"
                   >
                      <span class="player--name">{{ getGoalkeeperAtPosition(position)?.name }}</span>
@@ -88,6 +90,7 @@
                      v-if="getPlayerAtPosition(position)"
                      draggable="true"
                      @dragstart="startDrag($event, getPlayerAtPosition(position))" 
+                     @dragend="onDragEnd"
                      class="player" 
                      :class="'role--' + getPlayerAtPosition(position)?.role"
                   >
@@ -319,6 +322,11 @@
       event.dataTransfer.dropEffect = "move"
       event.dataTransfer.effectAllowed = "move"
       event.dataTransfer.setData('playerID', item.playerID)
+      document.body.style.cursor = 'move'
+   }
+
+   const onDragEnd = () => {
+      document.body.style.cursor = ''
    }
 
    const getPlayerAtPosition = (position: number) => {
@@ -757,6 +765,10 @@ $dropZoneBorder: 1px dashed grey;
    padding: 1em;
       
    &::before { content: none }
+}
+#players-list .player,
+#penaltyTakers-list .player {
+   cursor: move;
 }
    
 </style>
