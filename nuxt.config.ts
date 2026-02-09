@@ -5,7 +5,21 @@ export default defineNuxtConfig({
     head: {
       htmlAttrs: {
         lang: 'it'
-      }
+      },
+      link: [
+        // Preconnect to Google Fonts for faster DNS/TLS
+        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
+        // Load fonts with only the weights you actually use (300-800)
+        { 
+          rel: 'stylesheet', 
+          href: 'https://fonts.googleapis.com/css2?family=Momo+Trust+Display&display=swap' 
+        },
+        { 
+          rel: 'stylesheet', 
+          href: 'https://fonts.googleapis.com/css2?family=SUSE:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap' 
+        }
+      ]
     }
   },
   compatibilityDate: '2025-07-15',
