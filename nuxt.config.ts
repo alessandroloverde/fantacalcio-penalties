@@ -11,6 +11,12 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   modules: ['@nuxt/fonts', '@pinia/nuxt',/* '@nuxtjs/tailwindcss' */],
+  fonts: {
+    families: [
+      { name: 'Momo Trust Display', provider: 'google' },
+      { name: 'SUSE:100..900:ital', provider: 'google' },
+    ]
+  },
   css: [
     '@/assets/css/main.css',  // Tailwind CSS
     '@/assets/scss/main.scss' // Custom SCSS
