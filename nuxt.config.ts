@@ -31,13 +31,13 @@ export default defineNuxtConfig({
   ],
   runtimeConfig: {
     public: {
-      firebaseApiKey: 'AIzaSyAi6xTXieeklm2ehtWU7MxEqtL4FP5pzno',
-      firebaseAuthDomain: 'fantacalcio-rigori.firebaseapp.com',
-      firebaseProjectId: 'fantacalcio-rigori',
-      firebaseStorageBucket: 'fantacalcio-rigori.appspot.com',
-      firebaseMessagingSenderId: '1029812597058',
-      firebaseAppId: '1:1029812597058:web:4d9b4e6e6e6e6e6e'
-    }
+      firebaseApiKey: process.env.NUXT_PUBLIC_FIREBASE_API_KEY ?? '',
+      firebaseAuthDomain: process.env.NUXT_PUBLIC_FIREBASE_AUTH_DOMAIN ?? '',
+      firebaseProjectId: process.env.NUXT_PUBLIC_FIREBASE_PROJECT_ID ?? '',
+      firebaseStorageBucket: process.env.NUXT_PUBLIC_FIREBASE_STORAGE_BUCKET ?? '',
+      firebaseMessagingSenderId: process.env.NUXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID ?? '',
+      firebaseAppId: process.env.NUXT_PUBLIC_FIREBASE_APP_ID ?? '',
+    },
   },
   postcss: {
     plugins: {

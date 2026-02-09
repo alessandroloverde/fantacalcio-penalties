@@ -40,3 +40,7 @@ emulator-data/
 
 # OS generated
 Thumbs.db
+
+# Scripts
+scripts/serviceAccountKey.json
+
