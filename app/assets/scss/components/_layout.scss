@@ -1,0 +1,19 @@
+@use '../abstracts/colors' as *;
+@use '../abstracts/variables' as *;
+
+@reference "tailwindcss";
+
+@layer components {
+   .layout-Wrapper {
+      @apply container flex max-w-7xl mx-auto p-0 sm:px-6 lg:px-8;
+
+      &--boxed {
+         @apply container h-full max-w-7xl mx-auto my-12 px-4 py-8 sm:px-6 lg:px-8;
+         
+         background-color: $cream;
+         border-radius: $radius-2xl;
+         box-shadow: 2px 0 15px rgba($eerieBlack, .25);
+      }
+   }
+}
+
