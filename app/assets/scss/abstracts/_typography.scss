@@ -50,7 +50,7 @@ $letter-spacing-wider: 0.05em;
 // Typography Scale
 $typography: (
   'h1': (
-    'size': $font-size-4xl,
+    'size': clamp(2rem, 5vw + 1rem, $font-size-4xl),
     'weight': $font-weight-extrabold,
     'line-height': $line-height-tight,
     'color': $color-primary
@@ -74,13 +74,13 @@ $typography: (
     'color': $color-primary
   ),
   'body': (
-    'size': $font-size-base,
+    'size': clamp($font-size-sm, 0.25vw + 0.75rem, $font-size-base),
     'weight': $font-weight-medium,
     'line-height': $line-height-normal,
     'color': $color-text-primary
   ),
   'label': (
-    'size': $font-size-base,
+    'size': clamp($font-size-sm, 0.25vw + 0.75rem, $font-size-base),
     'weight': $font-weight-semibold,
     'line-height': $line-height-normal,
     'color': $color-primary

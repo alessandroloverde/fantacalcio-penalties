@@ -10,10 +10,8 @@
 
 // Base body styles
 body {
-  font-family: $font-family-sans;
-  font-size: $font-size-base;
-  line-height: $line-height-normal;
-  color: $color-text-primary;
+  @include typography('body');
+
   background-color: $lightSlategrass;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
