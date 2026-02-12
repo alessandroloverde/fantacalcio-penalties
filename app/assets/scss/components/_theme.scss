@@ -74,6 +74,8 @@ p {
   background-color: #fff7ed;
   border-radius: 16px;
   border: 1px solid #d3d2cb;
+/*   display: flex;
+  flex-direction: column; */
 }
 
 .P { background-color: color.change($navyBlue, $alpha: 0.6) }

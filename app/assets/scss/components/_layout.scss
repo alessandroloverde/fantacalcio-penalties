@@ -8,11 +8,14 @@
       @apply container flex flex-wrap max-w-7xl mx-auto p-6 lg:px-8;
 
       &--boxed {
-         @apply container h-full max-w-7xl mx-auto my-12 px-4 py-8 sm:px-6 lg:px-8;
+         @apply container h-full max-w-7xl
+                m-auto sm:my-8 lg:my-12
+                rounded-none sm:rounded-2xl
+                shadow-none sm:shadow-[2px_0_15px_rgba(35,35,34,0.25)]
+                px-4 py-8 sm:px-6 lg:px-8;
          
          background-color: $cream;
-         border-radius: $radius-2xl;
-         box-shadow: 2px 0 15px rgba($eerieBlack, .25);
+         //box-shadow: 2px 0 15px rgba($eerieBlack, .25);
       }
    }
 }

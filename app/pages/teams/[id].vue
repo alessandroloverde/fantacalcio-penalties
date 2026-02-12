@@ -9,9 +9,9 @@
          <span class="presidents" v-else><span class="presidents--label">Presidenti:</span> {{ presidents.join(' | ') }}</span>
       </h1>
       <div v-if="loading">Loading...</div>
-      <section class="card flex justify-between mb-8 p-4">
-         <button class="btn btn--secondary withIcon--refresh btn--icon-left cursor-pointer" @click="resetPenaltyTakers">Reset Players</button>
-         <label class="btn btn--secondary withIcon--cloudUpload btn--icon-left cursor-pointer">
+      <section class="card flex justify-between mb-8 p-4 flex-col sm:flex-row">
+         <button class="btn btn--secondary withIcon--refresh btn--icon-left cursor-pointer mb-2 sm:mb-0" @click="resetPenaltyTakers">Reset Players</button>
+         <label class="btn btn--secondary withIcon--cloudUpload btn--icon-left cursor-pointer mb-2 sm:mb-0">
             <input 
                type="file"
                accept=".csv"
