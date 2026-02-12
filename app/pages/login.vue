@@ -1,5 +1,5 @@
 <template>
-   <div class="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+   <div class="layout-Wrapper">
       <h1 class="main-title">Fantacalcio <span>25/26</span></h1>
       <div class="m-auto p-8 boxed" id="loginForm">
          <header>
@@ -160,7 +160,8 @@
 
    .main-title { 
       font-family: $font-family-momo;
-      font-size: 100px;
+      font-size: clamp(2.5rem, 10vw, 100px);  /* e.g. min 40px, scales, max 100px */
+      line-height: 1.1;
       color: $darkOlive;
       text-transform: uppercase;
       text-align: center;

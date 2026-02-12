@@ -5,7 +5,7 @@
 
 @layer components {
    .layout-Wrapper {
-      @apply container flex max-w-7xl mx-auto p-0 sm:px-6 lg:px-8;
+      @apply container flex flex-wrap max-w-7xl mx-auto p-6 lg:px-8;
 
       &--boxed {
          @apply container h-full max-w-7xl mx-auto my-12 px-4 py-8 sm:px-6 lg:px-8;

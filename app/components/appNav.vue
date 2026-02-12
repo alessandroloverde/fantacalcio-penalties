@@ -4,23 +4,23 @@
          <div class="logo w-4/10 flex">
             <h1 class="main-title">Fantacalcio <span>25/26</span></h1>
          </div>
-         <nav class="appNav w-4/10 m-auto">
+         <nav class="appNav w-4/10">
             <NuxtLink 
-            to="/"
-            class="appNav--link withIcon--home-duo"
-            :class="{active: route.path === '/' }"
+               to="/"
+               class="appNav--link withIcon--home-duo"
+               :class="{active: route.path === '/' }"
             >Home</NuxtLink>
 
             <NuxtLink 
-            to="/settings"
-            class="appNav--link withIcon--settings-duo"
-            :class="{active: route.path === '/settings' }"
+               to="/settings"
+               class="appNav--link withIcon--settings-duo"
+               :class="{active: route.path === '/settings' }"
             >Settings</NuxtLink>
 
             <NuxtLink 
-            to="/calendar"
-            class="appNav--link withIcon--calendar-duo"
-            :class="{active: route.path === '/calendar' }"
+               to="/calendar"
+               class="appNav--link withIcon--calendar-duo"
+               :class="{active: route.path === '/calendar' }"
             >Calendar</NuxtLink>
          </nav>
          <LoggedUser class="w-2/10" />
@@ -54,6 +54,7 @@
       justify-content: center;
       gap: 2rem;
       padding: 1rem 2rem;
+      margin: auto;
       background-color: $navyBlue;
 
       &--link {
