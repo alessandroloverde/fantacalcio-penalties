@@ -3,9 +3,17 @@
 
    <div class="layout-Wrapper--boxed">
       <!-- <LoggedUser></LoggedUser> -->
-      <h1 class="withIcon--gamepad withIcon--color-blush flex items-center mb-8">
+      <h1 class="
+            withIcon--gamepad 
+            withIcon--color-blush 
+            flex 
+            items-center 
+            mb-8
+            flex-col sm:flex-row
+            before:hidden sm:before:inline-block
+         ">
          {{ teamData?.name }}
-         <span class="presidents" v-if="presidents.length === 1"><span class="presidents--label">Presidente:</span> {{ presidents[0] }} </span>
+         <span class="presidents m-auto sm:ml-auto" v-if="presidents.length === 1"><span class="presidents--label">Presidente:</span> {{ presidents[0] }} </span>
          <span class="presidents" v-else><span class="presidents--label">Presidenti:</span> {{ presidents.join(' | ') }}</span>
       </h1>
       <div v-if="loading">Loading...</div>
@@ -629,7 +637,6 @@ h4 { color: $color-text-dark }
 .presidents {
    @include typography('h4');
 
-   margin-left: auto;
    color: $blush;
 
    &--label { color: $navyBlue }

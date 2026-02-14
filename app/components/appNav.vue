@@ -1,10 +1,10 @@
 <template>
    <header class="w-full">
       <div class="layout-Wrapper">
-         <div class="logo w-4/10 flex">
+         <div class="logoflex flex items-center">
             <h1 class="main-title">Fantacalcio <span>25/26</span></h1>
          </div>
-         <nav class="appNav w-4/10">
+         <nav class="appNav hidden sm:flex">
             <NuxtLink 
                to="/"
                class="appNav--link withIcon--home-duo"
@@ -23,7 +23,15 @@
                :class="{active: route.path === '/calendar' }"
             >Calendar</NuxtLink>
          </nav>
-         <LoggedUser class="w-2/10" />
+         <div class="flex items-center justify-between gap-2 shrink-0 w-full sm:w-auto">
+            <LoggedUser class="hidden xs:block sm:block" />
+            <button
+               type="button"
+               class="appNav--menuBtn sm:hidden withIcon--settings-duo withIcon--color-cream"
+               aria-label="Menu"
+
+            ></button>
+         </div>
       </div>
    </header>
 </template>
@@ -44,13 +52,13 @@
       text-transform: uppercase;
       text-align: center;
       margin: 2vh 0;
-      line-height: 1.5;
+      line-height: 1;
 
       span { color: $blush }
    }
 
    .appNav {
-      display: flex;
+      //display: flex;
       justify-content: center;
       gap: 2rem;
       padding: 1rem 2rem;
@@ -76,6 +84,23 @@
             background-color: $blush;
             color: white;
          }
+      }
+      &--menuBtn {
+         font-size: 40px;
+         padding: 0.75rem;
+         background: transparent;
+         border: none;
+         cursor: pointer;
+         border-radius: $radius-md;
+         transition: background-color $transition-fast ease;
+
+         &:hover {
+            background-color: rgba($cream, 0.15);
+         }
+
+         &::before {
+            margin-right: 0;
+         }    
       }
    }
 </style>

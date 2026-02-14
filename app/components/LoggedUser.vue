@@ -44,6 +44,8 @@ onMounted(()=> {
     align-items: center;
     color: $lightSlategrass;
     line-height: 1;
+    max-width: 90px;
+    flex-shrink: 1;
   }
 }
 .notLogged-user button {
