@@ -5,7 +5,7 @@
       <h2 v-if="err">Errore: {{ err }}</h2>
       <h2 v-if="loading">Loading...</h2>
       <div class="text-divider"></div>
-      <div class="grid grid-cols-4 gap-4">
+      <div class="grid md:grid-cols-4 gap-4">
          <section v-for="item, index in teams" :key="index" class="card mb-2 p-4">
             <header>
                <nuxtLink :to="`/teams/${item.teamId}`">{{ item.teamData.name }}</nuxtLink>

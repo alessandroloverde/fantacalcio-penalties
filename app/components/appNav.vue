@@ -27,7 +27,7 @@
             <LoggedUser class="hidden xs:block sm:block" />
             <button
                type="button"
-               class="appNav--menuBtn sm:hidden withIcon--settings-duo withIcon--color-cream"
+               class="appNav--menuBtn sm:hidden withIcon--mobileMenu withIcon--color-cream"
                aria-label="Menu"
                :aria-expanded="menuOpen"
                @click="menuOpen = !menuOpen"
@@ -81,14 +81,17 @@
 
    .main-title { 
       font-family: $font-family-momo;
-      font-size: 36px;
+      font-size: clamp(2rem, 5vw + 1rem, $font-size-4xl);
       color: $cream;
       text-transform: uppercase;
       text-align: center;
       margin: 2vh 0;
       line-height: 1;
 
-      span { color: $blush }
+      span { 
+         color: $blush;
+         display: flex; 
+      }
    }
 
    .appNav {
