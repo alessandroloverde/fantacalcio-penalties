@@ -1,8 +1,8 @@
 <template>
    <header class="w-full">
-      <div class="layout-Wrapper min-h-[235px] sm:min-h-0">
-         <div class="logoflex flex items-center">
-            <h1 class="main-title">Fantacalcio <span>25/26</span></h1>
+      <div class="layout-Wrapper min-h-(--headerHeight) sm:min-h-0">
+         <div class="logoflex flex items-center w-full md:w-auto">
+            <h1 class="main-title">Fantacalcio <span class="md:flex">25/26</span></h1>
          </div>
          <nav class="appNav hidden sm:flex">
             <NuxtLink 
@@ -80,18 +80,15 @@
    header { background-color: $navyBlue }
 
    .main-title { 
+      width: 100%;
       font-family: $font-family-momo;
-      font-size: clamp(2rem, 5vw + 1rem, $font-size-4xl);
+      font-size: clamp(1.8rem, 5vw + 0.5rem, $font-size-4xl);
       color: $cream;
       text-transform: uppercase;
       text-align: center;
-      margin: 2vh 0;
       line-height: 1;
 
-      span { 
-         color: $blush;
-         display: flex; 
-      }
+      span { color: $blush }
    }
 
    .appNav {
@@ -103,8 +100,7 @@
       background-color: $navyBlue;
 
       &.mobile {
-         border-top: 1px solid rgba($cream, 0.2);
-         height: calc(100vh - 235px);
+         height: calc(100vh - var(--headerHeight));
 
          & .appNav--link { font-size: $font-size-2xl }
       }
@@ -130,7 +126,7 @@
       }
       &--menuBtn {
          font-size: 40px;
-         padding: 0.75rem;
+         padding: 0.5rem;
          background: transparent;
          border: none;
          cursor: pointer;
