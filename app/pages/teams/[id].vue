@@ -3,20 +3,22 @@
 
    <div class="layout-Wrapper--boxed">
       <!-- <LoggedUser></LoggedUser> -->
-      <h1 class="
-            withIcon--gamepad 
-            withIcon--color-blush 
-            flex 
-            items-center 
-            mb-8
-            flex-col sm:flex-row
-            before:hidden sm:before:inline-block
-         ">
-         {{ teamData?.name }}
-         <span class="presidents m-auto sm:ml-auto" v-if="presidents.length === 1"><span class="presidents--label">Presidente:</span> {{ presidents[0] }} </span>
-         <span class="presidents" v-else><span class="presidents--label">Presidenti:</span> {{ presidents.join(' | ') }}</span>
-      </h1>
+      <section class="flex mb-8 items-center justify-center md:justify-between flex-wrap">
+         <h1 class="
+               withIcon--gamepad 
+               withIcon--color-blush 
+               before:hidden! sm:before:inline-block!
+            ">{{ teamData?.name }}</h1>
+         <div class="presidents" v-if="presidents.length === 1">
+            <span class="presidents--label">Presidente:</span> {{ presidents[0] }} 
+         </div>
+         <div class="presidents" v-else>
+            <span class="presidents--label">Presidenti:</span> {{ presidents.join(' | ')}}
+         </div>
+      </section>
+
       <div v-if="loading">Loading...</div>
+
       <section class="card flex justify-between mb-8 p-4 flex-col sm:flex-row">
          <button class="btn btn--secondary withIcon--refresh btn--icon-left cursor-pointer mb-2 sm:mb-0" @click="resetPenaltyTakers">Reset Players</button>
          <label class="btn btn--secondary withIcon--cloudUpload btn--icon-left cursor-pointer mb-2 sm:mb-0">
