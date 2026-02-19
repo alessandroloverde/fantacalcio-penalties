@@ -3,11 +3,20 @@
 
    <div class="layout-Wrapper--boxed">
       <h1 class="withIcon--settings-duo withIcon--color-blush mb-8">Settings</h1>
-      
-      <div class="card grid grid-cols-4 gap-x-8 gap-y-0 mb-8 px-8 py-6">
+
+      <div class="
+                  card 
+                  grid 
+                  grid-cols-4 
+                  gap-x-8 
+                  gap-y-0 
+                  mb-8 
+                  px-8 
+                  py-6
+      ">
          <h2 class="flex items-center withIcon--clock-duo withIcon--color-blush col-span-4">
             Time Windows
-            <span v-if="!loggedUser?.isAdmin" class="adminBadge pill ml-auto">admin-only</span>
+            <span v-if="!loggedUser?.isAdmin" class="adminBadge pill ml-auto">admin only</span>
          </h2>
 
          <template v-if="loggedUser?.isAdmin">
@@ -170,11 +179,21 @@
          </template>
       </div>
 
-       <div class="card grid grid-cols-2 gap-x-8 gap-y-0 mb-8 px-8 py-6">
-         <h2 class="withIcon--calculate-duo withIcon--color-blush col-span-2">Voti</h2>
+       <div class="
+                  card 
+                  grid 
+                  grid-cols-1
+                  md:grid-cols-2 
+                  gap-x-8 
+                  gap-y-0 
+                  mb-8 
+                  px-8 
+                  py-6
+      ">
+         <h2 class="withIcon--calculate-duo withIcon--color-blush col-span-1 md:col-span-2">Voti</h2>
          <div v-for="(window, index) in timeWindows" :key="index" class="matchDay pill--beige my-4">
-            <h4 class="matchDay--title w-1/4">{{ window.name }}</h4>
-            <div class="matchDay--status w-1/2">
+            <h4 class="matchDay--title w-auto md:w-1/4">{{ window.name }}</h4>
+            <div class="matchDay--status w-auto md:w-1/2">
                <p v-if="(window.playersScores?.length ?? 0)" class="withIcon--billCheck-duo withIcon--color-olive text-3xl!" ></p>
                <p v-else class="withIcon--billCross-duo withIcon--color-blush text-3xl!"></p>
             </div>
@@ -185,7 +204,7 @@
                   accept=".csv,.xlsx"
                   class="hidden"
                   @change="handleVotiUpload($event, window)"
-               />carica voti
+               /><span class="hidden sm:inline">carica voti</span>
             </label>
          </div>
        </div>

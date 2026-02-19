@@ -58,6 +58,8 @@
             </ol>
          </div>
 
+         <div class="divider-text my-6 flex md:hidden!">@</div>
+
          <div id="penaltyTakers-list" class="w-full">
             <h3 class="mb-2">Portiere</h3>
             <ol class="drop-zones-list mb-6">

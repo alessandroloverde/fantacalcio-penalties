@@ -69,7 +69,8 @@ h3 {
 }
 h4 {
   @include typography('h4');
-  text-transform: uppercase
+  
+  @apply normal-case sm:uppercase;
 }
 p {
   @include typography('body');
@@ -79,8 +80,6 @@ p {
   background-color: #fff7ed;
   border-radius: 16px;
   border: 1px solid #d3d2cb;
-/*   display: flex;
-  flex-direction: column; */
 }
 
 .P { background-color: color.change($navyBlue, $alpha: 0.6) }
@@ -113,8 +112,10 @@ p {
 }
 
 .adminBadge {
-  font-size: $font-size-med;
-  font-weight: 500;
+  width: min-content;
+  font-size: clamp(0.75rem, 1vw + 0.25rem, 1rem);
+  line-height: 1;
+  font-weight: 600;
   color: $blush;
 }
 

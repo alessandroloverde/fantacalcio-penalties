@@ -50,13 +50,13 @@ $letter-spacing-wider: 0.05em;
 // Typography Scale
 $typography: (
   'h1': (
-    'size': clamp(26px, 1.88vw + 19px, 46px),
+    'size': clamp($font-size-xl, 1.88vw + 19px, $font-size-4xl),
     'weight': $font-weight-extrabold,
     'line-height': $line-height-tight,
     'color': $color-primary
   ),
   'h2': (
-    'size': $font-size-3xl,
+    'size': clamp($font-size-lg, 1.5vw + 14px, $font-size-3xl),
     'weight': $font-weight-extrabold,
     'line-height': $line-height-tight,
     'color': $color-primary
