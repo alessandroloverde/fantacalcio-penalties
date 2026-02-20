@@ -7,24 +7,25 @@
       <div class="
                   card 
                   grid 
-                  grid-cols-4 
+                  grid-cols-1
+                  md:grid-cols-4 
                   gap-x-8 
                   gap-y-0 
                   mb-8 
                   px-8 
                   py-6
       ">
-         <h2 class="flex items-center withIcon--clock-duo withIcon--color-blush col-span-4">
+         <h2 class="flex items-center withIcon--clock-duo withIcon--color-blush col-span-1 md:col-span-4">
             Time Windows
             <span v-if="!loggedUser?.isAdmin" class="adminBadge pill ml-auto">admin only</span>
          </h2>
 
          <template v-if="loggedUser?.isAdmin">
-         <div class="divider-text col-span-4 my-4">◎</div>
-         <h3 class="col-span-4">New Time Window</h3>         
-         <form id="timeWindow" @submit.prevent="saveTimeWindow" class="col-span-4 grid grid-cols-subgrid gap-y-4">
+         <div class="divider-text col-span-1 md:col-span-4 my-4">◎</div>
+         <h3 class="col-span-1 md:col-span-4">New Time Window</h3>
+         <form id="timeWindow" @submit.prevent="saveTimeWindow" class="col-span-1 md:col-span-4 grid grid-cols-subgrid gap-y-4">
             <!-- *** Name Input *** -->
-            <section id="edit--windowName" class="col-span-2">
+            <section id="edit--windowName" class="col-span-1 md:col-span-2">
                <label for="windowName" class="">Window Name</label>
                <input
                   v-model="formData.name"
@@ -36,26 +37,26 @@
                />
             </section>
 
-            <!-- *** Date and Time Inputs *** -->
-            <section id="edit--dateAndTime" class="col-span-2 grid grid-cols-subgrid">
+            <!-- *** Date and Time Inputs (always 2 cols: Start | End) *** -->
+            <section id="edit--dateAndTime" class="col-span-1 md:col-span-2 grid grid-cols-2 gap-4">
                <div class="col-span-2">
                   <p v-if="dateError" class="text-red-600 text-sm mt-2 font-medium">{{ dateError }}</p>
                </div>
 
                <div>
-                  <label for="startDateTime" class="">Start Date & Time</label>
+                  <label for="startDateTime" class="">Start Date&Time</label>
                   <input
                      v-model="formData.startDateTime"
                      type="datetime-local"
                      id="startDateTime"
                      :min="minStartDateTime"
                      required
-                     class=""
+                     class="w-full"
                   />
                </div>
 
-               <div class="w-full">
-                  <label for="endDateTime" class="">End Date & Time</label>
+               <div>
+                  <label for="endDateTime" class="">End Date&Time</label>
                   <input
                      v-model="formData.endDateTime"
                      type="datetime-local"
@@ -63,18 +64,18 @@
                      :min="minEndDateTime"
                      :max="maxEndDateTime"
                      required
-                     class=""
+                     class="w-full"
                   />
                </div>
             </section>
 
-            <section id="edit--selectTeams" class="col-span-4 grid grid-cols-subgrid">
-               <label class="col-span-4">Select Matches</label>
-               
-               <div 
-                  v-for="(match, matchIndex) in formData.matches" 
+            <section id="edit--selectTeams" class="col-span-1 md:col-span-4 grid grid-cols-subgrid">
+               <label class="col-span-1 md:col-span-4">Select Matches</label>
+
+               <div
+                  v-for="(match, matchIndex) in formData.matches"
                   :key="matchIndex"
-                  class="col-span-3 flex items-center gap-3"
+                  class="col-span-1 md:col-span-3 flex items-center gap-3"
                >
                   <select v-model="match.teamA" class="w-[40%] my-2">
                      <option value="">Select team A</option>
@@ -109,29 +110,29 @@
                   v-if="formData.matches.length < 4"
                   @click="addMatch"
                   type="button"
-                  class="btn btn--secondary btn--icon-left my-2 withIcon--plus-rounded-duo"
+                  class="col-span-1 md:col-span-4 btn btn--secondary btn--icon-left my-2 withIcon--plus-rounded-duo"
                >Add Another Match</button>
             </section>
 
             <!-- *** Submit Button *** -->
             <button
                type="submit"
-               class="btn btn--primary col-span-4 mt-2 btn--icon-left withIcon--plus-rounded-duo"
+               class="col-span-1 md:col-span-4 btn btn--primary mt-2 btn--icon-left withIcon--plus-rounded-duo"
             >{{ editingIndex !== null ? 'Update Time Window' : 'Add New Time Window' }}</button>
-            
+
             <button
                v-if="editingIndex !== null"
                @click="cancelEdit"
                type="button"
-               class="btn btn--danger"
+               class="col-span-1 md:col-span-4 btn btn--danger"
             >Cancel</button>
          </form>
-         
-         <div class="divider-text col-span-4 my-8">◎</div>
+
+         <div class="divider-text col-span-1 md:col-span-4 my-8">◎</div>
 
          <!-- *** Display Time Windows *** -->
-         <div v-if="timeWindows.length > 0" class="col-span-4 grid grid-cols-subgrid gap-y-4">
-            <h3 class="col-span-4 mb-2">Existing Time Windows</h3>
+         <div v-if="timeWindows.length > 0" class="col-span-1 md:col-span-4 grid grid-cols-subgrid gap-y-4">
+            <h3 class="col-span-1 md:col-span-4 mb-2">Existing Time Windows</h3>
             
             <div
                v-for="(window, index) in timeWindows"
