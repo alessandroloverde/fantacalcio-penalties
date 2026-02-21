@@ -22,41 +22,41 @@
 
          <template v-if="loggedUser?.isAdmin">
          <div class="divider-text col-span-1 md:col-span-4 my-4">◎</div>
-         <h3 class="col-span-1 md:col-span-4">New Time Window</h3>
+         <h3 class="col-span-1 md:col-span-4 mb-4">New Time Window</h3>
          <form id="timeWindow" @submit.prevent="saveTimeWindow" class="col-span-1 md:col-span-4 grid grid-cols-subgrid gap-y-4">
             <!-- *** Name Input *** -->
             <section id="edit--windowName" class="col-span-1 md:col-span-2">
-               <label for="windowName" class="">Window Name</label>
+               <label for="windowName" class="withIcon--bookmark withIcon--color-blush ml-1">Window Name</label>
                <input
                   v-model="formData.name"
                   type="text"
                   id="windowName"
                   placeholder="e.g., Week 1, Championship Round"
                   required
-                  class="w-full"
+                  class="w-full my-1"
                />
             </section>
 
             <!-- *** Date and Time Inputs (always 2 cols: Start | End) *** -->
-            <section id="edit--dateAndTime" class="col-span-1 md:col-span-2 grid grid-cols-2 gap-4">
+            <section id="edit--dateAndTime" class="col-span-1 md:col-span-2 grid grid-cols-2 gap-x-4">
                <div class="col-span-2">
                   <p v-if="dateError" class="text-red-600 text-sm mt-2 font-medium">{{ dateError }}</p>
                </div>
 
                <div>
-                  <label for="startDateTime" class="">Start Date&Time</label>
+                  <label for="startDateTime" class="withIcon--calendar withIcon--color-blush ml-1">Start Date</label>
                   <input
                      v-model="formData.startDateTime"
                      type="datetime-local"
                      id="startDateTime"
                      :min="minStartDateTime"
                      required
-                     class="w-full"
+                     class="w-full my-1"
                   />
                </div>
 
                <div>
-                  <label for="endDateTime" class="">End Date&Time</label>
+                  <label for="endDateTime" class="withIcon--calendar withIcon--color-blush ml-1">End Date</label>
                   <input
                      v-model="formData.endDateTime"
                      type="datetime-local"
@@ -64,20 +64,20 @@
                      :min="minEndDateTime"
                      :max="maxEndDateTime"
                      required
-                     class="w-full"
+                     class="w-full my-1"
                   />
                </div>
             </section>
 
             <section id="edit--selectTeams" class="col-span-1 md:col-span-4 grid grid-cols-subgrid">
-               <label class="col-span-1 md:col-span-4">Select Matches</label>
+               <label class="col-span-1 md:col-span-4 withIcon--shirt-duo withIcon--color-blush ml-1">Select Matches</label>
 
                <div
                   v-for="(match, matchIndex) in formData.matches"
                   :key="matchIndex"
                   class="col-span-1 md:col-span-3 flex items-center gap-3"
                >
-                  <select v-model="match.teamA" class="w-[40%] my-2">
+                  <select v-model="match.teamA" class="w-[40%] my-1">
                      <option value="">Select team A</option>
                      <option 
                         v-for="team in teamStore.teamsWithPlayers" 
@@ -86,7 +86,7 @@
                         :disabled="formData.matches.some(match => match.teamA === team.teamId || match.teamB === team.teamId)"
                      >{{ team.teamData.name }}</option>
                   </select>
-                  <select v-model="match.teamB" class="w-[40%] my-2">
+                  <select v-model="match.teamB" class="w-[40%] my-1">
                      <option value="">Select team B</option>
                      <option 
                         v-for="team in teamStore.teamsWithPlayers" 
@@ -110,14 +110,16 @@
                   v-if="formData.matches.length < 4"
                   @click="addMatch"
                   type="button"
-                  class="col-span-1 md:col-span-4 btn btn--secondary btn--icon-left my-2 withIcon--plus-rounded-duo"
+                  class="col-span-1 md:col-span-4 btn btn--secondary btn--icon-left mt-6 withIcon--plus-rounded-duo"
                >Add Another Match</button>
             </section>
+
+            <div class="divider-or col-span-1 md:col-span-4">or</div>
 
             <!-- *** Submit Button *** -->
             <button
                type="submit"
-               class="col-span-1 md:col-span-4 btn btn--primary mt-2 btn--icon-left withIcon--plus-rounded-duo"
+               class="col-span-1 md:col-span-4 btn btn--primary btn--icon-left withIcon--plus-rounded-duo"
             >{{ editingIndex !== null ? 'Update Time Window' : 'Add New Time Window' }}</button>
 
             <button
@@ -137,7 +139,7 @@
             <div
                v-for="(window, index) in timeWindows"
                :key="index"
-               class="col-span-2 pill--white flex flex-col"
+               class="col-span-1 md:col-span-2 pill--white flex flex-col"
             >
                <div class="flex-1">
                   <h4 class="mb-2">{{ window.name }}</h4>
@@ -151,7 +153,7 @@
                         {{ formatDateTime(window.endDateTime) }}
                      </p>
                      <div class="mt-2 col-span-2">
-                        <span>Matches:</span>
+                        <h5>Matches:</h5>
                         <ul class="ml-4 mt-1 grid grid-cols-2 gap-2">
                            <li v-for="(match, matchIdx) in window.matches" :key="matchIdx">
                               {{ getTeamName(match.teamA) }} vs {{ getTeamName(match.teamB) }}
@@ -164,12 +166,12 @@
                <div class="controls flex gap-2 mt-auto pt-4">
                   <button
                      @click="editTimeWindow(index)"
-                     class="btn btn--secondary withIcon--edit-duo btn--icon-left"
-                  >Edit</button>
+                     class="btn btn--secondary withIcon--edit-duo btn--icon-left  w-full"
+                  ><span class="hidden sm:inline">Edit</span></button>
                   <button
                      @click="deleteTimeWindow(index)"
-                     class="btn btn--danger withIcon--delete-duo btn--icon-left"
-                  >Delete</button>
+                     class="btn btn--danger withIcon--delete-duo btn--icon-left w-full"
+                  ><span class="hidden sm:inline">Delete</span></button>
                </div>
             </div>
          </div>
@@ -608,6 +610,11 @@
    @use '@/assets/scss/main' as *;
 
    form { color: $eerieBlack }
+
+   label {
+      @include typography('label');
+      color: $navyBlue;
+   }
 
    .matchDay {
       width: 100%;

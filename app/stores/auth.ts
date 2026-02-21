@@ -40,6 +40,7 @@ export const useAuthStore = defineStore('auth', () => {
             loading.value = false
             return
          }
+         
          const db = getFirestore($firebaseApp)
          const participantRef = doc(db, "participants", currentUser.uid)
          const participantSnap = await getDoc(participantRef)

@@ -62,7 +62,7 @@ $typography: (
     'color': $color-primary
   ),
   'h3': (
-    'size': $font-size-2xl,
+    'size': clamp($font-size-med, 1.5vw + 12px, $font-size-2xl),
     'weight': $font-weight-bold,
     'line-height': $line-height-snug,
     'color': $color-primary

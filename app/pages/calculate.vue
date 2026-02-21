@@ -4,13 +4,14 @@
       <div class="layout-Wrapper--boxed">
          <h1 class="withIcon--calculate-duo withIcon--color-blush mb-8">Calcola Rigori</h1>
 
-         <section class="card grid grid-cols-2 gap-x-20 gap-y-4 px-8 py-6">
-                        <div class="divider-text col-span-2 my-2">{{ currentTimeWindow?.name}}</div>
+         <section class="card grid grid-cols-1 md:grid-cols-2 gap-x-6 md:gap-x-20 gap-y-4 px-8 py-6">
+            <div class="divider-text col-span-1 md:col-span-2 my-2">{{ currentTimeWindow?.name}}</div>
 
-            <header class="match col-span-2">
-               <h2 class="match--title col-span-2 withIcon--shirt-duo withIcon--color-blush">
-                  {{ teamAData?.teamData.name }} – {{ teamBData?.teamData.name }} 
-               </h2>
+            <header class="match col-span-1 md:col-span-2">
+               <div class="flex flex-col">
+                  <h2 class="match--title col-span-1 md:col-span-2 before:hidden! md:before:inline-block! withIcon--shirt-duo withIcon--color-blush">{{ teamAData?.teamData.name }}</h2>
+                  <h2 class="match--title col-span-1 md:col-span-2 withIcon--shirt-duo withIcon--color-blush">{{ teamBData?.teamData.name }}</h2>
+               </div>
                <div class="penaltiesTrack mx-auto">
                   <div class="penaltiesTrack--teamA mx-auto">
                      <div 
@@ -40,7 +41,7 @@
                </div>
                <h2 class="match--result">{{ teamAScore }} <span class="match--result--separator">–</span> {{ teamBScore }}</h2>
             </header>
-            <div class="divider-text col-span-2 my-2">◎</div>
+            <div class="divider-text col-span-1 md:col-span-2 my-2">◎</div>
             <PlayersScoreTable
                :teamName="teamAData?.teamData.name || ''"
                :goalkeeper="teamAGoalkeeper.goalkeeper"
@@ -584,8 +585,9 @@
       flex-direction: column;
       background-color: rgb(71, 70, 70);
       border-radius: 12px;
-      padding: 1em 2em;
       border: 2px solid $cream;
+
+      @apply w-full md:w-auto px-2 py-2 md:px-8 md:py-6 order-3 md:order-none;
 
       &--penalty {
          width: 1rem;

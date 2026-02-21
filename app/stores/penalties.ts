@@ -13,7 +13,6 @@ export const usePenaltiesStore = defineStore('penalties', () => {
          loading.value = true
          error.value = null
          
-         // Use REST API instead of SDK (no WebSocket overhead)
          const penaltiesResult = await getCollectionRest("penalties")
 
          penalties.value = Object.fromEntries(

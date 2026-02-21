@@ -24,3 +24,9 @@
     color: white;
   }
 }
+
+.divider-or {
+  @apply w-full py-1 flex self-stretch items-center text-xs text-gray-400 uppercase
+    before:flex-1 before:border-t before:border-gray-300 before:me-6
+    after:flex-1 after:border-t after:border-gray-300 after:ms-6
+}
