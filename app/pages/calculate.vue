@@ -4,15 +4,32 @@
       <div class="layout-Wrapper--boxed">
          <h1 class="withIcon--calculate-duo withIcon--color-blush mb-8">Calcola Rigori</h1>
 
-         <section class="card grid grid-cols-1 md:grid-cols-2 gap-x-6 md:gap-x-20 gap-y-4 px-8 py-6">
+         <section class="card theCalculateGrid">
             <div class="divider-text col-span-1 md:col-span-2 my-2">{{ currentTimeWindow?.name}}</div>
 
             <header class="match col-span-1 md:col-span-2">
                <div class="flex flex-col">
-                  <h2 class="match--title col-span-1 md:col-span-2 before:hidden! md:before:inline-block! withIcon--shirt-duo withIcon--color-blush">{{ teamAData?.teamData.name }}</h2>
-                  <h2 class="match--title col-span-1 md:col-span-2 withIcon--shirt-duo withIcon--color-blush">{{ teamBData?.teamData.name }}</h2>
+                  <h2 class="
+                              match--title 
+                              col-span-1 
+                              md:col-span-2 
+                              withIcon--shirt-duo 
+                              withIcon--color-blush 
+                              withIcon--hide-mobile">
+                     {{ teamAData?.teamData.name }}
+                  </h2>
+                  <h2 class="
+                              match--title 
+                              col-span-1 
+                              md:col-span-2 
+                              withIcon--shirt-duo 
+                              withIcon--color-blush 
+                              withIcon--hide-mobile">
+                     {{ teamBData?.teamData.name }}
+                  </h2>
                </div>
-               <div class="penaltiesTrack mx-auto">
+
+               <div class="penaltiesTrack mt-4 md:m-auto">
                   <div class="penaltiesTrack--teamA mx-auto">
                      <div 
                         v-for="(result, index) in teamAPenaltyTrack" 
@@ -405,9 +422,12 @@
       // Case 2: after a round (same number taken, ≥5), BOTH teams have no valid shooter for the next kick
       const takenA = teamAPenaltiesTakenCount.value
       const takenB = teamBPenaltiesTakenCount.value
+
       if (takenA < 5 || takenB < 5) return false
       if (takenA !== takenB) return false
+
       const nextIndex = takenA
+      
       return !teamAHasValidTakerAt(nextIndex) && !teamBHasValidTakerAt(nextIndex)
    })
    const pointsRuleResultText = computed(() => {

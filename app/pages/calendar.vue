@@ -14,8 +14,6 @@
             gap-x-8 
             gap-y-4 
             mb-8 
-            px-8 
-            py-6
          ">
          <h2 class="withIcon--ball-duo withIcon--color-blush col-span-1 md:col-span-4 mb-4">{{ session.name }}</h2>
          <div class="col-span-1 md:col-span-2 mb-2 pill--beige dateWindow">
@@ -39,11 +37,12 @@
                      justify-between 
                      gap-4"
             >
-            <h4 class="w-full sm:w-3/4">{{ teamsMap[match.teamA] }} – {{ teamsMap[match.teamB] }}</h4>               <button 
-                  class="btn btn--primary withIcon--calculate-duo btn--icon-left w-full sm:w-auto"
-                  @click="goToCalculate(match.teamA, match.teamB, session.name)"
-                  :disabled="!session.playersScores"
-               >calcola</button>
+            <h4 class="w-full sm:w-3/4">{{ teamsMap[match.teamA] }} – {{ teamsMap[match.teamB] }}</h4>
+            <button 
+               class="btn btn--primary withIcon--calculate-duo btn--icon-left w-full sm:w-auto"
+               @click="goToCalculate(match.teamA, match.teamB, session.name)"
+               :disabled="!session.playersScores">calcola
+            </button>
             </div>
          </div>
       </section>

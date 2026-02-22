@@ -80,6 +80,9 @@ p {
   background-color: #fff7ed;
   border-radius: 16px;
   border: 1px solid #d3d2cb;
+
+  @apply px-4 md:px-8
+         py-6
 }
 
 .P { background-color: color.change($navyBlue, $alpha: 0.6) }

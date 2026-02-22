@@ -72,4 +72,13 @@ $icons: (
   &--color-cream { --icon-color: #{$cream}; }
   &--color-olive { --icon-color: #{$darkOlive}; }
   &--color-navy { --icon-color: #{$navyBlue}; }
+
+  // Hide icon on mobile, show from sm
+  &--hide-mobile {
+    &::before { display: none }
+    
+    @include respond-to(sm) {
+      &::before { display: inline-block }
+    }
+  }
 }

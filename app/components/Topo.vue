@@ -6,8 +6,8 @@
       <h2 v-if="loading">Loading...</h2>
       <div class="text-divider"></div>
       <div class="grid md:grid-cols-4 gap-4">
-         <section v-for="item, index in teams" :key="index" class="card mb-2 p-4">
-            <header>
+         <section v-for="item, index in teams" :key="index" class="card mb-2">
+            <header class="-mx-4 -my-6 mb-4">
                <nuxtLink :to="`/teams/${item.teamId}`">{{ item.teamData.name }}</nuxtLink>
             </header>
             <ol class="penaltyTakersList">
@@ -45,8 +45,6 @@
       background-color: $darkOlive;
       border-top-left-radius: 15px;
       border-top-right-radius: 15px;
-      margin: -1em;
-      margin-bottom: 1em;
       padding: 0.75em;
       text-align: center;
       transition: background-color 500ms;

@@ -5,35 +5,35 @@
       <div class="legend pill--beige mb-2">
          <div class="w-2/20">Ruolo</div>
          <div class="w-6/20">Nome</div>
-         <div class="hidden md:w-2/20">Sq.</div>
-         <div class="hidden md:w-1/20"></div>
-         <div class="hidden md:w-1/20">Voto</div>
-         <div class="hidden md:w-3/20">🥅</div>
-         <div class="hidden md:w-2/20"></div>
-         <div class="hidden md:w-3/20"></div>
+         <div class="w-2/20">Sq.</div>
+         <div class="w-1/20"></div>
+         <div class="w-1/20">Voto</div>
+         <div class="w-3/20">🥅</div>
+         <div class="w-2/20"></div>
+         <div class="w-3/20"></div>
       </div>
       <div class="penaltyTaker mb-6">
          <div class="w-2/20 penaltyTaker--role P">{{ goalkeeper?.role }}</div>
          <div class="w-6/20 penaltyTaker--name">{{ goalkeeper?.name }}</div>
-         <div class="hidden md:w-2/20 penaltyTaker--squadra">{{ goalkeeper?.squadra }}</div>
-         <div class="hidden md:w-1/20"></div>
-         <div class="hidden md:w-1/20">{{ goalkeeperScore?.playerScore }}</div>
-         <div class="hidden md:w-3/20" :class="{'penaltyTaker--score': (goalkeeperScore?.penaltiesSaved ?? 0) > 0}">{{ goalkeeperScore?.penaltiesSaved }}</div>
-         <div class="hidden md:w-2/20"></div>
-         <div class="hidden md:w-3/20"></div>
+         <div class="w-2/20 penaltyTaker--squadra">{{ goalkeeper?.squadra }}</div>
+         <div class="w-1/20"></div>
+         <div class="w-1/20">{{ goalkeeperScore?.playerScore }}</div>
+         <div class="w-3/20" :class="{'penaltyTaker--score': (goalkeeperScore?.penaltiesSaved ?? 0) > 0}">{{ goalkeeperScore?.penaltiesSaved }}</div>
+         <div class="w-2/20"></div>
+         <div class="w-3/20"></div>
       </div>
       <h4 class="mb-1 mx-4">Rigoristi</h4>
       <ul>
          <div class="legend pill--beige mb-2">
             <div class="w-2/20">Ruolo</div>
             <div class="w-6/20">Nome</div>
-            <div class="hidden md:w-2/20">Sq.</div>
-            <div class="hidden md:w-1/20"></div>
-            <div class="hidden md:w-1/20">Voto</div>
-            <div class="hidden md:w-3/20">⚽️ ❌</div>
-            <div class="hidden md:w-1/20">⚽️</div>
-            <div class="hidden md:w-1/20"></div>
-            <div class="hidden md:w-3/20"></div>
+            <div class="w-2/20">👕</div>
+            <div class="w-1/20"></div>
+            <div class="w-1/20">⛳️</div>
+            <div class="w-3/20">⚽️ ❌</div>
+            <div class="w-1/20">⚽️</div>
+            <div class="w-1/20"></div>
+            <div class="w-3/20"></div>
          </div>
          <template 
             v-for="(player, index) in penaltyTakersWithScores.filter(player => player.score)" 
@@ -44,12 +44,12 @@
             >
                <div class="w-2/20 penaltyTaker--role" :class="player.role">{{ player.role }}</div>
                <div class="w-6/20 penaltyTaker--name">{{ player.name }}</div>
-               <div class="hidden md:w-2/20 penaltyTaker--squadra">{{ player.squadra }}</div>
-               <div class="hidden md:w-1/20"></div>
-               <div class="hidden md:w-1/20">{{ player.score?.playerScore }}</div>
-               <div class="hidden md:w-3/20" :class="{'penaltyTaker--score': (player.score?.penaltiesFailed ?? 0) > 0}">{{ player.score?.penaltiesFailed }}</div>
-               <div class="hidden md:w-1/20" :class="{'penaltyTaker--score': getTotalGoals(player.score) > 0}">{{ getTotalGoals(player.score) }}</div>
-               <div class="hidden md:w-1/20"></div>
+               <div class="w-2/20 penaltyTaker--squadra">{{ player.squadra }}</div>
+               <div class="w-1/20"></div>
+               <div class="w-1/20">{{ player.score?.playerScore }}</div>
+               <div class="w-3/20" :class="{'penaltyTaker--score': (player.score?.penaltiesFailed ?? 0) > 0}">{{ player.score?.penaltiesFailed }}</div>
+               <div class="w-1/20" :class="{'penaltyTaker--score': getTotalGoals(player.score) > 0}">{{ getTotalGoals(player.score) }}</div>
+               <div class="w-1/20"></div>
                <button 
                   class="w-3/20 btn"
                   :disabled="isButtonDisabled(player) || shouldDisableAfterFifth(index) || !topoDisabled(index)"
@@ -252,6 +252,7 @@ import PenaltyModal from './PenaltyModal.vue';
          text-align: center;
          /* outline: 1px solid color.change(salmon, $alpha: 0.5); */
 
+         &:nth-of-type(1),
          &:nth-of-type(2),
          &:nth-of-type(3) { text-align: left }
       }
