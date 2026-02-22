@@ -126,7 +126,7 @@
       }
       &--menuBtn {
          font-size: 40px;
-         padding: 0.5rem;
+         padding: 0 0.5rem;
          background: transparent;
          border: none;
          cursor: pointer;

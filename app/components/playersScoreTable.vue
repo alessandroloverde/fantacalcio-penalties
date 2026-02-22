@@ -3,37 +3,37 @@
       <h3 class="col-span-2 mb-6">{{props.teamName}}</h3>
       <h4 class="mb-1b mx-4">Portiere</h4>
       <div class="legend pill--beige mb-2">
-         <div class="w-2/20">Ruolo</div>
+         <div class="w-3/20 md:w-2/20">R</div>
          <div class="w-6/20">Nome</div>
-         <div class="w-2/20">Sq.</div>
+         <div class="w-1/20 md:w-2/20">Sq.</div>
          <div class="w-1/20"></div>
-         <div class="w-1/20">Voto</div>
-         <div class="w-3/20">🥅</div>
-         <div class="w-2/20"></div>
-         <div class="w-3/20"></div>
+         <div class="w-1/20">⛳️</div>
+         <div class="w-2/20 md:w-3/20">🥅</div>
+         <div class="w-1/20 md:w-2/20"></div>
+         <div class="w-5/20 md:w-3/20"></div>
       </div>
       <div class="penaltyTaker mb-6">
-         <div class="w-2/20 penaltyTaker--role P">{{ goalkeeper?.role }}</div>
+         <div class="w-3/20 md:w-2/20 penaltyTaker--role P">{{ goalkeeper?.role }}</div>
          <div class="w-6/20 penaltyTaker--name">{{ goalkeeper?.name }}</div>
-         <div class="w-2/20 penaltyTaker--squadra">{{ goalkeeper?.squadra }}</div>
+         <div class="w-1/20 md:w-2/20 penaltyTaker--squadra">{{ goalkeeper?.squadra }}</div>
          <div class="w-1/20"></div>
          <div class="w-1/20">{{ goalkeeperScore?.playerScore }}</div>
-         <div class="w-3/20" :class="{'penaltyTaker--score': (goalkeeperScore?.penaltiesSaved ?? 0) > 0}">{{ goalkeeperScore?.penaltiesSaved }}</div>
-         <div class="w-2/20"></div>
-         <div class="w-3/20"></div>
+         <div class="w-2/20 md:w-3/20" :class="{'penaltyTaker--score': (goalkeeperScore?.penaltiesSaved ?? 0) > 0}">{{ goalkeeperScore?.penaltiesSaved }}</div>
+         <div class="w-1/20 md:w-2/20"></div>
+         <div class="w-5/20 md:w-3/20"></div>
       </div>
       <h4 class="mb-1 mx-4">Rigoristi</h4>
       <ul>
          <div class="legend pill--beige mb-2">
-            <div class="w-2/20">Ruolo</div>
+            <div class="w-3/20 md:w-2/20">R</div>
             <div class="w-6/20">Nome</div>
-            <div class="w-2/20">👕</div>
+            <div class="w-1/20 md:w-2/20">👕</div>
             <div class="w-1/20"></div>
             <div class="w-1/20">⛳️</div>
-            <div class="w-3/20">⚽️ ❌</div>
+            <div class="w-2/20 md:w-3/20">❌</div>
             <div class="w-1/20">⚽️</div>
             <div class="w-1/20"></div>
-            <div class="w-3/20"></div>
+            <div class="w-4/20 md:w-3/20"></div>
          </div>
          <template 
             v-for="(player, index) in penaltyTakersWithScores.filter(player => player.score)" 
@@ -42,24 +42,25 @@
                class="penaltyTaker"
                :class="{'disabled' : shouldDisableAfterFifth(index)}"
             >
-               <div class="w-2/20 penaltyTaker--role" :class="player.role">{{ player.role }}</div>
+               <div class="w-3/20 md:w-2/20 penaltyTaker--role" :class="player.role">{{ player.role }}</div>
                <div class="w-6/20 penaltyTaker--name">{{ player.name }}</div>
-               <div class="w-2/20 penaltyTaker--squadra">{{ player.squadra }}</div>
+               <div class="w-1/20 md:w-2/20 penaltyTaker--squadra">{{ player.squadra }}</div>
                <div class="w-1/20"></div>
                <div class="w-1/20">{{ player.score?.playerScore }}</div>
-               <div class="w-3/20" :class="{'penaltyTaker--score': (player.score?.penaltiesFailed ?? 0) > 0}">{{ player.score?.penaltiesFailed }}</div>
+               <div class="w-2/20 md:w-3/20" :class="{'penaltyTaker--score': (player.score?.penaltiesFailed ?? 0) > 0}">{{ player.score?.penaltiesFailed }}</div>
                <div class="w-1/20" :class="{'penaltyTaker--score': getTotalGoals(player.score) > 0}">{{ getTotalGoals(player.score) }}</div>
                <div class="w-1/20"></div>
                <button 
-                  class="w-3/20 btn"
+                  class="w-4/20 md:w-3/20 btn"
                   :disabled="isButtonDisabled(player) || shouldDisableAfterFifth(index) || !topoDisabled(index)"
                   :class="{
                      'btn--secondary': !getPenaltyResult(player.playerID),
                      'btn--success': getPenaltyResult(player.playerID) === 'scored',
-                     'btn--danger': getPenaltyResult(player.playerID) === 'saved'
+                     'btn--danger': getPenaltyResult(player.playerID) === 'saved',
                   }"
                   @click="handleClick(player)"
-               >{{ getButtonText(player) }}</button>
+               >{{ getButtonText(player) }}
+            </button>
             </li>
             <div v-if="index === 4 && !secondBatchUnlocked" class="divider-text">•</div>
          </template>
@@ -68,16 +69,16 @@
             :key="player.playerID" 
             class="penaltyTaker disabled"
          >
-            <div class="w-2/20 penaltyTaker--role" :class="player.role">{{ player.role }}</div>
+            <div class="w-3/20 md:w-2/20 penaltyTaker--role" :class="player.role">{{ player.role }}</div>
             <div class="w-6/20 penaltyTaker--name">{{ player.name }}</div>
-            <div class="w-2/20 penaltyTaker--squadra">{{ player.squadra }}</div>
+            <div class="w-1/20 md:w-2/20 penaltyTaker--squadra">{{ player.squadra }}</div>
             <div class="w-1/20"></div>
             <div class="w-1/20">{{ player.score?.playerScore }}</div>
-            <div class="w-3/20" :class="{'penaltyTaker--score': (player.score?.penaltiesFailed ?? 0) > 0}">{{ player.score?.penaltiesFailed }}</div>
+            <div class="w-2/20 md:w-3/20" :class="{'penaltyTaker--score': (player.score?.penaltiesFailed ?? 0) > 0}">{{ player.score?.penaltiesFailed }}</div>
             <div class="w-1/20" :class="{'penaltyTaker--score': getTotalGoals(player.score) > 0}">{{ getTotalGoals(player.score) }}</div>
             <div class="w-1/20"></div>
             <button 
-               class="w-3/20 btn"
+               class="w-4/20 md:w-3/20 btn"
                :disabled="isButtonDisabled(player)"
                :class="{
                   'btn--secondary': !getPenaltyResult(player.playerID),
@@ -208,7 +209,6 @@ import PenaltyModal from './PenaltyModal.vue';
          flex-shrink: 0;
          align-items: center;
          justify-content: center;
-         margin-right: auto;
       }
       &--score {
          font-weight: 700;
@@ -255,6 +255,15 @@ import PenaltyModal from './PenaltyModal.vue';
          &:nth-of-type(1),
          &:nth-of-type(2),
          &:nth-of-type(3) { text-align: left }
+      }
+   }
+
+   .penaltyTaker--name {
+      @media (max-width: 767px) {
+         min-width: 0;
+         overflow: hidden;
+         text-overflow: ellipsis;
+         white-space: nowrap;
       }
    }
    </style>

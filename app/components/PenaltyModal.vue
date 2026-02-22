@@ -70,57 +70,95 @@ const close = () => {
 .penalty-modal {
    background: $cream;
    border-radius: $radius-lg;
-   padding: 3rem;
+   padding: 1.5rem;
    max-width: 600px;
    width: 90%;
+   max-height: 90vh;
+   overflow-y: auto;
    animation: slideUp 0.4s ease;
+
+   @media (min-width: 768px) {
+      padding: 3rem;
+   }
 }
 
 .penalty-animation {
    display: flex;
+   flex-direction: column;
    align-items: center;
-   justify-content: space-around;
-   gap: 2rem;
+   justify-content: center;
+   gap: 1rem;
+
+   @media (min-width: 768px) {
+      flex-direction: row;
+      justify-content: space-around;
+      gap: 2rem;
+   }
 }
 
 .player-section,
 .goalkeeper-section {
    text-align: center;
    flex: 1;
+   min-width: 0;
 }
 
 .player-name,
 .goalkeeper-name {
-   font-size: 1.5rem;
+   font-size: 1.25rem;
    font-weight: $font-weight-bold;
    margin-bottom: 0.5rem;
+   word-break: break-word;
+
+   @media (min-width: 768px) {
+      font-size: 1.5rem;
+   }
 }
 
 .player-score,
 .goalkeeper-score {
-   font-size: 1.2rem;
+   font-size: 1rem;
    color: $eerieBlack;
    margin-bottom: 0.5rem;
+
+   @media (min-width: 768px) {
+      font-size: 1.2rem;
+   }
 }
 
 .goalkeeper-saves {
-   font-size: 1rem;
+   font-size: 0.9rem;
    color: $navyBlue;
+
+   @media (min-width: 768px) {
+      font-size: 1rem;
+   }
 }
 
 .vs-divider {
-   font-size: 2rem;
+   font-size: 1.5rem;
    font-weight: $font-weight-bold;
    color: $blush;
+   flex-shrink: 0;
+
+   @media (min-width: 768px) {
+      font-size: 2rem;
+   }
 }
 
 .result-badge {
-   margin-top: 1rem;
-   padding: 0.5rem 1rem;
+   margin-top: 0.75rem;
+   padding: 0.5rem 0.75rem;
    border-radius: $radius-md;
-   font-size: 1.5rem;
+   font-size: 1.25rem;
    font-weight: $font-weight-bold;
    animation: pulse 0.5s ease;
+
+   @media (min-width: 768px) {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      font-size: 1.5rem;
+   }
 }
 
 .result-scored {
