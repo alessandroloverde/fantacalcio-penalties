@@ -7,7 +7,7 @@
       <div class="text-divider"></div>
       <div class="grid md:grid-cols-4 gap-4">
          <section v-for="item, index in teams" :key="index" class="card mb-2">
-            <header class="-mx-4 -my-6 mb-4">
+            <header class="-mx-4 md:-mx-8 -my-6 mb-4">
                <nuxtLink :to="`/teams/${item.teamId}`">{{ item.teamData.name }}</nuxtLink>
             </header>
             <ol class="penaltyTakersList">
