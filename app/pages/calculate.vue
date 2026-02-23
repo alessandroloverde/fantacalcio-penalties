@@ -262,6 +262,14 @@
       return (score.goalsScored ?? 0) + (score.penaltiesScored ?? 0)
    }
 
+   // Effective goals for penalty: total goals minus rigori sbagliati (each cancels one goal)
+   const getEffectiveGoalsForPenalty = (score: any) => {
+      if (!score) return 0
+      const total = getTotalGoals(score)
+      const failed = score.penaltiesFailed ?? 0
+      return Math.max(0, total - failed)
+   }
+
    // Clamp goalkeeper score between 5 and 7 (without rounding)
    const clampGoalkeeperScore = (score: number): number => {
       return Math.max(5, Math.min(7, score))
@@ -484,11 +492,11 @@
       
       // Get score values - use 0 as default if not present
       const playerScore = typeof player.score.playerScore === 'number' ? player.score.playerScore : 0
-      const playerGoalsScored = getTotalGoals(player.score)
+      const playerGoalsScored = getEffectiveGoalsForPenalty(player.score)
       const goalkeeperScore = typeof goalkeeperScoreData.playerScore === 'number' ? goalkeeperScoreData.playerScore : 0
       const goalkeeperSaves = typeof goalkeeperScoreData.penaltiesSaved === 'number' ? goalkeeperScoreData.penaltiesSaved : 0
-      
-      // Validate that we have at least a player score or goals
+
+      // Validate that we have at least a player score or effective goals
       if (playerScore === 0 && playerGoalsScored === 0) {
          alert(`Il giocatore ${player.name} non ha voti. Assicurati che i voti siano stati caricati.`)
          return
