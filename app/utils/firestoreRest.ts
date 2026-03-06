@@ -31,7 +31,7 @@ function parseFirestoreValue(value: FirestoreValue): any {
   if (value.referenceValue !== undefined) return value.referenceValue
   if (value.mapValue) {
     const result: Record<string, any> = {}
-    for (const [key, val] of Object.entries(value.mapValue.fields)) {
+    for (const [key, val] of Object.entries(value.mapValue.fields || {})) {
       result[key] = parseFirestoreValue(val)
     }
     return result
