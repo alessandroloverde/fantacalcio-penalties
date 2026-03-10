@@ -49,7 +49,6 @@
                      v-model="formData.startDateTime"
                      type="datetime-local"
                      id="startDateTime"
-                     :min="minStartDateTime"
                      required
                      class="w-full my-1"
                   />
@@ -61,8 +60,6 @@
                      v-model="formData.endDateTime"
                      type="datetime-local"
                      id="endDateTime"
-                     :min="minEndDateTime"
-                     :max="maxEndDateTime"
                      required
                      class="w-full my-1"
                   />
@@ -253,12 +250,6 @@
    })
 
    const saveTimeWindow = async () => {
-      // Validate dates
-      if (dateError.value) {
-         alert('Please fix the date/time errors before saving.')
-         return
-      }
-
       const newWindow: TimeWindow = {
          name: formData.value.name,
          startDateTime: formData.value.startDateTime,
@@ -421,57 +412,7 @@
       return ''
    })
 
-   const minStartDateTime = computed(() => {
-      const now = new Date().toISOString().slice(0, 16)
-      
-      if (editingIndex.value !== null) {
-         // When editing, must be after the previous time window's end date
-         const currentIndex = editingIndex.value
-         const previousWindow = currentIndex > 0 ? timeWindows.value[currentIndex - 1] : null
-         
-         if (previousWindow?.endDateTime) {
-            const previousEnd = new Date(previousWindow.endDateTime).toISOString().slice(0, 16)
-            return previousEnd > now ? previousEnd : now
-         }
-         
-         return now
-      }
-      
-      // When creating new, must start after the last time window's end date
-      const lastWindowEnd = timeWindows.value?.[timeWindows.value.length - 1]?.endDateTime
-      if (lastWindowEnd) {
-         const lastEnd = new Date(lastWindowEnd).toISOString().slice(0, 16)
-         return lastEnd > now ? lastEnd : now
-      }
-      
-      return now
-   })
 
-   const maxEndDateTime = computed(() => {
-      // Only apply max constraint when editing
-      if (editingIndex.value !== null) {
-         const currentIndex = editingIndex.value
-         const nextWindow = currentIndex < timeWindows.value.length - 1 ? timeWindows.value[currentIndex + 1] : null
-         
-         if (nextWindow?.startDateTime) {
-            return new Date(nextWindow.startDateTime).toISOString().slice(0, 16)
-         }
-      }
-      
-      return undefined // No max constraint when creating new or when editing the last window
-   })
-
-   const minEndDateTime = computed(() => {
-      const now = new Date().toISOString().slice(0, 16)
-      
-      // End date must be after start date AND not in the past
-      if (formData.value.startDateTime) {
-         const startDate = new Date(formData.value.startDateTime).toISOString().slice(0, 16)
-         return startDate > now ? startDate : now
-      }
-      
-      return now
-   })
 
    const getTeamName = (teamId: string) => {
       const team = teamStore.teamsWithPlayers.find(t => t.teamId === teamId)
