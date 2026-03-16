@@ -458,10 +458,11 @@
          complete: async (results) => {
             const rows = results.data as string[][]
             
-            // Validation: Check if A1 starts with "Voti Fantacalcio"
-            const headerCell = (rows[0]?.[0] || '').trim()
-            if (!headerCell.toLowerCase().startsWith('voti fantacalcio')) {
-               alert(`File non valido: il documento deve iniziare con "Voti Fantacalcio"\nTrovato: "${headerCell}"`)
+            // Validation: Check if A1 starts with "Voti Italia"
+            const headerCell = (rows[0]?.[0] || '').trim();
+
+            if (!headerCell.toLowerCase().startsWith('voti Italia')) {
+               alert(`File non valido: il documento deve iniziare con "Voti Italia"\nTrovato: "${headerCell}"`)
                target.value = ''
                return
             }
