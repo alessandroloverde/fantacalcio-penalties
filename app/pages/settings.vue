@@ -460,11 +460,11 @@
             
             // Validation: Check if A1 starts with "Voti Fantacalcio"
             const headerCell = (rows[0]?.[0] || '').trim()
-            if (!headerCell.toLowerCase().startsWith('voti fantacalcio')) {
+/*             if (!headerCell.toLowerCase().startsWith('voti fantacalcio')) {
                alert(`File non valido: il documento deve iniziare con "Voti Fantacalcio"\nTrovato: "${headerCell}"`)
                target.value = ''
                return
-            }
+            } */
 
             // Extract matchDay from A1
             const matchDay = headerCell

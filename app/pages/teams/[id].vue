@@ -175,10 +175,10 @@
 
          const db = getFirestore($firebaseApp)
 
-         const csvTeamId = (results.data[0] as string[])[1]?.trim()
+         const csvTeamId = (results.data[0] as string[])[0]?.trim()
 
          if(csvTeamId !== teamId) {
-            alert(`Team ID mismatch: ${csvTeamId} !== ${teamId}`)
+            alert(`Team ID mismatch: ${csvTeamId} differes from ${teamId}`)
             return
          }
 
